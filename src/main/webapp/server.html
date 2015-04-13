@@ -1,0 +1,66 @@
+<div class="panel" ng-class="{'panel-primary': server.saved, 'panel-danger': !server.saved}">
+
+	<div class="panel-heading" role="tab" id="server_headind_{{ index }}">
+		<h3 class="panel-title">
+			<a data-toggle="collapse" data-parent="#server_accordion" href="#server_collapse_{{ index }}" aria-expanded="false" aria-controls="server_collapse_{{ index }}">
+				Server {{ index + 1 }} <span ng-show="server.server.host">- {{ server.server.host }}<span ng-show="server.server.port">:{{ server.server.port }}</span></span>
+			</a>
+		</h3>
+	</div>
+
+	<div id="server_collapse_{{ index }}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="server_heading_{{ index }}">
+
+		<div class="panel-body">
+			
+			<div class="form-horizontal">
+				
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Host</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" ng-model="server.server.host" ng-change="unsaved()">
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Port</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" ng-model="server.server.port" ng-change="unsaved()">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Username</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" ng-model="server.server.username" ng-change="unsaved()">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Password</label>
+					<div class="col-sm-10">
+						<input type="password" class="form-control" ng-model="server.server.password" ng-change="unsaved()">
+					</div>
+				</div>
+
+			</div>
+
+			<hr>
+
+			<div class="panel-group" id="query-accordion{{ index }}" role="tablist" aria-multiselectable="true">
+
+				<query ng-repeat="query in server.server.queries" server="server" query="query" server-index="index" query-index="$index"></query>
+
+				<query ng-show="server.blankQuery" server="server" query="server.blankQuery" server-index="index" query-index="server.server.queries.length"></query>
+
+			</div>
+
+			<button type="button" class="btn btn-lg btn-block" ng-class="{'btn-info': server.saved, 'btn-warning': !server.saved}" ng-click="addBlankQuery()">Add a new query</button>
+
+			<button type="button" class="btn btn-lg btn-block btn-success" ng-click="saveServer()" ng-hide="server.saved">Save changes</button>
+
+		</div>
+
+	</div>
+
+</div>
+

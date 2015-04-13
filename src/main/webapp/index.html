@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+		<link rel="stylesheet" href="css/jmxtrans.css">
+
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+
+		<script src="js/angular-file-upload.js"></script>
+		<script src="js/app.js"></script>
+	</head>
+
+	<body ng-app="Jmxtrans">
+
+		<div class="jumbotron">
+			<div class="container">
+				<h1>Jmxtrans GUI</h1>
+				<p>Blablabla...</p>
+		  	</div>
+		</div>
+
+		<div class="container" ng-controller="Main">
+
+			<div class="row">
+
+				<div class="col-xs-3">
+
+					<button ng-hide="blankServer" type="button" class="btn btn-primary btn-lg btn-block" ng-click="addBlankServer()">Create new server</button>
+					<button ng-show="blankServer" type="button" class="btn btn-default btn-lg btn-block" ng-click="cancelBlankServer()">Cancel</button>
+					<button ng-show="fileSupport" type="button" class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#upload"><span class="glyphicon glyphicon-upload"></span> Load JSON files</button>
+					<button ng-hide="fileSupport" type="button" class="btn btn-default btn-lg btn-block" disabled="disabled"><span class="glyphicon glyphicon-upload"></span> Load JSON file</button>
+					<button type="button" class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#settings"><span class="glyphicon glyphicon-cog"></span> Settings</button>
+
+
+					<div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settings" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title" id="myModalLabel">Settings <small>Output writer information</small></h4>
+								</div>
+								<div class="modal-body">
+
+									<div class="form-group">
+										<label class="control-label">Writer</label>
+										<select type="text" class="form-control" ng-model="writer.writer" ng-change="writerChange()">
+											<option value="com.googlecode.jmxtrans.model.output.Graphite">Graphite</option>
+											<option value="com.googlecode.jmxtrans.model.output.BluefloodWriter">Blueflood</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label class="control-label">Host</label>
+										<input type="text" class="form-control" ng-model="writer.host">
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label">Port</label>
+										<input type="text" class="form-control" ng-model="writer.port">
+									</div>
+
+									<div class="form-group">
+										<label class="control-label">Username</label>
+										<input type="text" class="form-control" ng-model="writer.username">
+									</div>
+
+									<div class="form-group">
+										<label class="control-label">Password</label>
+										<input type="password" class="form-control" ng-model="writer.password">
+									</div>
+																	
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-primary" ng-click="saveWriter()">Save changes</button>
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="modal fade" id="upload" tabindex="-1" role="dialog" aria-labelledby="upload" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title" id="myModalLabel">Upload JSON conf files</h4>
+								</div>
+								<div class="modal-body">
+
+									<h3>Select files</h3>
+
+									<div class="form-group">
+										<input type="file" nv-file-select uploader="uploader" multiple>
+									</div>
+
+							        <h3>Upload queue</h3>
+                    				<p>Queue length: {{ uploader.queue.length }}</p>
+
+                    				<table class="table">
+				                        <thead>
+				                            <tr>
+				                                <th width="50%">Name</th>
+				                                <th ng-show="uploader.isHTML5">Size</th>
+				                                <th ng-show="uploader.isHTML5">Progress</th>
+				                                <th>Status</th>
+				                        		<th>Action</th>
+				                            </tr>
+				                        </thead>
+				                        <tbody>
+				                        	<tr ng-repeat="item in uploader.queue">
+				                        		<td><strong>{{ item.file.name }}</strong></td>
+				                        		<td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+				                                <td ng-show="uploader.isHTML5">
+				                                    <div class="progress" style="margin-bottom: 0;">
+				                                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+				                                    </div>
+				                                </td>
+				                        		<td class="text-center">
+				                                    <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+				                                    <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+				                                    <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+				                                </td>
+				                        		<td nowrap>
+				                        			<button type="button" class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+				                                        <span class="glyphicon glyphicon-upload"></span> Upload
+				                                    </button>
+				                                    <button type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+				                                        <span class="glyphicon glyphicon-ban-circle"></span> Cancel
+				                                    </button>
+				                        			<button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+                                        				<span class="glyphicon glyphicon-trash"></span> Remove
+                                    				</button>
+                                    			</td>
+				                        	</tr>
+				                        </tbody>
+				                    </table>
+
+				                    <div>
+				                        <div>
+				                            Queue progress:
+				                            <div class="progress" style="">
+				                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }"></div>
+				                            </div>
+				                        </div>
+				                        <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
+				                            <span class="glyphicon glyphicon-upload"></span> Upload all
+				                        </button>
+				                        <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading">
+				                            <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
+				                        </button>
+				                        <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length">
+				                            <span class="glyphicon glyphicon-trash"></span> Remove all
+				                        </button>
+				                    </div>
+
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<br>
+
+					<div class="well">
+						<ul class="nav nav-pills nav-stacked">
+							<li ng-repeat="item in list" role="presentation">
+								<button class="btn btn-link" ng-click="display(item)" style="display: inline;">
+									{{ item }}
+								</button> 
+								<button class="btn btn-link" ng-click="duplicate(item)" style="display: inline;"> 
+									<span class="glyphicon glyphicon-copy"></span>
+								</button> 
+								<button class="btn btn-link" ng-click="delete(item)" style="display: inline;">
+									<span class="glyphicon glyphicon-trash"></span>
+								</button>
+							</li>
+						</ul>
+					</div>
+					
+				</div>
+
+				<div class="col-xs-9">
+					<div class="panel-group" id="server-accordion" role="tablist" aria-multiselectable="true">
+
+						<server ng-hide="blankServer" ng-repeat="server in servers" server="server" index="$index" writer="writer"></server>
+
+						<server ng-show="blankServer" server="blankServer" writer="writer"></server>
+
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</body>
+</html>

@@ -1,0 +1,56 @@
+<div class="panel" ng-class="{'panel-info': server.saved, 'panel-warning': !server.saved}">
+					
+	<div class="panel-heading" role="tab" id="query_heading_{{ serverIndex }}{{ queryIndex }}">
+		<h3 class="panel-title">
+			<a data-toggle="collapse" data-parent="#query_accordion{{ serverIndex }}" href="#query_collapse_{{ serverIndex }}{{ queryIndex }}" aria-expanded="false" aria-controls="query_collapse_{{ serverIndex }}{{ queryIndex }}">
+				Query {{ queryIndex + 1 }}
+			</a>
+		</h3>
+	</div>
+
+	<div id="query_collapse_{{ serverIndex }}{{ queryIndex }}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="query_heading_{{ serverIndex }}{{ queryIndex }}">
+
+		<div class="panel-body">
+			
+			<div class="form-horizontal">
+				
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Object</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" ng-model="query.obj" ng-change="unsaved()">
+					</div>
+				</div>
+
+				<hr>
+
+				<div ng-repeat="(i, attr) in query.attr track by $index" class="form-group">
+					<label class="col-sm-2 control-label">Attribute {{ $index + 1 }}</label>
+					<div class="col-sm-8">
+						<input type="text" class="form-control" ng-model="query.attr[i]" ng-change="unsaved()">
+					</div>
+					<div class="col-sm-2">
+						<button type="button" class="btn btn-danger" ng-click="removeAttr($index)"><span class="glyphicon glyphicon-remove"></span> Remove</button>
+					</div>
+				</div>
+
+				<div ng-show="server.blankAttr[queryIndex]" class="form-group">
+					<label class="col-sm-2 control-label">Attribute {{ query.attr.length + 1 }}</label>
+					<div class="col-sm-8">
+						<input type="text" class="form-control" ng-model="server.blankAttr[queryIndex].value" ng-change="unsaved()">
+					</div>
+					<div class="col-sm-2">
+						<button type="button" class="btn btn-danger" ng-click="removeBlankAttr()"><span class="glyphicon glyphicon-remove"></span> Remove</button>
+					</div>
+				</div>
+
+				<button type="button" class="btn btn-lg btn-block btn-default" ng-click="addBlankAttr()">Add an attribute</button>
+
+				<button type="button" class="btn btn-lg btn-block btn-danger" ng-click="removeQuery()">Remove query</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
