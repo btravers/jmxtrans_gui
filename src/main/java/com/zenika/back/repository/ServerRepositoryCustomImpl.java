@@ -1,9 +1,22 @@
 package com.zenika.back.repository;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+
+import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -25,6 +38,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.zenika.back.model.Document;
+import com.zenika.back.model.ObjectNameRepresentation;
 import com.zenika.back.model.Response;
 import com.zenika.back.model.WriterSettings;
 
@@ -32,7 +46,8 @@ import com.zenika.back.model.WriterSettings;
 public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	private static final String INDEX = ".jmxtrans";
-	private static final String TYPE = "conf";
+	private static final String CONF_TYPE = "conf";
+	private static final String OBJECTNAME_TYPE = "objectname";
 	private static final String SETTINGS_TYPE = "settings";
 	private static final String SETTINGS_ID = "writer";
 
@@ -45,29 +60,28 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	@Override
 	public void deleteOne(String id) {
-		this.client.prepareDelete(INDEX, TYPE, id).execute().actionGet();
+		this.client.prepareDelete(INDEX, CONF_TYPE, id).execute().actionGet();
 	}
 
 	@Override
 	public void delete(String host) {
-		this.client.prepareDeleteByQuery(INDEX).setTypes(TYPE)
+		this.client.prepareDeleteByQuery(INDEX).setTypes(CONF_TYPE)
 				.setQuery(QueryBuilders.termQuery("host", host)).execute()
 				.actionGet();
 	}
 
 	@Override
-	public String findAllHost() throws JsonProcessingException {
+	public Collection<String> findAllHost() throws JsonProcessingException {
 		String aggregatorTerm = "hosts";
 
 		SearchResponse response = this.client
 				.prepareSearch(INDEX)
-				.setTypes(TYPE)
+				.setTypes(CONF_TYPE)
 				.setQuery(QueryBuilders.matchAllQuery())
 				.addAggregation(
 						AggregationBuilders.terms(aggregatorTerm).field("host"))
 				.execute().actionGet();
 
-		ObjectMapper mapper = new ObjectMapper();
 		Terms agg = response.getAggregations().get(aggregatorTerm);
 
 		List<String> hosts = new ArrayList<String>();
@@ -75,7 +89,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 			hosts.add(b.getKey());
 		}
 
-		return mapper.writeValueAsString(hosts);
+		return hosts;
 	}
 
 	@Override
@@ -84,7 +98,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 			ExecutionException {
 		SearchResponse searchResponse = this.client
 				.prepareSearch(INDEX)
-				.setTypes(TYPE)
+				.setTypes(CONF_TYPE)
 				.setQuery(QueryBuilders.matchAllQuery())
 				.setPostFilter(
 						FilterBuilders.boolFilter().must(
@@ -155,7 +169,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 			IndexRequest indexRequest = new IndexRequest();
 			indexRequest.index(INDEX);
-			indexRequest.type(TYPE);
+			indexRequest.type(CONF_TYPE);
 			indexRequest.source(json);
 
 			this.client.index(indexRequest).get();
@@ -174,7 +188,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 		UpdateRequest updateRequest = new UpdateRequest();
 		updateRequest.index(INDEX);
-		updateRequest.type(TYPE);
+		updateRequest.type(CONF_TYPE);
 		updateRequest.id(id);
 		updateRequest.doc(json);
 
@@ -220,7 +234,83 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		updateRequest.type(SETTINGS_TYPE);
 		updateRequest.id(SETTINGS_ID);
 		updateRequest.doc(json);
-		
+
 		this.client.update(updateRequest);
+	}
+
+	@Override
+	public void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
+		client.prepareDeleteByQuery(INDEX).setTypes(OBJECTNAME_TYPE).setQuery(QueryBuilders.termQuery("host", host)).execute().actionGet();
+		
+		List<ObjectNameRepresentation> objectnames = this.objectNames(host, port);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(objectnames);
+		json = "{ \"host\": " + host + ", \"objects\": " + json + "}";
+		
+		IndexRequest indexRequest = new IndexRequest();
+		indexRequest.index(INDEX);
+		indexRequest.type(OBJECTNAME_TYPE);
+		indexRequest.source(json);
+		
+		this.client.index(indexRequest).get();
+	}
+
+	private List<ObjectNameRepresentation> objectNames(String host, int port) {
+		String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port
+				+ "/jmxrmi";
+		JMXServiceURL serviceURL = null;
+		JMXConnector jmxConnector = null;
+
+		try {
+			serviceURL = new JMXServiceURL(url);
+			jmxConnector = JMXConnectorFactory.connect(serviceURL);
+			MBeanServerConnection mbeanConn = jmxConnector
+					.getMBeanServerConnection();
+
+			List<ObjectNameRepresentation> result = new ArrayList<ObjectNameRepresentation>();
+
+			Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
+			for (ObjectName name : beanSet) {
+				ObjectNameRepresentation tmp = new ObjectNameRepresentation();
+				tmp.setName(name.toString());
+
+				List<String> attributes = new ArrayList<String>();
+				for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name)
+						.getAttributes()) {
+					attributes.add(attr.getName());
+				}
+				tmp.setAttributes(attributes);
+				result.add(tmp);
+			}
+
+			return result;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstanceNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IntrospectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ReflectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (jmxConnector != null) {
+				try {
+					jmxConnector.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return new ArrayList<ObjectNameRepresentation>();
 	}
 }

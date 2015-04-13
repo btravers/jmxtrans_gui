@@ -1,6 +1,7 @@
 package com.zenika.back.repository;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -11,7 +12,7 @@ import com.zenika.back.model.Response;
 import com.zenika.back.model.WriterSettings;
 
 public interface ServerRepositoryCustom {
-    String findAllHost() throws JsonProcessingException;
+    Collection<String> findAllHost() throws JsonProcessingException;
 
     Response getByHost(String host) throws JsonParseException, JsonMappingException, IOException, InterruptedException, ExecutionException;
 
@@ -26,4 +27,7 @@ public interface ServerRepositoryCustom {
 	WriterSettings settings() throws JsonParseException, JsonMappingException, IOException;
 
 	void updateSettings(WriterSettings settings) throws JsonProcessingException;
+
+	void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+
 }

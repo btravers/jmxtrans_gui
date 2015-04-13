@@ -1,6 +1,7 @@
 package com.zenika.back.service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -12,7 +13,7 @@ import com.zenika.back.model.WriterSettings;
 
 public interface JmxtransService {
 
-    String findHosts() throws JsonProcessingException;
+    Collection<String> findHosts() throws JsonProcessingException;
 
     Response findServersByHost(String host) throws JsonParseException, JsonMappingException, IOException, InterruptedException, ExecutionException;
 
@@ -27,5 +28,7 @@ public interface JmxtransService {
 	void updateSettings(WriterSettings settings) throws JsonProcessingException;
 
 	void deleteServer(String host);
+
+	void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
 
 }

@@ -1,6 +1,7 @@
 package com.zenika.back.service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class JmxtransServiceImpl implements JmxtransService {
 	}
 
 	@Override
-	public String findHosts() throws JsonProcessingException {
+	public Collection<String> findHosts() throws JsonProcessingException {
 		return this.serverRepositoryCustom.findAllHost();
 	}
 
@@ -63,6 +64,11 @@ public class JmxtransServiceImpl implements JmxtransService {
 	@Override
 	public void updateSettings(WriterSettings settings) throws JsonProcessingException {
 		this.serverRepositoryCustom.updateSettings(settings);
+	}
+	
+	@Override
+	public void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
+		this.serverRepositoryCustom.refresh(host, port);
 	}
 
 }
