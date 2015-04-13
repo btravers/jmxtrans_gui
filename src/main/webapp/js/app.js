@@ -12,23 +12,27 @@ app.controller('Main', function($scope, $http, FileUploader) {
 		$scope.writer = data;
 	});
 
-	if (window.File && window.FileReader && window.FileList && window.Blob) {
-		$scope.fileSupport = true;	
-	} else {
-		$scope.fileSupport = false;	
-	}
+	$scope.updateServersList = function() {
+		var req = {
+			method: 'GET',
+			url: 'service/server/all'
+		};
 
-	var req = {
-		method: 'GET',
-		url: 'service/server/all'
+		$http(req)
+			.success(function(response) {
+				$scope.list = response;
+
+				if ($scope.blankServer) {
+					$scope.display($scope.blankServer.server.host);
+				} else if ($scope.servers && $scope.servers.length > 0) {
+					$scope.display($scope.servers[0].server.host);
+				}
+			})
+			.error(console.err);
 	};
 
-	$http(req)
-		.success(function(response) {
-			$scope.list = response;
-		})
-		.error(console.err);
-
+	$scope.updateServersList();
+	
 	$scope.writerChange = function() {
 		switch($scope.writer.writer) {
 			case 'com.googlecode.jmxtrans.model.output.BluefloodWriter':
@@ -66,7 +70,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 		$http(req)
 			.success(function(response) {
 				setTimeout(function() {
-					window.location.reload();
+					$scope.updateServersList();
 				}, 500);
 			})
 			.error(console.err);
@@ -150,7 +154,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 				if ($scope.servers.length == 0) {
 					setTimeout(function() {
-						window.location.reload();
+						$scope.updateServersList();
 					}, 500);
 				}
 			})
@@ -172,9 +176,12 @@ app.directive('server', function() {
 		scope: {
 			server: '=server',
 			index: '=index',
-			writer: '=writer'
+			writer: '=writer',
+			updateServersList: '&updateServersList'
 		},
 		controller: function($scope, $http) {
+
+			$scope.update = $scope.updateServersList();
 
 			$scope.addBlankQuery = function() {
 				if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
@@ -236,7 +243,7 @@ app.directive('server', function() {
 							.success(function(response) {
 								$scope.server.saved = true;
 								setTimeout(function() {
-									window.location.reload();
+									$scope.update();
 								}, 500);
 							})
 							.error(console.error);
@@ -253,7 +260,7 @@ app.directive('server', function() {
 							.success(function(response) {
 								$scope.server = null;
 								setTimeout(function() {
-									window.location.reload();
+									$scope.update();
 								}, 500);
 							})
 							.error(console.error);

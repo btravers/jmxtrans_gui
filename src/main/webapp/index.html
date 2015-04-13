@@ -37,8 +37,7 @@
 
 					<button ng-hide="blankServer" type="button" class="btn btn-primary btn-lg btn-block" ng-click="addBlankServer()">Create new server</button>
 					<button ng-show="blankServer" type="button" class="btn btn-default btn-lg btn-block" ng-click="cancelBlankServer()">Cancel</button>
-					<button ng-show="fileSupport" type="button" class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#upload"><span class="glyphicon glyphicon-upload"></span> Load JSON files</button>
-					<button ng-hide="fileSupport" type="button" class="btn btn-default btn-lg btn-block" disabled="disabled"><span class="glyphicon glyphicon-upload"></span> Load JSON file</button>
+					<button type="button" class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#upload"><span class="glyphicon glyphicon-upload"></span> Load JSON files</button>
 					<button type="button" class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#settings"><span class="glyphicon glyphicon-cog"></span> Settings</button>
 
 
@@ -196,9 +195,9 @@
 				<div class="col-xs-9">
 					<div class="panel-group" id="server-accordion" role="tablist" aria-multiselectable="true">
 
-						<server ng-hide="blankServer" ng-repeat="server in servers" server="server" index="$index" writer="writer"></server>
+						<server ng-hide="blankServer" ng-repeat="server in servers" server="server" index="$index" writer="writer" update-servers-list="updateServersList"></server>
 
-						<server ng-show="blankServer" server="blankServer" writer="writer"></server>
+						<server ng-show="blankServer" server="blankServer" writer="writer" update-servers-list="updateServersList"></server>
 
 					</div>
 				</div>
