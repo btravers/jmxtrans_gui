@@ -1,7 +1,0 @@
-com/zenika/back/model/Server.class
-com/zenika/back/AppConfig.class
-com/zenika/back/web/JmxtransController.class
-com/zenika/back/service/JmxtransService.class
-com/zenika/back/repository/ESConfigRepository.class
-com/zenika/back/service/JmxtransServiceImpl.class
-com/zenika/back/repository/ConfigRepository.class
