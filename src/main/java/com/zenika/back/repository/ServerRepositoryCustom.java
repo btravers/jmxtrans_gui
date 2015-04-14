@@ -14,24 +14,31 @@ import com.zenika.back.model.Response;
 public interface ServerRepositoryCustom {
     Collection<String> findAllHost() throws JsonProcessingException;
 
-    Response getByHost(String host) throws JsonParseException, JsonMappingException, IOException, InterruptedException, ExecutionException;
+    Response getByHost(String host) throws JsonParseException,
+	    JsonMappingException, IOException, InterruptedException,
+	    ExecutionException;
 
-	void save(Document server) throws JsonProcessingException, InterruptedException, ExecutionException, IOException;
+    void save(Document server) throws JsonProcessingException,
+	    InterruptedException, ExecutionException, IOException;
 
-	void deleteOne(String id);
+    void deleteOne(String id);
 
-	void updateOne(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void updateOne(String id, Document server) throws JsonProcessingException,
+	    InterruptedException, ExecutionException;
 
-	void delete(String host);
+    void delete(String host);
 
-	OutputWriter settings() throws JsonParseException, JsonMappingException, IOException;
+    OutputWriter settings() throws JsonParseException, JsonMappingException,
+	    IOException;
 
-	void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void refresh(String host, int port) throws JsonProcessingException,
+	    InterruptedException, ExecutionException;
 
-	Collection<String> prefixNameSuggestion(String host, String prefix);
+    Collection<String> prefixNameSuggestion(String host, String prefix);
 
-	Collection<String> prefixAttrSuggestion(String host, String name, String prefix);
+    Collection<String> prefixAttrSuggestion(String host, String name,
+	    String prefix);
 
-	void updateSettings(OutputWriter settings) throws IOException;
+    void updateSettings(OutputWriter settings) throws IOException;
 
 }

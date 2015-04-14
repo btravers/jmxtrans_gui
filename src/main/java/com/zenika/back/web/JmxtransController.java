@@ -28,189 +28,189 @@ import com.zenika.back.service.JmxtransService;
 @RestController
 public class JmxtransController {
 
-	private JmxtransService jmxtransService;
+    private JmxtransService jmxtransService;
 
-	@Autowired
-	public void setJmxtransService(JmxtransService jmxtransService) {
-		this.jmxtransService = jmxtransService;
+    @Autowired
+    public void setJmxtransService(JmxtransService jmxtransService) {
+	this.jmxtransService = jmxtransService;
+    }
+
+    @RequestMapping(value = "/server/all", method = RequestMethod.GET)
+    public Collection<String> listHosts() {
+	try {
+	    return this.jmxtransService.findHosts();
+	} catch (JsonProcessingException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+	return null;
+    }
 
-	@RequestMapping(value = "/server/all", method = RequestMethod.GET)
-	public Collection<String> listHosts() {
-		try {
-			return this.jmxtransService.findHosts();
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    @RequestMapping(value = "/server", method = RequestMethod.GET)
+    public Response showServer(
+	    @RequestParam(value = "host", required = true) String host) {
+	try {
+	    return this.jmxtransService.findServersByHost(host);
+	} catch (JsonParseException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (JsonMappingException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (ExecutionException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	return null;
+    }
+
+    @RequestMapping(value = "/server", method = RequestMethod.DELETE)
+    public void deleteServer(
+	    @RequestParam(value = "host", required = true) String host) {
+	this.jmxtransService.deleteServer(host);
+    }
+
+    @RequestMapping(value = "/server", method = RequestMethod.POST)
+    public void addServer(@RequestBody Document server) {
+	try {
+	    this.jmxtransService.addServer(server);
+	} catch (JsonProcessingException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (ExecutionException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    @RequestMapping(value = "/server/_update", method = RequestMethod.POST)
+    public void updateServer(
+	    @RequestParam(value = "id", required = true) String id,
+	    @RequestBody Document server) {
+	try {
+	    this.jmxtransService.updateServer(id, server);
+	} catch (JsonProcessingException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (ExecutionException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	;
+    }
+
+    @RequestMapping(value = "/settings", method = RequestMethod.POST)
+    public void updateSettings(@RequestBody OutputWriter settings) {
+	try {
+	    this.jmxtransService.updateSettings(settings);
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    @RequestMapping(value = "/settings", method = RequestMethod.GET)
+    public OutputWriter getSettings() {
+	try {
+	    return this.jmxtransService.getSettings();
+	} catch (JsonParseException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (JsonMappingException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	return null;
+    }
+
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public void upload(@RequestParam("file") MultipartFile file) {
+	if (!file.isEmpty()) {
+	    try {
+		byte[] bytes = file.getBytes();
+		String confFile = new String(bytes);
+
+		ObjectMapper mapper = new ObjectMapper();
+		Document doc = mapper.readValue(confFile, Document.class);
+
+		OutputWriter writer = this.getSettings();
+
+		for (Server server : doc.getServers()) {
+		    // Use the default output writer.
+		    for (Query query : server.getQueries()) {
+			query.getOutputWriters().clear();
+			query.getOutputWriters().add(writer);
+		    }
+
+		    Document d = new Document();
+		    List<Server> servers = new ArrayList<Server>();
+		    servers.add(server);
+		    d.setServers(servers);
+
+		    this.jmxtransService.addServer(d);
 		}
-		return null;
+	    } catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    } catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    } catch (ExecutionException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }
 	}
+    }
 
-	@RequestMapping(value = "/server", method = RequestMethod.GET)
-	public Response showServer(
-			@RequestParam(value = "host", required = true) String host) {
-		try {
-			return this.jmxtransService.findServersByHost(host);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+    @RequestMapping(value = "/refresh", method = RequestMethod.GET)
+    public void refresh(
+	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "port", required = true) int port) {
+	try {
+	    this.jmxtransService.refresh(host, port);
+	} catch (JsonProcessingException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (ExecutionException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+    }
 
-	@RequestMapping(value = "/server", method = RequestMethod.DELETE)
-	public void deleteServer(
-			@RequestParam(value = "host", required = true) String host) {
-		this.jmxtransService.deleteServer(host);
-	}
+    @RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
+    public Collection<String> prefixNameSuggestion(
+	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "prefix", required = true) String prefix) {
+	return this.jmxtransService.prefixNameSuggestion(host, prefix);
+    }
 
-	@RequestMapping(value = "/server", method = RequestMethod.POST)
-	public void addServer(@RequestBody Document server) {
-		try {
-			this.jmxtransService.addServer(server);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@RequestMapping(value = "/server/_update", method = RequestMethod.POST)
-	public void updateServer(
-			@RequestParam(value = "id", required = true) String id,
-			@RequestBody Document server) {
-		try {
-			this.jmxtransService.updateServer(id, server);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		;
-	}
-
-	@RequestMapping(value = "/settings", method = RequestMethod.POST)
-	public void updateSettings(@RequestBody OutputWriter settings) {
-		try {
-			this.jmxtransService.updateSettings(settings);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@RequestMapping(value = "/settings", method = RequestMethod.GET)
-	public OutputWriter getSettings() {
-		try {
-			return this.jmxtransService.getSettings();
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public void upload(@RequestParam("file") MultipartFile file) {
-		if (!file.isEmpty()) {
-			try {
-				byte[] bytes = file.getBytes();
-				String confFile = new String(bytes);
-
-				ObjectMapper mapper = new ObjectMapper();
-				Document doc = mapper.readValue(confFile, Document.class);
-				
-				OutputWriter writer = this.getSettings();
-
-				for (Server server : doc.getServers()) {
-					// Use the default output writer.
-					for (Query query : server.getQueries()) {
-						query.getOutputWriters().clear();
-						query.getOutputWriters().add(writer);
-					}
-					
-					Document d = new Document();
-					List<Server> servers = new ArrayList<Server>();
-					servers.add(server);
-					d.setServers(servers);
-
-					this.jmxtransService.addServer(d);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@RequestMapping(value = "/refresh", method = RequestMethod.GET)
-	public void refresh(
-			@RequestParam(value = "host", required = true) String host,
-			@RequestParam(value = "port", required = true) int port) {
-		try {
-			this.jmxtransService.refresh(host, port);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
-	public Collection<String> prefixNameSuggestion(
-			@RequestParam(value = "host", required = true) String host,
-			@RequestParam(value = "prefix", required = true) String prefix) {
-		return this.jmxtransService.prefixNameSuggestion(host, prefix);
-	}
-	
-	@RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
-	public Collection<String> prefixAttrSuggestion(
-			@RequestParam(value = "host", required = true) String host,
-			@RequestParam(value = "name", required = true) String name,
-			@RequestParam(value = "prefix", required = true) String prefix) {
-		return this.jmxtransService.prefixAttrSuggestion(host, name, prefix);
-	}
+    @RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
+    public Collection<String> prefixAttrSuggestion(
+	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "name", required = true) String name,
+	    @RequestParam(value = "prefix", required = true) String prefix) {
+	return this.jmxtransService.prefixAttrSuggestion(host, name, prefix);
+    }
 
 }

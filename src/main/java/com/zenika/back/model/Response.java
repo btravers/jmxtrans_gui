@@ -2,23 +2,23 @@ package com.zenika.back.model;
 
 public class Response {
 
-	private Document source;
-	private String id;
+    private Document source;
+    private String id;
 
-	public Document getSource() {
-		return source;
-	}
+    public Document getSource() {
+	return source;
+    }
 
-	public void setSource(Document source) {
-		this.source = source;
-	}
+    public void setSource(Document source) {
+	this.source = source;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+	return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+	this.id = id;
+    }
 
 }

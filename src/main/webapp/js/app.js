@@ -35,7 +35,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	};
 
 	$scope.updateServersList();
-	
+
 	$scope.writerChange = function() {
 		switch($scope.writer['@class']) {
 			case 'com.googlecode.jmxtrans.model.output.BluefloodWriter':
@@ -262,6 +262,27 @@ app.directive('query', function() {
 			serverIndex: '=serverIndex'
 		},
 		controller: function($scope) {
+
+			$scope.suggestName = function() {
+				var req = {
+					method: 'GET',
+					url: 'service/suggest_name',
+					params: {
+						host: $scope.server.server.host,
+						prefix: $scope.query.obj
+					}
+				};
+
+				$http(req)
+					.success(function(response) {
+						$scope.nameSuggestions = response;
+					})
+					.error(console.error);
+			};
+
+			$scope.suggestAttr = function() {
+
+			};
 
 			$scope.unsaved = function() {
 				$scope.server.saved = false;

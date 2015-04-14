@@ -15,22 +15,30 @@ public interface JmxtransService {
 
     Collection<String> findHosts() throws JsonProcessingException;
 
-    Response findServersByHost(String host) throws JsonParseException, JsonMappingException, IOException, InterruptedException, ExecutionException;
+    Response findServersByHost(String host) throws JsonParseException,
+	    JsonMappingException, IOException, InterruptedException,
+	    ExecutionException;
 
-    void addServer(Document server) throws JsonProcessingException, InterruptedException, ExecutionException, IOException;
+    void addServer(Document server) throws JsonProcessingException,
+	    InterruptedException, ExecutionException, IOException;
 
-    void updateServer(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void updateServer(String id, Document server)
+	    throws JsonProcessingException, InterruptedException,
+	    ExecutionException;
 
-    OutputWriter getSettings() throws JsonParseException, JsonMappingException, IOException;
+    OutputWriter getSettings() throws JsonParseException, JsonMappingException,
+	    IOException;
 
-	void deleteServer(String host);
+    void deleteServer(String host);
 
-	void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void refresh(String host, int port) throws JsonProcessingException,
+	    InterruptedException, ExecutionException;
 
-	Collection<String> prefixNameSuggestion(String host, String prefix);
+    Collection<String> prefixNameSuggestion(String host, String prefix);
 
-	Collection<String> prefixAttrSuggestion(String host, String name, String prefix);
+    Collection<String> prefixAttrSuggestion(String host, String name,
+	    String prefix);
 
-	void updateSettings(OutputWriter settings) throws IOException;
+    void updateSettings(OutputWriter settings) throws IOException;
 
 }
