@@ -64,7 +64,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	$scope.delete = function(item) {
 		var req = {
 			method: 'DELETE',
-			url: 'service/server/_host',
+			url: 'service/server',
 			params: {
 				host: item
 			}
