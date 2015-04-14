@@ -17,8 +17,6 @@ public interface JmxtransService {
 
     Response findServersByHost(String host) throws JsonParseException, JsonMappingException, IOException, InterruptedException, ExecutionException;
 
-    void deleteServerById(String id);
-
     void addServer(Document server) throws JsonProcessingException, InterruptedException, ExecutionException, IOException;
 
     void updateServer(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException;

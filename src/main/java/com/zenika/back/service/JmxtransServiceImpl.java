@@ -35,11 +35,6 @@ public class JmxtransServiceImpl implements JmxtransService {
 	public Response findServersByHost(String host) throws JsonParseException, JsonMappingException, IOException, InterruptedException, ExecutionException {
 		return this.serverRepositoryCustom.getByHost(host);
 	}
-
-	@Override
-	public void deleteServerById(String id) {
-		this.serverRepositoryCustom.deleteOne(id);
-	}
 	
 	@Override
 	public void deleteServer(String host) {

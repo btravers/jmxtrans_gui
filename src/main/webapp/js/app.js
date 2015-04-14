@@ -138,35 +138,6 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	$scope.cancelBlankServer = function() {
 		$scope.blankServer = null;
 	};
-
-	$scope.removeServer = function(index) {
-		var req = {
-			method: 'DELETE',
-			url: 'service/server',
-			params: {
-				id: $scope.servers[index].id
-			}
-		};
-
-		$http(req)
-			.success(function(response) {
-				$scope.servers.splice(index, 1);
-
-				if ($scope.servers.length == 0) {
-					setTimeout(function() {
-						$scope.updateServersList();
-					}, 500);
-				}
-			})
-			.error(console.err);
-	};
-
-	$scope.duplicateServer = function(server) {
-		$scope.blankServer = angular.copy(server);
-
-		$scope.blankServer.id = null;
-		$scope.blankServer.saved = false; 
-	};
 });
 
 app.directive('server', function() {

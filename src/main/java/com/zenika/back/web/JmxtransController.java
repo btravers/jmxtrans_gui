@@ -70,12 +70,6 @@ public class JmxtransController {
 	}
 
 	@RequestMapping(value = "/server", method = RequestMethod.DELETE)
-	public void deleteServerById(
-			@RequestParam(value = "id", required = true) String id) {
-		this.jmxtransService.deleteServerById(id);
-	}
-
-	@RequestMapping(value = "/server/_host", method = RequestMethod.DELETE)
 	public void deleteServer(
 			@RequestParam(value = "host", required = true) String host) {
 		this.jmxtransService.deleteServer(host);
