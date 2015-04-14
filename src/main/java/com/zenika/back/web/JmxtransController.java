@@ -19,9 +19,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zenika.back.model.Document;
+import com.zenika.back.model.OutputWriter;
+import com.zenika.back.model.Query;
 import com.zenika.back.model.Response;
 import com.zenika.back.model.Server;
-import com.zenika.back.model.WriterSettings;
 import com.zenika.back.service.JmxtransService;
 
 @RestController
@@ -114,17 +115,17 @@ public class JmxtransController {
 	}
 
 	@RequestMapping(value = "/settings", method = RequestMethod.POST)
-	public void updateSettings(@RequestBody WriterSettings settings) {
+	public void updateSettings(@RequestBody OutputWriter settings) {
 		try {
 			this.jmxtransService.updateSettings(settings);
-		} catch (JsonProcessingException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@RequestMapping(value = "/settings", method = RequestMethod.GET)
-	public WriterSettings getSettings() {
+	public OutputWriter getSettings() {
 		try {
 			return this.jmxtransService.getSettings();
 		} catch (JsonParseException e) {
@@ -149,8 +150,16 @@ public class JmxtransController {
 
 				ObjectMapper mapper = new ObjectMapper();
 				Document doc = mapper.readValue(confFile, Document.class);
+				
+				OutputWriter writer = this.getSettings();
 
 				for (Server server : doc.getServers()) {
+					// Use the default output writer.
+					for (Query query : server.getQueries()) {
+						query.getOutputWriters().clear();
+						query.getOutputWriters().add(writer);
+					}
+					
 					Document d = new Document();
 					List<Server> servers = new ArrayList<Server>();
 					servers.add(server);
@@ -187,6 +196,21 @@ public class JmxtransController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
+	public Collection<String> prefixNameSuggestion(
+			@RequestParam(value = "host", required = true) String host,
+			@RequestParam(value = "prefix", required = true) String prefix) {
+		return this.jmxtransService.prefixNameSuggestion(host, prefix);
+	}
+	
+	@RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
+	public Collection<String> prefixAttrSuggestion(
+			@RequestParam(value = "host", required = true) String host,
+			@RequestParam(value = "name", required = true) String name,
+			@RequestParam(value = "prefix", required = true) String prefix) {
+		return this.jmxtransService.prefixAttrSuggestion(host, name, prefix);
 	}
 
 }

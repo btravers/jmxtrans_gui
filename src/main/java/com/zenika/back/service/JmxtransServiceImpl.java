@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.zenika.back.model.Document;
+import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Response;
-import com.zenika.back.model.WriterSettings;
 import com.zenika.back.repository.ServerRepositoryCustom;
 
 @Service
@@ -52,18 +52,28 @@ public class JmxtransServiceImpl implements JmxtransService {
 	}
 
 	@Override
-	public WriterSettings getSettings() throws JsonParseException, JsonMappingException, IOException {
+	public OutputWriter getSettings() throws JsonParseException, JsonMappingException, IOException {
 		return this.serverRepositoryCustom.settings();
 	}
 
 	@Override
-	public void updateSettings(WriterSettings settings) throws JsonProcessingException {
+	public void updateSettings(OutputWriter settings) throws IOException {
 		this.serverRepositoryCustom.updateSettings(settings);
 	}
 	
 	@Override
 	public void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
 		this.serverRepositoryCustom.refresh(host, port);
+	}
+	
+	@Override
+	public Collection<String> prefixNameSuggestion(String host, String prefix) {
+		return this.serverRepositoryCustom.prefixNameSuggestion(host, prefix);
+	}
+
+	@Override
+	public Collection<String> prefixAttrSuggestion(String host, String name, String prefix) {
+		return this.serverRepositoryCustom.prefixAttrSuggestion(host, name, prefix);
 	}
 
 }

@@ -10,6 +10,9 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 	$http.get('service/settings').success(function(data) {
 		$scope.writer = data;
+		if (!$scope.writer.settings) {
+			$scope.writer.settings = {};
+		}
 	});
 
 	$scope.updateServersList = function() {
@@ -34,12 +37,12 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	$scope.updateServersList();
 	
 	$scope.writerChange = function() {
-		switch($scope.writer.writer) {
+		switch($scope.writer['@class']) {
 			case 'com.googlecode.jmxtrans.model.output.BluefloodWriter':
-				$scope.writer.port = 19000;
+				$scope.writer.settings.port = 19000;
 				break;
 			case 'com.googlecode.jmxtrans.model.output.Graphite':
-				$scope.writer.port = 2003;
+				$scope.writer.settings.port = 2003;
 				break;
 		}
 	};

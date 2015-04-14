@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.zenika.back.model.Document;
+import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Response;
-import com.zenika.back.model.WriterSettings;
 
 public interface JmxtransService {
 
@@ -21,12 +21,16 @@ public interface JmxtransService {
 
     void updateServer(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException;
 
-	WriterSettings getSettings() throws JsonParseException, JsonMappingException, IOException;
-
-	void updateSettings(WriterSettings settings) throws JsonProcessingException;
+    OutputWriter getSettings() throws JsonParseException, JsonMappingException, IOException;
 
 	void deleteServer(String host);
 
 	void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+
+	Collection<String> prefixNameSuggestion(String host, String prefix);
+
+	Collection<String> prefixAttrSuggestion(String host, String name, String prefix);
+
+	void updateSettings(OutputWriter settings) throws IOException;
 
 }

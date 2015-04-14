@@ -39,8 +39,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.zenika.back.model.Document;
 import com.zenika.back.model.ObjectNameRepresentation;
+import com.zenika.back.model.OutputWriter;
+import com.zenika.back.model.Query;
 import com.zenika.back.model.Response;
-import com.zenika.back.model.WriterSettings;
+import com.zenika.back.model.Server;
 
 @Repository
 public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
@@ -196,7 +198,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	}
 
 	@Override
-	public WriterSettings settings() throws JsonParseException,
+	public OutputWriter settings() throws JsonParseException,
 			JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.getSerializationConfig().without(
@@ -208,9 +210,9 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 		if (getResponse.isExists()) {
 			return mapper.readValue(getResponse.getSourceAsString(),
-					WriterSettings.class);
+					OutputWriter.class);
 		} else {
-			WriterSettings settings = new WriterSettings();
+			OutputWriter settings = new OutputWriter();
 
 			this.client.prepareIndex(INDEX, SETTINGS_TYPE, SETTINGS_ID)
 					.setSource(mapper.writeValueAsString(settings)).execute()
@@ -221,8 +223,8 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	}
 
 	@Override
-	public void updateSettings(WriterSettings settings)
-			throws JsonProcessingException {
+	public void updateSettings(OutputWriter settings)
+			throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.getSerializationConfig().without(
 				SerializationFeature.WRITE_NULL_MAP_VALUES);
@@ -236,24 +238,70 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		updateRequest.doc(json);
 
 		this.client.update(updateRequest);
+
+		SearchResponse response = this.client.prepareSearch(INDEX).setTypes(CONF_TYPE)
+				.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
+		
+		for (SearchHit hit : response.getHits().getHits()) {
+			Document doc = mapper.readValue(hit.getSourceAsString(), Document.class);
+			
+			for (Server server : doc.getServers()) {
+				for (Query query : server.getQueries()) {
+					query.getOutputWriters().clear();
+					query.getOutputWriters().add(settings);
+				}
+			}
+			
+			String updatedServer = mapper.writeValueAsString(doc);
+			
+			UpdateRequest request = new UpdateRequest();
+			request.index(INDEX);
+			request.type(CONF_TYPE);
+			request.id(hit.getId());
+			request.doc(updatedServer);
+			
+			this.client.update(request);
+		}
+		
 	}
 
 	@Override
-	public void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
-		client.prepareDeleteByQuery(INDEX).setTypes(OBJECTNAME_TYPE).setQuery(QueryBuilders.termQuery("host", host)).execute().actionGet();
-		
-		List<ObjectNameRepresentation> objectnames = this.objectNames(host, port);
-		
+	public Collection<String> prefixNameSuggestion(String host, String prefix) {
+		SearchResponse response = this.client
+				.prepareSearch(INDEX)
+				.setTypes(OBJECTNAME_TYPE)
+				.setQuery(QueryBuilders.termQuery("jmxhost", host))
+				.addAggregation(
+						AggregationBuilders.terms("nameAgg").field("name")
+								.include(prefix + ".*")).execute().actionGet();
+
+		Collection<String> result = new ArrayList<String>();
+
+		Terms agg = response.getAggregations().get("nameAgg");
+		for (Bucket b : agg.getBuckets()) {
+			result.add(b.getKey());
+		}
+
+		return result;
+	}
+
+	@Override
+	public void refresh(String host, int port) throws JsonProcessingException,
+			InterruptedException, ExecutionException {
+		client.prepareDeleteByQuery(INDEX).setTypes(OBJECTNAME_TYPE)
+				.setQuery(QueryBuilders.termQuery("jmxhost", host)).execute()
+				.actionGet();
+
+		List<ObjectNameRepresentation> objectnames = this.objectNames(host,
+				port);
+
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writeValueAsString(objectnames);
-		json = "{ \"host\": " + host + ", \"objects\": " + json + "}";
-		
-		IndexRequest indexRequest = new IndexRequest();
-		indexRequest.index(INDEX);
-		indexRequest.type(OBJECTNAME_TYPE);
-		indexRequest.source(json);
-		
-		this.client.index(indexRequest).get();
+		json = "{" + "\"jmxhost\":\"" + host + "\"," + "\"objects\":" + json
+				+ "}";
+
+		this.client.prepareIndex(INDEX, OBJECTNAME_TYPE).setSource(json)
+				.execute().actionGet();
 	}
 
 	private List<ObjectNameRepresentation> objectNames(String host, int port) {
@@ -312,5 +360,25 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		}
 
 		return new ArrayList<ObjectNameRepresentation>();
+	}
+
+	@Override
+	public Collection<String> prefixAttrSuggestion(String host, String name,
+			String prefix) {
+		SearchResponse response = this.client
+				.prepareSearch(INDEX)
+				.setTypes(OBJECTNAME_TYPE)
+				.setQuery(
+						QueryBuilders.boolQuery().must(
+								QueryBuilders.termQuery("jmxhost", host)))
+				.addFields("attributes").execute().actionGet();
+
+		Collection<String> result = new ArrayList<String>();
+
+		for (SearchHit hit : response.getHits().getHits()) {
+			result.add(hit.field("attributes").getValue().toString());
+		}
+
+		return result;
 	}
 }

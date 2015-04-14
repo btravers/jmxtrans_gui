@@ -52,7 +52,7 @@
 
 									<div class="form-group">
 										<label class="control-label">Writer</label>
-										<select type="text" class="form-control" ng-model="writer.writer" ng-change="writerChange()">
+										<select type="text" class="form-control" ng-model="writer['@class']" ng-change="writerChange()">
 											<option value="com.googlecode.jmxtrans.model.output.Graphite">Graphite</option>
 											<option value="com.googlecode.jmxtrans.model.output.BluefloodWriter">Blueflood</option>
 										</select>
@@ -60,22 +60,22 @@
 
 									<div class="form-group">
 										<label class="control-label">Host</label>
-										<input type="text" class="form-control" ng-model="writer.host">
+										<input type="text" class="form-control" ng-model="writer.settings.host">
 									</div>
 									
 									<div class="form-group">
 										<label class="control-label">Port</label>
-										<input type="text" class="form-control" ng-model="writer.port">
+										<input type="text" class="form-control" ng-model="writer.settings.port">
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Username</label>
-										<input type="text" class="form-control" ng-model="writer.username">
+										<input type="text" class="form-control" ng-model="writer.settings.username">
 									</div>
 
 									<div class="form-group">
 										<label class="control-label">Password</label>
-										<input type="password" class="form-control" ng-model="writer.password">
+										<input type="password" class="form-control" ng-model="writer.settings.password">
 									</div>
 																	
 								</div>
