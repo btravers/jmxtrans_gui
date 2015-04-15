@@ -1,9 +1,14 @@
 package com.zenika.back;
 
+import java.io.IOException;
+
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +19,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-import com.zenika.back.model.ObjectNameRepresentation;
 
 @Configuration
 @ComponentScan({ "com.zenika.back.web", "com.zenika.back.service",
@@ -55,10 +58,41 @@ public class AppConfig {
 	TransportAddress address = new InetSocketTransportAddress(host[0],
 		Integer.parseInt(host[1]));
 	client.addTransportAddress(address);
-	/*client.admin().indices().preparePutMapping(INDEX)
-		.setType(OBJECTNAME_TYPE)
-		.setSource(ObjectNameRepresentation.class).execute()
-		.actionGet();*/
+	
+	try {
+	    client.admin().indices().create(new CreateIndexRequest(INDEX)).actionGet();
+	    client.admin()
+	    	.indices()
+	    	.preparePutMapping(INDEX)
+	    	.setType(OBJECTNAME_TYPE)
+	    	.setSource(
+	    		XContentFactory.jsonBuilder()
+	    			.prettyPrint()
+	    				.startObject()
+	    					.startObject(OBJECTNAME_TYPE)
+	    						.startObject("properties")
+	    							.startObject("host")
+	    								.field("type", "string")
+	    								.field("index", "not_analyzed")
+	    							.endObject()
+	    							.startObject("name")
+	    								.field("type", "string")
+	    								.field("index", "not_analyzed")
+	    							.endObject()
+	    							.startObject("attributes")
+	    								.field("type", "string")
+	    								.field("index", "not_analyzed")
+	    							.endObject()
+	    						.endObject()
+	    					.endObject())
+	    				.execute().actionGet();
+	} catch (ElasticsearchException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} 
 	return client;
     }
 }

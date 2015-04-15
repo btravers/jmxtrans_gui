@@ -4,16 +4,16 @@ import java.util.Collection;
 
 public class ObjectNameRepresentation {
 
-    private String jmxhost;
+    private String host;
     private String name;
     private Collection<String> attributes;
 
-    public String getJMXHost() {
-	return jmxhost;
+    public String getHost() {
+	return host;
     }
 
-    public void setJMXhost(String jmxhost) {
-	this.jmxhost = jmxhost;
+    public void setHost(String host) {
+	this.host = host;
     }
 
     public String getName() {

@@ -270,7 +270,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	    InterruptedException, ExecutionException {
 	client.prepareDeleteByQuery(AppConfig.INDEX)
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
-		.setQuery(QueryBuilders.termQuery("jmxhost", host)).execute()
+		.setQuery(QueryBuilders.termQuery("host", host)).execute()
 		.actionGet();
 
 	List<ObjectNameRepresentation> objectnames = this.objectNames(host,
@@ -304,7 +304,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	    Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
 	    for (ObjectName name : beanSet) {
 		ObjectNameRepresentation tmp = new ObjectNameRepresentation();
-		tmp.setJMXhost(host);
+		tmp.setHost(host);
 		tmp.setName(name.toString());
 
 		List<String> attributes = new ArrayList<String>();
@@ -351,7 +351,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	SearchResponse response = this.client
 		.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
-		.setQuery(QueryBuilders.termQuery("jmxhost", host))
+		.setQuery(QueryBuilders.termQuery("host", host))
 		.addAggregation(
 			AggregationBuilders.terms("nameAgg").field("name")
 				.include(prefix + ".*")).execute().actionGet();
@@ -375,7 +375,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.addFields("attributes")
 		.setQuery(
 			QueryBuilders.boolQuery()
-				.must(QueryBuilders.termQuery("jmxhost", host))
+				.must(QueryBuilders.termQuery("host", host))
 				.must(QueryBuilders.termQuery("name", name)))
 		.execute().actionGet();
 
@@ -384,7 +384,8 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	for (SearchHit hit : response.getHits().getHits()) {
 	    if (hit.field("attributes") != null
 		    && hit.field("attributes").getValues() != null) {
-		result.add(hit.field("attributes").getValues().toString());
+		for (Object value : hit.field("attributes").getValues())
+		    result.add(value.toString());
 	    }
 	}
 
