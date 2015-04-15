@@ -57,7 +57,7 @@ public class AppConfig {
 
     @Bean
     public Client client() {
-		
+
 	Client client = null;
 	if (this.host.isEmpty()) {
 	    if (this.path.isEmpty()) {
@@ -79,6 +79,22 @@ public class AppConfig {
 
 	try {
 	    client.admin().indices().create(new CreateIndexRequest(INDEX))
+		    .actionGet();
+	    client.admin()
+		    .indices()
+		    .preparePutMapping(INDEX)
+		    .setType(CONF_TYPE)
+		    .setSource(
+			    XContentFactory.jsonBuilder().prettyPrint()
+				    .startObject().startObject(CONF_TYPE)
+				    .startObject("properties")
+				    .startObject("servers")
+				    .startObject("properties")
+				    .startObject("host")
+				    .field("type", "string")
+				    .field("index", "not_analyzed").endObject()
+				    .endObject().endObject().endObject()
+				    .endObject().endObject()).execute()
 		    .actionGet();
 	    client.admin()
 		    .indices()
