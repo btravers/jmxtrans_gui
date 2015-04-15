@@ -3,7 +3,7 @@
 	<div class="panel-heading" role="tab" id="query_heading_{{ serverIndex }}{{ queryIndex }}">
 		<h3 class="panel-title">
 			<a data-toggle="collapse" data-parent="#query_accordion{{ serverIndex }}" href="#query_collapse_{{ serverIndex }}{{ queryIndex }}" aria-expanded="false" aria-controls="query_collapse_{{ serverIndex }}{{ queryIndex }}">
-				Query {{ queryIndex + 1 }}
+				Query {{ queryIndex + 1 }} <span ng-show="query.obj">- {{ query.obj }}</span>
 			</a>
 		</h3>
 	</div>

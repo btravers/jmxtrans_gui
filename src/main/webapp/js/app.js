@@ -31,7 +31,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 					$scope.display($scope.servers[0].server.host);
 				}
 			})
-			.error(console.err);
+			.error(console.log);
 	};
 
 	$scope.updateServersList();
@@ -58,7 +58,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			.success(function(response) {
 
 			})
-			.error(console.err);
+			.error(console.log);
 	};
 
 	$scope.delete = function(item) {
@@ -76,7 +76,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 					$scope.updateServersList();
 				}, 500);
 			})
-			.error(console.err);
+			.error(console.log);
 	};
 
 	$scope.duplicate = function(item) {
@@ -99,7 +99,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				$scope.blankServer.server.host = null;
 				$scope.blankServer.server.port = null;
 			})
-			.error(console.err);
+			.error(console.log);
 	};
 
 	$scope.display = function(item) {
@@ -123,7 +123,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 				$scope.blankServer = null;
 			})
-			.error(console.err);
+			.error(console.log);
 	};
 
 	$scope.addBlankServer = function() {
@@ -156,6 +156,21 @@ app.directive('server', function() {
 		controller: function($scope, $http) {
 
 			$scope.update = $scope.updateServersList();
+
+			$scope.loadJMXTree = function() {
+				var req = {
+					method: 'GET',
+					url: 'service/refresh',
+					params: {
+						host: $scope.server.server.host,
+						port: $scope.server.server.port
+					}
+				};
+
+				$http(req)
+					.success(console.log)
+					.error(console.log);			
+			};
 
 			$scope.addBlankQuery = function() {
 				if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
@@ -220,7 +235,7 @@ app.directive('server', function() {
 									$scope.update();
 								}, 500);
 							})
-							.error(console.error);
+							.error(console.log);
 					} else {
 						var req = {
 							method: 'POST',
@@ -237,7 +252,7 @@ app.directive('server', function() {
 									$scope.update();
 								}, 500);
 							})
-							.error(console.error);
+							.error(console.log);
 					}
 				}
 			};
@@ -277,7 +292,7 @@ app.directive('query', function() {
 					.success(function(response) {
 						$scope.nameSuggestions = response;
 					})
-					.error(console.error);
+					.error(console.log);
 			};
 
 			$scope.suggestAttr = function(attr) {
@@ -296,7 +311,7 @@ app.directive('query', function() {
 						.success(function(response) {
 							$scope.attrSuggestions = response;
 						})
-						.error(console.error);
+						.error(console.log);
 				}
 			};
 
