@@ -185,13 +185,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	String json = mapper.writeValueAsString(server);
 
-	UpdateRequest updateRequest = new UpdateRequest();
-	updateRequest.index(AppConfig.INDEX);
-	updateRequest.type(AppConfig.CONF_TYPE);
-	updateRequest.id(id);
-	updateRequest.doc(json);
-
-	this.client.update(updateRequest).get();
+	this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id).setDoc(json).execute().actionGet();
     }
 
     @Override

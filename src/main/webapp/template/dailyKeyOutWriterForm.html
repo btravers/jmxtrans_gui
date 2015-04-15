@@ -1,0 +1,34 @@
+<span>
+	<div class="form-group">
+		<label class="control-label">Output file</label>
+		<input type="text" class="form-control" ng-model="writer.settings.outputFile">
+	</div>
+
+	<div class="form-group">
+		<label class="control-label">Max log file size</label>
+		<input type="text" class="form-control" ng-model="writer.settings.maxLogFileSize">
+	</div>
+
+	<div class="form-group">
+		<label class="control-label">Max log backup files</label>
+		<input type="text" class="form-control" ng-model="writer.settings.maxLogBackupFiles">
+	</div>
+
+	<div class="form-group">
+		<label class="control-label">Delimiter</label>
+		<input type="text" class="form-control" ng-model="writer.settings.delimiter">
+	</div>
+
+	<div class="form-group">
+		<label class="control-label">Date pattern</label>
+		<input type="text" class="form-control" ng-model="writer.settings.datePattern">
+	</div>
+
+	<div class="checkbox">
+		<label class="control-label"><input type="checkbox" ng-model="writer.settings.booleanAsNumber"> Boolean as number</label>
+	</div>
+
+	<div class="checkbox">
+		<label class="control-label"><input type="checkbox" ng-model="writer.settings.ttl"> Debug</label>
+	</div>
+</span>

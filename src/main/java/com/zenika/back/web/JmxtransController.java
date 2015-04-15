@@ -99,6 +99,7 @@ public class JmxtransController {
     public void updateServer(
 	    @RequestParam(value = "id", required = true) String id,
 	    @RequestBody Document server) {
+	System.out.println("Update");
 	try {
 	    this.jmxtransService.updateServer(id, server);
 	} catch (JsonProcessingException e) {

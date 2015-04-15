@@ -41,6 +41,8 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			case 'com.googlecode.jmxtrans.model.output.BluefloodWriter':
 				$scope.writer.settings.port = 19000;
 				break;
+			case 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriterForm':
+				break;
 			case 'com.googlecode.jmxtrans.model.output.Graphite':
 				$scope.writer.settings.port = 2003;
 				break;
@@ -74,7 +76,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			.success(function(response) {
 				setTimeout(function() {
 					$scope.updateServersList();
-				}, 500);
+				}, 1000);
 			})
 			.error(console.log);
 	};
@@ -93,6 +95,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				$scope.blankServer = {
 					saved: false,
 					blankAttr: [],
+					blankTypeNames: [],
 					server: response.source.servers[0],
 					id: null
 				};
@@ -116,6 +119,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				var server = {
 					saved: true,
 					blankAttr: [],
+					blankTypeNames: [],
 					server: response.source.servers[0],
 					id: response.id
 				};
@@ -130,6 +134,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 		$scope.blankServer = {
 			saved: false,
 			blankAttr: [],
+			blankTypeNames: [],
 			server: {
 				port: null,
 				host: null,
@@ -167,19 +172,21 @@ app.directive('server', function() {
 					}
 				};
 
-				$http(req)
-					.success(console.log)
-					.error(console.log);			
+				$http(req);			
 			};
 
 			$scope.addBlankQuery = function() {
 				if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
+					if (!$scope.server.queries) {
+						$scope.server.queries = [];
+					}
 					$scope.server.server.queries.push($scope.server.blankQuery);
 				}
 
 				$scope.server.blankQuery = {
 					obj: null,
 					attr: [],
+					typeNames: [],
 					outputWriters: [
 						{
 							'@class': $scope.writer.class, 
@@ -203,6 +210,9 @@ app.directive('server', function() {
 			$scope.saveServer = function() {
 				if (!$scope.server.saved && $scope.server.server.host && $scope.server.server.port) {
 					if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
+						if (!$scope.server.queries) {
+							$scope.server.queries = [];
+						}
 						$scope.server.server.queries.push($scope.server.blankQuery);
 						$scope.server.blankQuery = null;
 					}
@@ -210,8 +220,23 @@ app.directive('server', function() {
 					if ($scope.server.blankAttr) {
 						angular.forEach($scope.server.blankAttr, function(attr, i) {
 							if (attr && attr.value) {
-								$scope.server.queries[+i].attr.push(attr.value);
+								if (!$scope.server.server.queries[i].attr) {
+									$scope.server.server.queries[i].attr = [];
+								}
+								$scope.server.server.queries[i].attr.push(attr.value);
 								$scope.server.blankAttr[i] = null;
+							}
+						});
+					}
+
+					if ($scope.server.blankTypeNames) {
+						angular.forEach($scope.server.blankTypeNames, function(typeName, i) {
+							if (typeName && typeName.value) {
+								if (!$scope.server.server.queries[i].typeNames) {
+									$scope.server.server.queries[i].typeNames = [];
+								}
+								$scope.server.server.queries[i].typeNames.push(typeName.value);
+								$scope.server.blankTypeNames[i] = null;
 							}
 						});
 					}
@@ -233,7 +258,7 @@ app.directive('server', function() {
 								$scope.server.saved = true;
 								setTimeout(function() {
 									$scope.update();
-								}, 500);
+								}, 1000);
 							})
 							.error(console.log);
 					} else {
@@ -250,7 +275,7 @@ app.directive('server', function() {
 								$scope.server = null;
 								setTimeout(function() {
 									$scope.update();
-								}, 500);
+								}, 1000);
 							})
 							.error(console.log);
 					}
@@ -261,7 +286,7 @@ app.directive('server', function() {
 				$scope.server.saved = false;
 			};
 		},
-		templateUrl: 'server.html'
+		templateUrl: 'template/server.html'
 	};
 });
 
@@ -321,7 +346,9 @@ app.directive('query', function() {
 
 			$scope.addBlankAttr = function() {
 				if ($scope.server.blankAttr[$scope.queryIndex] && $scope.server.blankAttr[$scope.queryIndex].value) {
-					console.log('Push the old value');
+					if (!$scope.query.attr) {
+						$scope.query.attr = [];
+					}
 					$scope.query.attr.push($scope.server.blankAttr[$scope.queryIndex].value);
 				}
 
@@ -339,6 +366,28 @@ app.directive('query', function() {
 				$scope.server.blankAttr[$scope.queryIndex] = null;
 			};
 
+			$scope.addBlankTypeName = function() {
+				if ($scope.server.blankTypeNames[$scope.queryIndex] && $scope.server.blankTypeNames[$scope.queryIndex].value) {
+					if (!$scope.query.typeNames) {
+						$scope.query.typeNames = [];
+					}
+					$scope.query.typeNames.push($scope.server.blankTypeNames[$scope.queryIndex].value);
+				}
+
+				$scope.server.blankTypeNames[$scope.queryIndex] = {
+					value: null
+				};
+			};
+
+			$scope.removeTypeName = function(index) {
+				$scope.query.typeNames.splice(index, 1);
+				$scope.server.saved = false;
+			};
+
+			$scope.removeBlankTypeName = function() {
+				$scope.server.blankTypeNames[$scope.queryIndex] = null;
+			};
+
 			$scope.removeQuery = function() {
 				if ($scope.queryIndex < $scope.server.server.queries.length) {
 					$scope.server.server.queries.splice($scope.queryIndex, 1);
@@ -348,6 +397,40 @@ app.directive('query', function() {
 			}
 
 		},
-		templateUrl: 'query.html'
+		templateUrl: 'template/query.html'
+	};
+});
+
+app.directive('bluefloodWriterForm', function() {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			writer: '=writer'
+		},
+		templateUrl: 'template/bluefloodWriterForm.html'
+	};
+});
+
+
+app.directive('dailyKeyOutWriterForm', function() {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			writer: '=writer'
+		},
+		templateUrl: 'template/dailyKeyOutWriterForm.html'
+	};
+});
+
+app.directive('graphiteWriterForm', function() {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			writer: '=writer'
+		},
+		templateUrl: 'template/graphiteWriterForm.html'
 	};
 });
