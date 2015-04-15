@@ -1,4 +1,4 @@
-var app = angular.module('Jmxtrans', ['angularFileUpload']);
+var app = angular.module('Jmxtrans', ['angularFileUpload', 'ui.bootstrap']);
 
 app.controller('Main', function($scope, $http, FileUploader) {
 	
@@ -261,15 +261,15 @@ app.directive('query', function() {
 			queryIndex: '=queryIndex',
 			serverIndex: '=serverIndex'
 		},
-		controller: function($scope) {
+		controller: function($scope, $http) {
 
-			$scope.suggestName = function() {
+			$scope.suggestName = function(name) {
 				var req = {
 					method: 'GET',
 					url: 'service/suggest_name',
 					params: {
 						host: $scope.server.server.host,
-						prefix: $scope.query.obj
+						prefix: name
 					}
 				};
 
@@ -280,8 +280,24 @@ app.directive('query', function() {
 					.error(console.error);
 			};
 
-			$scope.suggestAttr = function() {
+			$scope.suggestAttr = function(attr) {
+				if (!$scope.attrSuggestions) {
+					var req = {
+						method: 'GET',
+						url: 'service/suggest_attr',
+						params: {
+							host: $scope.server.server.host,
+							name: $scope.query.obj,
+							prefix: attr
+						}
+					};
 
+					$http(req)
+						.success(function(response) {
+							$scope.attrSuggestions = response;
+						})
+						.error(console.error);
+				}
 			};
 
 			$scope.unsaved = function() {
