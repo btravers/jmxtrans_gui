@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,7 +79,7 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
-    public void addServer(@RequestBody Document server) {
+    public void addServer(@RequestBody @Valid Document server) {
 	try {
 	    this.jmxtransService.addServer(server);
 	} catch (JsonProcessingException e) {
@@ -98,7 +100,7 @@ public class JmxtransController {
     @RequestMapping(value = "/server/_update", method = RequestMethod.POST)
     public void updateServer(
 	    @RequestParam(value = "id", required = true) String id,
-	    @RequestBody Document server) {
+	    @RequestBody @Valid Document server) {
 	System.out.println("Update");
 	try {
 	    this.jmxtransService.updateServer(id, server);
@@ -116,7 +118,7 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
-    public void updateSettings(@RequestBody OutputWriter settings) {
+    public void updateSettings(@RequestBody @Valid OutputWriter settings) {
 	try {
 	    this.jmxtransService.updateSettings(settings);
 	} catch (IOException e) {

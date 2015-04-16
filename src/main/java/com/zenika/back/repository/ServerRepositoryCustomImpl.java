@@ -78,7 +78,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.CONF_TYPE)
 		.setQuery(QueryBuilders.matchAllQuery())
 		.addAggregation(
-			AggregationBuilders.terms(aggregatorTerm).field("host").size(0))
+			AggregationBuilders.terms(aggregatorTerm).field("host").order(Terms.Order.term(true)).size(0))
 		.execute().actionGet();
 
 	Terms agg = response.getAggregations().get(aggregatorTerm);
@@ -348,7 +348,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
 		.setQuery(QueryBuilders.termQuery("host", host))
 		.addAggregation(
-			AggregationBuilders.terms("names").field("name").size(0))
+			AggregationBuilders.terms("names").field("name").order(Terms.Order.term(true)).size(0))
 		.execute().actionGet();
 
 	Collection<String> result = new ArrayList<String>();

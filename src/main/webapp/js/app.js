@@ -8,6 +8,21 @@ app.controller('Main', function($scope, $http, FileUploader) {
 		url: 'service/upload' 
 	});
 
+	$scope.uploader.onCompleteAll = function() {
+		setTimeout(function() {
+			var req = {
+				method: 'GET',
+				url: 'service/server/all'
+			};
+
+			$http(req)
+				.success(function(response) {
+					$scope.list = response;
+				})
+				.error(console.log);
+		}, 1000);
+	};
+
 	$http.get('service/settings').success(function(data) {
 		$scope.writer = data;
 		if (!$scope.writer.settings) {
@@ -116,14 +131,20 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 		$http(req)
 			.success(function(response) {
-				var server = {
-					saved: true,
-					blankAttr: [],
-					blankTypeNames: [],
-					server: response.source.servers[0],
-					id: response.id
-				};
-				$scope.servers = [server];
+				if (response.source) {
+					var server = {
+						saved: true,
+						blankAttr: [],
+						blankTypeNames: [],
+						server: response.source.servers[0],
+						id: response.id
+					};
+
+					$scope.servers = [server];
+				} else {
+					$scope.servers = [];
+				}
+				
 
 				$scope.blankServer = null;
 			})
