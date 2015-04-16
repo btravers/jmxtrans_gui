@@ -74,15 +74,13 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public Collection<String> prefixNameSuggestion(String host, String prefix) {
-	return this.serverRepositoryCustom.prefixNameSuggestion(host, prefix);
+    public Collection<String> prefixNameSuggestion(String host) {
+	return this.serverRepositoryCustom.prefixNameSuggestion(host);
     }
 
     @Override
-    public Collection<String> prefixAttrSuggestion(String host, String name,
-	    String prefix) {
-	return this.serverRepositoryCustom.prefixAttrSuggestion(host, name,
-		prefix);
+    public Collection<String> prefixAttrSuggestion(String host, String name) {
+	return this.serverRepositoryCustom.prefixAttrSuggestion(host, name);
     }
 
 }

@@ -201,17 +201,15 @@ public class JmxtransController {
 
     @RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
     public Collection<String> prefixNameSuggestion(
-	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "prefix", required = true) String prefix) {
-	return this.jmxtransService.prefixNameSuggestion(host, prefix);
+	    @RequestParam(value = "host", required = true) String host) {
+	return this.jmxtransService.prefixNameSuggestion(host);
     }
 
     @RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
     public Collection<String> prefixAttrSuggestion(
 	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "name", required = true) String name,
-	    @RequestParam(value = "prefix", required = true) String prefix) {
-	return this.jmxtransService.prefixAttrSuggestion(host, name, prefix);
+	    @RequestParam(value = "name", required = true) String name) {
+	return this.jmxtransService.prefixAttrSuggestion(host, name);
     }
 
 }

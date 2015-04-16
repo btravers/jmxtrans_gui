@@ -304,20 +304,21 @@ app.directive('query', function() {
 		controller: function($scope, $http) {
 
 			$scope.suggestName = function(name) {
-				var req = {
-					method: 'GET',
-					url: 'service/suggest_name',
-					params: {
-						host: $scope.server.server.host,
-						prefix: name
-					}
-				};
+				if (!$scope.nameSuggestions) {
+					var req = {
+						method: 'GET',
+						url: 'service/suggest_name',
+						params: {
+							host: $scope.server.server.host
+						}
+					};
 
-				$http(req)
-					.success(function(response) {
-						$scope.nameSuggestions = response;
-					})
-					.error(console.log);
+					$http(req)
+						.success(function(response) {
+							$scope.nameSuggestions = response;
+						})
+						.error(console.log);
+				}
 			};
 
 			$scope.suggestAttr = function(attr) {
@@ -327,8 +328,7 @@ app.directive('query', function() {
 						url: 'service/suggest_attr',
 						params: {
 							host: $scope.server.server.host,
-							name: $scope.query.obj,
-							prefix: attr
+							name: $scope.query.obj
 						}
 					};
 

@@ -2,8 +2,11 @@ package com.zenika.back.model;
 
 import java.util.Collection;
 
+import javax.validation.constraints.NotNull;
+
 public class Query {
 
+    @NotNull
     private String obj;
     private Collection<String> keys;
     private Collection<String> attr;

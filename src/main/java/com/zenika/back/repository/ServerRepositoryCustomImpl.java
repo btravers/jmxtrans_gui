@@ -78,7 +78,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.CONF_TYPE)
 		.setQuery(QueryBuilders.matchAllQuery())
 		.addAggregation(
-			AggregationBuilders.terms(aggregatorTerm).field("host"))
+			AggregationBuilders.terms(aggregatorTerm).field("host").size(0))
 		.execute().actionGet();
 
 	Terms agg = response.getAggregations().get(aggregatorTerm);
@@ -185,7 +185,8 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	String json = mapper.writeValueAsString(server);
 
-	this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id).setDoc(json).execute().actionGet();
+	this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
+		.setDoc(json).execute().actionGet();
     }
 
     @Override
@@ -341,18 +342,18 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public Collection<String> prefixNameSuggestion(String host, String prefix) {
+    public Collection<String> prefixNameSuggestion(String host) {
 	SearchResponse response = this.client
 		.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
 		.setQuery(QueryBuilders.termQuery("host", host))
 		.addAggregation(
-			AggregationBuilders.terms("nameAgg").field("name")
-				.include(prefix + ".*")).execute().actionGet();
+			AggregationBuilders.terms("names").field("name").size(0))
+		.execute().actionGet();
 
 	Collection<String> result = new ArrayList<String>();
 
-	Terms agg = response.getAggregations().get("nameAgg");
+	Terms agg = response.getAggregations().get("names");
 	for (Bucket bucket : agg.getBuckets()) {
 	    result.add(bucket.getKey());
 	}
@@ -361,8 +362,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public Collection<String> prefixAttrSuggestion(String host, String name,
-	    String prefix) {
+    public Collection<String> prefixAttrSuggestion(String host, String name) {
 	SearchResponse response = this.client
 		.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.OBJECTNAME_TYPE)

@@ -2,11 +2,15 @@ package com.zenika.back.model;
 
 import java.util.Collection;
 
+import javax.validation.constraints.NotNull;
+
 public class Server {
 
     private String alias;
+    @NotNull
     private String host;
-    private String port;
+    @NotNull
+    private Integer port;
     private String username;
     private String password;
     private String protocolProviderPackages;
@@ -35,11 +39,11 @@ public class Server {
 	this.host = host;
     }
 
-    public String getPort() {
+    public Integer getPort() {
 	return port;
     }
 
-    public void setPort(String port) {
+    public void setPort(Integer port) {
 	this.port = port;
     }
 

@@ -34,11 +34,10 @@ public interface ServerRepositoryCustom {
     void refresh(String host, int port) throws JsonProcessingException,
 	    InterruptedException, ExecutionException;
 
-    Collection<String> prefixNameSuggestion(String host, String prefix);
-
-    Collection<String> prefixAttrSuggestion(String host, String name,
-	    String prefix);
-
     void updateSettings(OutputWriter settings) throws IOException;
+
+    Collection<String> prefixAttrSuggestion(String host, String name);
+
+    Collection<String> prefixNameSuggestion(String host);
 
 }
