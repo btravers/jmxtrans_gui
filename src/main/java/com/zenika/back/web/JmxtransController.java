@@ -9,11 +9,13 @@ import java.util.concurrent.ExecutionException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -27,7 +29,7 @@ import com.zenika.back.model.Response;
 import com.zenika.back.model.Server;
 import com.zenika.back.service.JmxtransService;
 
-@RestController
+@Controller
 public class JmxtransController {
 
     private JmxtransService jmxtransService;
@@ -38,6 +40,7 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
+    @ResponseBody
     public Collection<String> listHosts() {
 	try {
 	    return this.jmxtransService.findHosts();
@@ -49,6 +52,7 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.GET)
+    @ResponseBody
     public Response showServer(
 	    @RequestParam(value = "host", required = true) String host) {
 	try {
@@ -73,13 +77,19 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.DELETE)
+    @ResponseBody
     public void deleteServer(
 	    @RequestParam(value = "host", required = true) String host) {
 	this.jmxtransService.deleteServer(host);
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
-    public void addServer(@RequestBody @Valid Document server) {
+    @ResponseBody
+    public void addServer(@RequestBody @Valid Document server,
+	    BindingResult result) {
+	if (result.hasErrors()) {
+	    return;
+	}
 	try {
 	    this.jmxtransService.addServer(server);
 	} catch (JsonProcessingException e) {
@@ -98,10 +108,13 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/server/_update", method = RequestMethod.POST)
+    @ResponseBody
     public void updateServer(
 	    @RequestParam(value = "id", required = true) String id,
-	    @RequestBody @Valid Document server) {
-	System.out.println("Update");
+	    @RequestBody @Valid Document server, BindingResult result) {
+	if (result.hasErrors()) {
+	    return;
+	}
 	try {
 	    this.jmxtransService.updateServer(id, server);
 	} catch (JsonProcessingException e) {
@@ -118,7 +131,12 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
-    public void updateSettings(@RequestBody @Valid OutputWriter settings) {
+    @ResponseBody
+    public void updateSettings(@RequestBody @Valid OutputWriter settings,
+	    BindingResult result) {
+	if (result.hasErrors()) {
+	    return;
+	}
 	try {
 	    this.jmxtransService.updateSettings(settings);
 	} catch (IOException e) {
@@ -128,6 +146,7 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.GET)
+    @ResponseBody
     public OutputWriter getSettings() {
 	try {
 	    return this.jmxtransService.getSettings();
@@ -145,6 +164,7 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @ResponseBody
     public void upload(@RequestParam("file") MultipartFile file) {
 	if (!file.isEmpty()) {
 	    try {
@@ -184,6 +204,7 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/refresh", method = RequestMethod.GET)
+    @ResponseBody
     public void refresh(
 	    @RequestParam(value = "host", required = true) String host,
 	    @RequestParam(value = "port", required = true) int port) {
@@ -202,12 +223,14 @@ public class JmxtransController {
     }
 
     @RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
+    @ResponseBody
     public Collection<String> prefixNameSuggestion(
 	    @RequestParam(value = "host", required = true) String host) {
 	return this.jmxtransService.prefixNameSuggestion(host);
     }
 
     @RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
+    @ResponseBody
     public Collection<String> prefixAttrSuggestion(
 	    @RequestParam(value = "host", required = true) String host,
 	    @RequestParam(value = "name", required = true) String name) {
