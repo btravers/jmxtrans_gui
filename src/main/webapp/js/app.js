@@ -60,6 +60,8 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				break;
 			case 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriterForm':
 				break;
+			case 'com.googlecode.jmxtrans.model.output.Ganglia':
+				break;
 			case 'com.googlecode.jmxtrans.model.output.Graphite':
 				$scope.writer.settings.port = 2003;
 				break;
@@ -194,8 +196,6 @@ app.directive('server', function() {
 			$scope.showErrorMessage = function(index, field) {
 				var s = 'servers[' + index + '].' + field;
 
-				console.log($scope.errorMessage);
-				console.log(s);
 				return typeof $scope.errorMessage[s] != "undefined" && $scope.errorMessage[s] != null;
 			};
 
@@ -352,8 +352,6 @@ app.directive('query', function() {
 			$scope.showErrorMessage = function(serverIndex, queryIndex, field) {
 				var s = 'servers[' + serverIndex + '].queries[' + queryIndex + '].' + field;
 
-				console.log($scope.errorMessage);
-				console.log(s);
 				return typeof $scope.errorMessage[s] != "undefined" && $scope.errorMessage[s] != null;
 			};
 
@@ -475,6 +473,17 @@ app.directive('dailyKeyOutWriterForm', function() {
 			writer: '=writer'
 		},
 		templateUrl: 'template/dailyKeyOutWriterForm.html'
+	};
+});
+
+app.directive('gangliaWriterForm', function() {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			writer: '=writer'
+		},
+		templateUrl: 'template/gangliaWriterForm.html'
 	};
 });
 

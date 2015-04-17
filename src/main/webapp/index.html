@@ -56,6 +56,7 @@
 										<select type="text" class="form-control" ng-model="writer['@class']" ng-change="writerChange()">
 											<option value="com.googlecode.jmxtrans.model.output.BluefloodWriter">Blueflood</option>
 											<option value="com.googlecode.jmxtrans.model.output.DailyKeyOutWriter">DailyKeyOutWriter</option>
+											<option value="com.googlecode.jmxtrans.model.output.GangliaWriter">Ganglia</option>
 											<option value="com.googlecode.jmxtrans.model.output.GraphiteWriter">Graphite</option>
 										</select>
 									</div>
@@ -63,6 +64,7 @@
 									<blueflood-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.BluefloodWriter'"></blueflood-writer-form>
 									<daily-key-out-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriter'"></daily-key-out-writer-form>
 									<graphite-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GraphiteWriter'"></graphite-writer-form>
+									<ganglia-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GangliaWriter'"></ganglia-writer-form>
 																	
 								</div>
 								<div class="modal-footer">
