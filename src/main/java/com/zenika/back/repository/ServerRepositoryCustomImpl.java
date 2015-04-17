@@ -49,10 +49,16 @@ import com.zenika.back.model.Server;
 public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
     private Client client;
+    private ObjectMapper mapper;
 
     @Autowired
     public void setClient(Client client) {
 	this.client = client;
+    }
+    
+    @Autowired
+    public void setMapper(ObjectMapper mapper) {
+	this.mapper = mapper;
     }
 
     @Override
@@ -103,8 +109,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 			FilterBuilders.boolFilter().must(
 				FilterBuilders.termFilter("host", host)))
 		.execute().actionGet();
-
-	ObjectMapper mapper = new ObjectMapper();
 
 	// When the method is called, the number of hits is always equal to 1.
 	if (searchResponse.getHits().getHits().length > 0) {
@@ -160,7 +164,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	    this.updateOne(response.getId(), response.getSource());
 	} else {
-	    ObjectMapper mapper = new ObjectMapper();
 	    mapper.getSerializationConfig().without(
 		    SerializationFeature.WRITE_NULL_MAP_VALUES);
 
@@ -179,7 +182,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     public void updateOne(String id, Document server)
 	    throws JsonProcessingException, InterruptedException,
 	    ExecutionException {
-	ObjectMapper mapper = new ObjectMapper();
 	mapper.getSerializationConfig().without(
 		SerializationFeature.WRITE_NULL_MAP_VALUES);
 
@@ -192,7 +194,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     @Override
     public OutputWriter settings() throws JsonParseException,
 	    JsonMappingException, IOException {
-	ObjectMapper mapper = new ObjectMapper();
 	mapper.getSerializationConfig().without(
 		SerializationFeature.WRITE_NULL_MAP_VALUES);
 
@@ -218,7 +219,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
     @Override
     public void updateSettings(OutputWriter settings) throws IOException {
-	ObjectMapper mapper = new ObjectMapper();
 	mapper.getSerializationConfig().without(
 		SerializationFeature.WRITE_NULL_MAP_VALUES);
 
@@ -271,7 +271,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	List<ObjectNameRepresentation> objectnames = this.objectNames(host,
 		port);
 
-	ObjectMapper mapper = new ObjectMapper();
 	for (ObjectNameRepresentation obj : objectnames) {
 	    String json = mapper.writeValueAsString(obj);
 

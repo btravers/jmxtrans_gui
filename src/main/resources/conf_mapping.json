@@ -1,0 +1,48 @@
+  {
+    "properties": {
+       "servers": {
+          "properties": {
+             "host": {
+                "type": "string",
+                "index": "not_analyzed"
+             },
+             "queries": {
+                "properties": {
+                   "attr": {
+                      "type": "string",
+                	  "index": "not_analyzed"
+                   },
+                   "obj": {
+                      "type": "string",
+                	  "index": "not_analyzed"
+                   },
+                   "outputWriters": {
+                      "properties": {
+                         "@class": {
+                            "type": "string",
+                			"index": "not_analyzed"
+                         },
+                         "settings": {
+                            "properties": {
+                               "host": {
+                                  "type": "string",
+               					  "index": "not_analyzed"
+                               }
+                            }
+                         }
+                      }
+                   },
+                   "resultAlias": {
+                      "type": "string",
+                	  "index": "not_analyzed"
+                   },
+                   "typeNames": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                   }
+                }
+             }
+          }
+       }
+    }
+  }

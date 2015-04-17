@@ -1,6 +1,8 @@
 package com.zenika.back;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -9,7 +11,6 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "com.zenika.back.web", "com.zenika.back.service",
@@ -48,6 +51,11 @@ public class AppConfig {
 	ppc.setSearchSystemEnvironment(true);
 	ppc.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 	return ppc;
+    }
+    
+    @Bean
+    public ObjectMapper objectMapper() {
+	return new ObjectMapper();
     }
 
     @Bean
@@ -80,41 +88,18 @@ public class AppConfig {
 	try {
 	    client.admin().indices().create(new CreateIndexRequest(INDEX))
 		    .actionGet();
-	    client.admin()
-		    .indices()
-		    .preparePutMapping(INDEX)
-		    .setType(CONF_TYPE)
-		    .setSource(
-			    XContentFactory.jsonBuilder().prettyPrint()
-				    .startObject().startObject(CONF_TYPE)
-				    .startObject("properties")
-				    .startObject("servers")
-				    .startObject("properties")
-				    .startObject("host")
-				    .field("type", "string")
-				    .field("index", "not_analyzed").endObject()
-				    .endObject().endObject().endObject()
-				    .endObject().endObject()).execute()
+
+	    InputStream confMapping = getClass().getResourceAsStream("/conf_mapping.json");
+	    InputStream objectnameMapping = getClass().getResourceAsStream("/conf_mapping.json");
+	    
+	    ObjectMapper mapper = this.objectMapper();
+	   
+	    client.admin().indices().preparePutMapping(INDEX)
+		    .setType(CONF_TYPE).setSource(mapper.readValue(confMapping, Map.class)).execute()
 		    .actionGet();
-	    client.admin()
-		    .indices()
-		    .preparePutMapping(INDEX)
-		    .setType(OBJECTNAME_TYPE)
-		    .setSource(
-			    XContentFactory.jsonBuilder().prettyPrint()
-				    .startObject().startObject(OBJECTNAME_TYPE)
-				    .startObject("properties")
-				    .startObject("host")
-				    .field("type", "string")
-				    .field("index", "not_analyzed").endObject()
-				    .startObject("name")
-				    .field("type", "string")
-				    .field("index", "not_analyzed").endObject()
-				    .startObject("attributes")
-				    .field("type", "string")
-				    .field("index", "not_analyzed").endObject()
-				    .endObject().endObject()).execute()
-		    .actionGet();
+	    client.admin().indices().preparePutMapping(INDEX)
+		    .setType(OBJECTNAME_TYPE).setSource(mapper.readValue(objectnameMapping, Map.class))
+		    .execute().actionGet();
 	} catch (ElasticsearchException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
