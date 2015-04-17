@@ -1,4 +1,5 @@
   {
+    "_timestamp" : { "enabled" : true },
     "properties": {
        "servers": {
           "properties": {
