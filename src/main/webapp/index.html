@@ -58,6 +58,8 @@
 											<option value="com.googlecode.jmxtrans.model.output.DailyKeyOutWriter">DailyKeyOutWriter</option>
 											<option value="com.googlecode.jmxtrans.model.output.GangliaWriter">Ganglia</option>
 											<option value="com.googlecode.jmxtrans.model.output.GraphiteWriter">Graphite</option>
+											<option value="com.googlecode.jmxtrans.model.output.RRDToolWriter">RRDTool</option>
+											<option value="com.googlecode.jmxtrans.model.output.StatsDWriter">StatsD</option>
 										</select>
 									</div>
 
@@ -65,7 +67,8 @@
 									<daily-key-out-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriter'"></daily-key-out-writer-form>
 									<graphite-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GraphiteWriter'"></graphite-writer-form>
 									<ganglia-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GangliaWriter'"></ganglia-writer-form>
-																	
+									<stats-d-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.StatsDWriter'"></stats-d-writer-form>
+									<rrd-tool-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.RRDToolWriter'"></rrd-tool-writer-form>								
 								</div>
 								<div class="modal-footer">
 									<button type="button" class="btn btn-primary" ng-click="saveWriter()">Save changes</button>

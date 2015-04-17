@@ -1,0 +1,28 @@
+<span>
+	<div class="form-group">
+		<label class="control-label">Output file</label>
+		<input type="text" class="form-control" ng-model="writer.settings.outputFile">
+	</div>
+
+	<div class="form-group">
+		<label class="control-label">Template file</label>
+		<input type="text" class="form-control" ng-model="writer.settings.templateFile">
+	</div>
+
+	<div class="form-group">
+		<label class="control-label">Binary path</label>
+		<input type="text" class="form-control" ng-model="writer.settings.binaryPath">
+	</div>
+
+	<div class="checkbox">
+		<label class="control-label"><input type="checkbox" ng-model="writer.settings.generate"> Generate</label>
+	</div>
+
+	<div class="checkbox">
+		<label class="control-label"><input type="checkbox" ng-model="writer.settings.booleanAsNumber"> Boolean as number</label>
+	</div>
+
+	<div class="checkbox">
+		<label class="control-label"><input type="checkbox" ng-model="writer.settings.ttl"> Debug</label>
+	</div>
+</span>

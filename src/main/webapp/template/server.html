@@ -17,7 +17,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label">Host</label>
 					<div class="col-sm-10">
-						<input type="text" class="form-control" ng-model="server.server.host" ng-change="unsaved()">
+						<input type="text" class="form-control" ng-model="server.server.host" ng-change="unsaved(); loadJMXTree();">
 						<p class="text-danger" ng-show="showErrorMessage(index, 'host')">The submitted value is incorrect.</p>
 					</div>
 				</div>
@@ -25,7 +25,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label">Port</label>
 					<div class="col-sm-10">
-						<input type="text" class="form-control" ng-model="server.server.port" ng-change="unsaved()">
+						<input type="text" class="form-control" ng-model="server.server.port" ng-change="unsaved(); loadJMXTree();">
 						<p class="text-danger" ng-show="showErrorMessage(index, 'port')">The submitted value is incorrect.</p>
 					</div>
 				</div>
@@ -44,8 +44,6 @@
 					</div>
 				</div>
 
-				<button type="button" class="btn btn-lg btn-block btn-default" ng-click="loadJMXTree()">Load JMX tree for {{ server.server.host }}:{{ server.server.port }}</button>
-
 			</div>
 
 			<hr>
@@ -54,7 +52,7 @@
 
 				<query ng-repeat="query in server.server.queries" server="server" query="query" server-index="index" query-index="$index" error-message="errorMessage"></query>
 
-				<query ng-show="server.blankQuery" server="server" query="server.blankQuery" server-index="index" query-index="server.server.queries.length"></query>
+				<query ng-show="server.blankQuery" server="server" query="server.blankQuery" server-index="index" query-index="server.server.queries.length" error-message="errorMessage"></query>
 
 			</div>
 

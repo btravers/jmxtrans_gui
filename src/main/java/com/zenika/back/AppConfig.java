@@ -90,7 +90,7 @@ public class AppConfig {
 		    .actionGet();
 
 	    InputStream confMapping = getClass().getResourceAsStream("/conf_mapping.json");
-	    InputStream objectnameMapping = getClass().getResourceAsStream("/conf_mapping.json");
+	    InputStream objectnameMapping = getClass().getResourceAsStream("/objectname_mapping.json");
 	    
 	    ObjectMapper mapper = this.objectMapper();
 	   

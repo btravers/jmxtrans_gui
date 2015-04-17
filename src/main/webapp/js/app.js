@@ -20,8 +20,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			$http(req)
 				.success(function(response) {
 					$scope.list = response;
-				})
-				.error(console.log);
+				});
 		}, 1000);
 	};
 
@@ -47,8 +46,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				} else if ($scope.servers && $scope.servers.length > 0) {
 					$scope.display($scope.servers[0].server.host);
 				}
-			})
-			.error(console.log);
+			});
 	};
 
 	$scope.updateServersList();
@@ -100,8 +98,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				setTimeout(function() {
 					$scope.updateServersList();
 				}, 1000);
-			})
-			.error(console.log);
+			});
 	};
 
 	$scope.duplicate = function(item) {
@@ -124,8 +121,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				};
 				$scope.blankServer.server.host = null;
 				$scope.blankServer.server.port = null;
-			})
-			.error(console.log);
+			});
 	};
 
 	$scope.display = function(item) {
@@ -149,14 +145,28 @@ app.controller('Main', function($scope, $http, FileUploader) {
 					};
 
 					$scope.servers = [server];
+
+					$scope.loadJMXTree(server.server.host, server.server.port);
 				} else {
 					$scope.servers = [];
 				}
-				
 
 				$scope.blankServer = null;
-			})
-			.error(console.log);
+
+			});
+	};
+
+	$scope.loadJMXTree = function(host, port) {
+		var req = {
+			method: 'GET',
+			url: 'service/refresh',
+			params: {
+				host: host,
+				port: port
+			}
+		};
+
+		$http(req);			
 	};
 
 	$scope.addBlankServer = function() {
@@ -200,18 +210,20 @@ app.directive('server', function() {
 			};
 
 			$scope.loadJMXTree = function() {
-				var req = {
-					method: 'GET',
-					url: 'service/refresh',
-					params: {
-						host: $scope.server.server.host,
-						port: $scope.server.server.port
-					}
-				};
+				if ($scope.server.server.host && $scope.server.server.port) {
+					var req = {
+						method: 'GET',
+						url: 'service/refresh',
+						params: {
+							host: $scope.server.server.host,
+							port: $scope.server.server.port
+						}
+					};
 
-				$http(req);			
+					$http(req);	
+				}		
 			};
-
+			
 			$scope.addBlankQuery = function() {
 				if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
 					if (!$scope.server.queries) {
@@ -368,8 +380,7 @@ app.directive('query', function() {
 					$http(req)
 						.success(function(response) {
 							$scope.nameSuggestions = response;
-						})
-						.error(console.log);
+						});
 				}
 			};
 
@@ -387,8 +398,7 @@ app.directive('query', function() {
 					$http(req)
 						.success(function(response) {
 							$scope.attrSuggestions = response;
-						})
-						.error(console.log);
+						});
 				}
 			};
 
@@ -495,5 +505,27 @@ app.directive('graphiteWriterForm', function() {
 			writer: '=writer'
 		},
 		templateUrl: 'template/graphiteWriterForm.html'
+	};
+});
+
+app.directive('statsDWriterForm', function() {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			writer: '=writer'
+		},
+		templateUrl: 'template/statsDWriterForm.html'
+	};
+});
+
+app.directive('rrdToolWriterForm', function() {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			writer: '=writer'
+		},
+		templateUrl: 'template/rrdToolWriterForm.html'
 	};
 });
