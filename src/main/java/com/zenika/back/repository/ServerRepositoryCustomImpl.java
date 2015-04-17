@@ -55,7 +55,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     public void setClient(Client client) {
 	this.client = client;
     }
-    
+
     @Autowired
     public void setMapper(ObjectMapper mapper) {
 	this.mapper = mapper;
@@ -73,6 +73,11 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.CONF_TYPE)
 		.setQuery(QueryBuilders.termQuery("host", host)).execute()
 		.actionGet();
+
+	this.client.prepareDeleteByQuery(AppConfig.INDEX)
+		.setTypes(AppConfig.OBJECTNAME_TYPE)
+		.setQuery(QueryBuilders.termQuery("host", host)).execute()
+		.actionGet();
     }
 
     @Override
@@ -84,7 +89,8 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.CONF_TYPE)
 		.setQuery(QueryBuilders.matchAllQuery())
 		.addAggregation(
-			AggregationBuilders.terms(aggregatorTerm).field("host").order(Terms.Order.term(true)).size(0))
+			AggregationBuilders.terms(aggregatorTerm).field("host")
+				.order(Terms.Order.term(true)).size(0))
 		.execute().actionGet();
 
 	Terms agg = response.getAggregations().get(aggregatorTerm);
@@ -197,6 +203,8 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	mapper.getSerializationConfig().without(
 		SerializationFeature.WRITE_NULL_MAP_VALUES);
 
+	// TODO remove corresponding object name if host change
+	
 	GetResponse getResponse = this.client
 		.prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
 			AppConfig.SETTINGS_ID).execute().actionGet();
@@ -347,7 +355,8 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
 		.setQuery(QueryBuilders.termQuery("host", host))
 		.addAggregation(
-			AggregationBuilders.terms("names").field("name").order(Terms.Order.term(true)).size(0))
+			AggregationBuilders.terms("names").field("name")
+				.order(Terms.Order.term(true)).size(0))
 		.execute().actionGet();
 
 	Collection<String> result = new ArrayList<String>();
