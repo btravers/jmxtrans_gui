@@ -4,15 +4,21 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.stereotype.Component;
+
+@Component
 public class Query {
 
-    @NotNull
+    @NotNull @NotEmpty
     private String obj;
     private Collection<String> keys;
+    @NotNull @NotEmpty
     private Collection<String> attr;
     private Collection<String> typeNames;
     private String resultAlias;
     private boolean allowDottedKeys;
+    @NotNull @NotEmpty
     private Collection<OutputWriter> outputWriters;
 
     public String getObj() {

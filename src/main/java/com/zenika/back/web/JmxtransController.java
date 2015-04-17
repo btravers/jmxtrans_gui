@@ -85,11 +85,7 @@ public class JmxtransController {
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
     @ResponseBody
-    public void addServer(@RequestBody @Valid Document server,
-	    BindingResult result) {
-	if (result.hasErrors()) {
-	    return;
-	}
+    public void addServer(@Valid @RequestBody Document server) {
 	try {
 	    this.jmxtransService.addServer(server);
 	} catch (JsonProcessingException e) {
@@ -111,10 +107,7 @@ public class JmxtransController {
     @ResponseBody
     public void updateServer(
 	    @RequestParam(value = "id", required = true) String id,
-	    @RequestBody @Valid Document server, BindingResult result) {
-	if (result.hasErrors()) {
-	    return;
-	}
+	    @Valid @RequestBody Document server) {
 	try {
 	    this.jmxtransService.updateServer(id, server);
 	} catch (JsonProcessingException e) {
@@ -132,11 +125,7 @@ public class JmxtransController {
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
     @ResponseBody
-    public void updateSettings(@RequestBody @Valid OutputWriter settings,
-	    BindingResult result) {
-	if (result.hasErrors()) {
-	    return;
-	}
+    public void updateSettings(@Valid @RequestBody OutputWriter settings) {
 	try {
 	    this.jmxtransService.updateSettings(settings);
 	} catch (IOException e) {

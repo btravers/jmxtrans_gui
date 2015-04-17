@@ -2,12 +2,17 @@ package com.zenika.back.model;
 
 import java.util.Collection;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.stereotype.Component;
+
+@Component
 public class Server {
 
     private String alias;
-    @NotNull
+    @NotNull @NotEmpty
     private String host;
     @NotNull
     private Integer port;
@@ -21,6 +26,7 @@ public class Server {
     // if using local JMX to embed JmxTrans to query the local MBeanServer
     private boolean local;
 
+    @Valid @NotEmpty 
     private Collection<Query> queries;
 
     public String getAlias() {

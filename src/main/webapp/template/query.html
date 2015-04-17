@@ -18,6 +18,7 @@
 					<label class="col-sm-2 control-label">Object</label>
 					<div class="col-sm-10">
 						<input type="text" class="form-control" ng-model="query.obj" ng-change="unsaved(); suggestName(query.obj);" typeahead="name for name in nameSuggestions | filter:$viewValue | limitTo:10">
+						<p class="text-danger" ng-show="showErrorMessage(serverIndex, queryIndex, 'obj')">The submitted value is incorrect.</p>
 					</div>
 				</div>
 
@@ -73,6 +74,8 @@
 						<button type="button" class="btn btn-danger" ng-click="removeBlankAttr()"><span class="glyphicon glyphicon-remove"></span> Remove</button>
 					</div>
 				</div>
+
+				<p class="text-danger" ng-show="showErrorMessage(serverIndex, queryIndex, 'attr')">At least one attribute must be supplied.</p>
 
 				<button type="button" class="btn btn-lg btn-block btn-default" ng-click="addBlankAttr()">Add an attribute</button>
 

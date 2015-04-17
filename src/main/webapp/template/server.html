@@ -18,6 +18,7 @@
 					<label class="col-sm-2 control-label">Host</label>
 					<div class="col-sm-10">
 						<input type="text" class="form-control" ng-model="server.server.host" ng-change="unsaved()">
+						<p class="text-danger" ng-show="showErrorMessage(index, 'host')">The submitted value is incorrect.</p>
 					</div>
 				</div>
 				
@@ -25,6 +26,7 @@
 					<label class="col-sm-2 control-label">Port</label>
 					<div class="col-sm-10">
 						<input type="text" class="form-control" ng-model="server.server.port" ng-change="unsaved()">
+						<p class="text-danger" ng-show="showErrorMessage(index, 'port')">The submitted value is incorrect.</p>
 					</div>
 				</div>
 
@@ -50,11 +52,13 @@
 
 			<div class="panel-group" id="query-accordion{{ index }}" role="tablist" aria-multiselectable="true">
 
-				<query ng-repeat="query in server.server.queries" server="server" query="query" server-index="index" query-index="$index"></query>
+				<query ng-repeat="query in server.server.queries" server="server" query="query" server-index="index" query-index="$index" error-message="errorMessage"></query>
 
 				<query ng-show="server.blankQuery" server="server" query="server.blankQuery" server-index="index" query-index="server.server.queries.length"></query>
 
 			</div>
+
+			<p class="text-danger" ng-show="showErrorMessage(index, 'queries')">At least one query must be supplied.</p>
 
 			<button type="button" class="btn btn-lg btn-block" ng-class="{'btn-info': server.saved, 'btn-warning': !server.saved}" ng-click="addBlankQuery()">Add a new query</button>
 

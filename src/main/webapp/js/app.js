@@ -4,6 +4,8 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	
 	$scope.list = [];
 
+	$scope.errorMessage = {};
+
 	$scope.uploader = new FileUploader({ 
 		url: 'service/upload' 
 	});
@@ -75,7 +77,11 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			.success(function(response) {
 
 			})
-			.error(console.log);
+			.error(function(response) {
+				angular.forEach(response, function(message) {
+					$scope.errorMessage[message.field] = message.message;
+				});
+			});
 	};
 
 	$scope.delete = function(item) {
@@ -183,6 +189,16 @@ app.directive('server', function() {
 
 			$scope.update = $scope.updateServersList();
 
+			$scope.errorMessage = {};
+
+			$scope.showErrorMessage = function(index, field) {
+				var s = 'servers[' + index + '].' + field;
+
+				console.log($scope.errorMessage);
+				console.log(s);
+				return typeof $scope.errorMessage[s] != "undefined" && $scope.errorMessage[s] != null;
+			};
+
 			$scope.loadJMXTree = function() {
 				var req = {
 					method: 'GET',
@@ -229,7 +245,7 @@ app.directive('server', function() {
 			};
 
 			$scope.saveServer = function() {
-				if (!$scope.server.saved && $scope.server.server.host && $scope.server.server.port) {
+				if (!$scope.server.saved) {
 					if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
 						if (!$scope.server.queries) {
 							$scope.server.queries = [];
@@ -281,7 +297,11 @@ app.directive('server', function() {
 									$scope.update();
 								}, 1000);
 							})
-							.error(console.log);
+							.error(function(response) {
+								angular.forEach(response, function(message) {
+									$scope.errorMessage[message.field] = message.message;
+								});
+							});
 					} else {
 						var req = {
 							method: 'POST',
@@ -298,7 +318,11 @@ app.directive('server', function() {
 									$scope.update();
 								}, 1000);
 							})
-							.error(console.log);
+							.error(function(response) {
+								angular.forEach(response, function(message) {
+									$scope.errorMessage[message.field] = message.message;
+								});
+							});
 					}
 				}
 			};
@@ -320,9 +344,18 @@ app.directive('query', function() {
 			query: '=query',
 			server: '=server',
 			queryIndex: '=queryIndex',
-			serverIndex: '=serverIndex'
+			serverIndex: '=serverIndex',
+			errorMessage: "=errorMessage"
 		},
 		controller: function($scope, $http) {
+
+			$scope.showErrorMessage = function(serverIndex, queryIndex, field) {
+				var s = 'servers[' + serverIndex + '].queries[' + queryIndex + '].' + field;
+
+				console.log($scope.errorMessage);
+				console.log(s);
+				return typeof $scope.errorMessage[s] != "undefined" && $scope.errorMessage[s] != null;
+			};
 
 			$scope.suggestName = function(name) {
 				if (!$scope.nameSuggestions) {

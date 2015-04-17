@@ -23,7 +23,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @ComponentScan({ "com.zenika.back.web", "com.zenika.back.service",
-	"com.zenika.back.repository" })
+	"com.zenika.back.repository", "com.zenika.back.model" })
 @EnableWebMvc
 public class AppConfig {
     public static final String INDEX = ".jmxtrans";

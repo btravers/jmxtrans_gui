@@ -2,14 +2,19 @@ package com.zenika.back.model;
 
 import java.util.Collection;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class ObjectNameRepresentation {
 
-    @NotNull
+    @NotNull @NotEmpty
     private String host;
-    @NotNull
+    @NotNull @NotEmpty
     private String name;
+    @NotEmpty
+    @Valid
     private Collection<String> attributes;
 
     public String getHost() {

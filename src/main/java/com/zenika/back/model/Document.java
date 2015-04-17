@@ -2,9 +2,15 @@ package com.zenika.back.model;
 
 import java.util.Collection;
 
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 public class Document {
 
+    
     private String name;
+    @Valid @NotEmpty
     private Collection<Server> servers;
     private Integer numMultiThreadedServers;
 
