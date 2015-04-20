@@ -4,6 +4,8 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	
 	$scope.list = [];
 
+	$scope.alerts = [];
+
 	$scope.errorMessage = {};
 
 	$scope.uploader = new FileUploader({ 
@@ -20,6 +22,12 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			$http(req)
 				.success(function(response) {
 					$scope.list = response;
+				})
+				.error(function(response) {
+					$scope.alerts.push({
+						type: 'danger',
+						message: 'Fail to load severs list.'
+					});
 				});
 		}, 1000);
 	};
@@ -46,6 +54,12 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				} else if ($scope.servers && $scope.servers.length > 0) {
 					$scope.display($scope.servers[0].server.host);
 				}
+			})
+			.error(function(response) {
+				$scope.alerts.push({
+					type: 'danger',
+					message: 'Fail to load severs list.'
+				});
 			});
 	};
 
@@ -85,11 +99,14 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	};
 
 	$scope.delete = function(item) {
+		var host = item.split(':');
+
 		var req = {
 			method: 'DELETE',
 			url: 'service/server',
 			params: {
-				host: item
+				host: host[0],
+				port: host[1]
 			}
 		};
 
@@ -98,15 +115,24 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				setTimeout(function() {
 					$scope.updateServersList();
 				}, 1000);
+			})
+			.error(function(response) {
+				$scope.alerts.push({
+					type: 'danger',
+					message: 'Fail to delete the server.'
+				});
 			});
 	};
 
 	$scope.duplicate = function(item) {
+		var host = item.split(':');
+
 		var req = {
 			method: 'GET',
 			url: 'service/server',
 			params: {
-				host: item
+				host: host[0],
+				port: host[1]
 			}
 		};
 
@@ -121,15 +147,24 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				};
 				$scope.blankServer.server.host = null;
 				$scope.blankServer.server.port = null;
+			})
+			.error(function(response) {
+				$scope.alerts.push({
+					type: 'danger',
+					message: 'Fail to load the requested server.'
+				});
 			});
 	};
 
 	$scope.display = function(item) {
+		var host = item.split(':');
+
 		var req = {
 			method: 'GET',
 			url: 'service/server',
 			params: {
-				host: item
+				host: host[0],
+				port: host[1]
 			}
 		};
 
@@ -153,6 +188,12 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 				$scope.blankServer = null;
 
+			})
+			.error(function(response) {
+				$scope.alerts.push({
+					type: 'danger',
+					message: 'Fail to load the requested server.'
+				});
 			});
 	};
 
@@ -166,7 +207,13 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			}
 		};
 
-		$http(req);			
+		$http(req)
+			.error(function(response) {
+				$scope.alerts.push({
+					type: 'danger',
+					message: 'Fail to load JMX tree in elasticsearch.'
+				});
+			});		
 	};
 
 	$scope.addBlankServer = function() {
@@ -195,7 +242,8 @@ app.directive('server', function() {
 			server: '=server',
 			index: '=index',
 			writer: '=writer',
-			updateServersList: '&updateServersList'
+			updateServersList: '&updateServersList',
+			alerts: '=alerts'
 		},
 		controller: function($scope, $http) {
 
@@ -220,7 +268,13 @@ app.directive('server', function() {
 						}
 					};
 
-					$http(req);	
+					$http(req)
+						.error(function(response) {
+							$scope.alerts.push({
+								type: 'danger',
+								message: 'Fail to load JMX tree.'
+							});
+						});
 				}		
 			};
 			
@@ -377,7 +431,8 @@ app.directive('query', function() {
 						method: 'GET',
 						url: 'service/suggest_name',
 						params: {
-							host: $scope.server.server.host
+							host: $scope.server.server.host,
+							port: $scope.server.server.port
 						}
 					};
 
@@ -397,6 +452,7 @@ app.directive('query', function() {
 						url: 'service/suggest_attr',
 						params: {
 							host: $scope.server.server.host,
+							port: $scope.server.server.port,
 							name: $scope.query.obj
 						}
 					};

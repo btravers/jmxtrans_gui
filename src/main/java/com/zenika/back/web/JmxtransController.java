@@ -32,8 +32,9 @@ import com.zenika.back.service.JmxtransService;
 
 @Controller
 public class JmxtransController {
-    
-    private static final Logger logger = LoggerFactory.getLogger(JmxtransController.class);
+
+    private static final Logger logger = LoggerFactory
+	    .getLogger(JmxtransController.class);
 
     private JmxtransService jmxtransService;
 
@@ -49,6 +50,8 @@ public class JmxtransController {
 	    return this.jmxtransService.findHosts();
 	} catch (JsonProcessingException e) {
 	    logger.error(e.getMessage());
+	} catch (IOException e) {
+	    logger.error(e.getMessage());
 	}
 	return null;
     }
@@ -56,9 +59,10 @@ public class JmxtransController {
     @RequestMapping(value = "/server", method = RequestMethod.GET)
     @ResponseBody
     public Response showServer(
-	    @RequestParam(value = "host", required = true) String host) {
+	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "port", required = true) int port) {
 	try {
-	    return this.jmxtransService.findServersByHost(host);
+	    return this.jmxtransService.findServersByHost(host, port);
 	} catch (JsonParseException e) {
 	    logger.error(e.getMessage());
 	} catch (JsonMappingException e) {
@@ -76,8 +80,9 @@ public class JmxtransController {
     @RequestMapping(value = "/server", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteServer(
-	    @RequestParam(value = "host", required = true) String host) {
-	this.jmxtransService.deleteServer(host);
+	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "port", required = true) int port) {
+	this.jmxtransService.deleteServer(host, port);
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
@@ -193,16 +198,18 @@ public class JmxtransController {
     @RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
     @ResponseBody
     public Collection<String> prefixNameSuggestion(
-	    @RequestParam(value = "host", required = true) String host) {
-	return this.jmxtransService.prefixNameSuggestion(host);
+	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "port", required = true) int port) {
+	return this.jmxtransService.prefixNameSuggestion(host, port);
     }
 
     @RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
     @ResponseBody
     public Collection<String> prefixAttrSuggestion(
 	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "port", required = true) int port,
 	    @RequestParam(value = "name", required = true) String name) {
-	return this.jmxtransService.prefixAttrSuggestion(host, name);
+	return this.jmxtransService.prefixAttrSuggestion(host, port, name);
     }
 
 }

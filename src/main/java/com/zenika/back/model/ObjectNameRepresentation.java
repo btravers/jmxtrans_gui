@@ -12,6 +12,8 @@ public class ObjectNameRepresentation {
     @NotNull @NotEmpty
     private String host;
     @NotNull @NotEmpty
+    private Integer port;
+    @NotNull @NotEmpty
     private String name;
     @NotEmpty
     @Valid
@@ -23,6 +25,14 @@ public class ObjectNameRepresentation {
 
     public void setHost(String host) {
 	this.host = host;
+    }
+    
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 
     public String getName() {

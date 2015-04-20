@@ -12,9 +12,9 @@ import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Response;
 
 public interface ServerRepositoryCustom {
-    Collection<String> findAllHost() throws JsonProcessingException;
+    Collection<String> findAllHost() throws JsonProcessingException, IOException;
 
-    Response getByHost(String host) throws JsonParseException,
+    Response getByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,
 	    ExecutionException;
 
@@ -26,7 +26,7 @@ public interface ServerRepositoryCustom {
     void updateOne(String id, Document server) throws JsonProcessingException,
 	    InterruptedException, ExecutionException;
 
-    void delete(String host);
+    void delete(String host, int port);
 
     OutputWriter settings() throws JsonParseException, JsonMappingException,
 	    IOException;
@@ -36,8 +36,8 @@ public interface ServerRepositoryCustom {
 
     void updateSettings(OutputWriter settings) throws IOException;
 
-    Collection<String> prefixAttrSuggestion(String host, String name);
+    Collection<String> prefixAttrSuggestion(String host, int port, String name);
 
-    Collection<String> prefixNameSuggestion(String host);
+    Collection<String> prefixNameSuggestion(String host, int port);
 
 }

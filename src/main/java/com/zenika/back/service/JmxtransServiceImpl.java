@@ -27,20 +27,20 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public Collection<String> findHosts() throws JsonProcessingException {
+    public Collection<String> findHosts() throws JsonProcessingException, IOException {
 	return this.serverRepositoryCustom.findAllHost();
     }
 
     @Override
-    public Response findServersByHost(String host) throws JsonParseException,
+    public Response findServersByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,
 	    ExecutionException {
-	return this.serverRepositoryCustom.getByHost(host);
+	return this.serverRepositoryCustom.getByHost(host, port);
     }
 
     @Override
-    public void deleteServer(String host) {
-	this.serverRepositoryCustom.delete(host);
+    public void deleteServer(String host, int port) {
+	this.serverRepositoryCustom.delete(host, port);
     }
 
     @Override
@@ -74,13 +74,13 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public Collection<String> prefixNameSuggestion(String host) {
-	return this.serverRepositoryCustom.prefixNameSuggestion(host);
+    public Collection<String> prefixNameSuggestion(String host, int port) {
+	return this.serverRepositoryCustom.prefixNameSuggestion(host, port);
     }
 
     @Override
-    public Collection<String> prefixAttrSuggestion(String host, String name) {
-	return this.serverRepositoryCustom.prefixAttrSuggestion(host, name);
+    public Collection<String> prefixAttrSuggestion(String host, int port, String name) {
+	return this.serverRepositoryCustom.prefixAttrSuggestion(host, port, name);
     }
 
 }

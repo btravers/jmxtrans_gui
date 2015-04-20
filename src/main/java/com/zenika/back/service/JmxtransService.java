@@ -13,9 +13,9 @@ import com.zenika.back.model.Response;
 
 public interface JmxtransService {
 
-    Collection<String> findHosts() throws JsonProcessingException;
+    Collection<String> findHosts() throws JsonProcessingException, IOException;
 
-    Response findServersByHost(String host) throws JsonParseException,
+    Response findServersByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,
 	    ExecutionException;
 
@@ -29,15 +29,15 @@ public interface JmxtransService {
     OutputWriter getSettings() throws JsonParseException, JsonMappingException,
 	    IOException;
 
-    void deleteServer(String host);
+    void deleteServer(String host, int port);
 
     void refresh(String host, int port) throws JsonProcessingException,
 	    InterruptedException, ExecutionException;
 
     void updateSettings(OutputWriter settings) throws IOException;
 
-    Collection<String> prefixAttrSuggestion(String host, String name);
+    Collection<String> prefixAttrSuggestion(String host, int port, String name);
 
-    Collection<String> prefixNameSuggestion(String host);
+    Collection<String> prefixNameSuggestion(String host, int port);
 
 }

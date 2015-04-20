@@ -49,8 +49,9 @@ import com.zenika.back.model.Server;
 
 @Repository
 public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
-    
-    private static final Logger logger = LoggerFactory.getLogger(ServerRepositoryCustomImpl.class);
+
+    private static final Logger logger = LoggerFactory
+	    .getLogger(ServerRepositoryCustomImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
@@ -72,11 +73,17 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public void delete(String host) {
-	this.client.prepareDeleteByQuery(AppConfig.INDEX)
+    public void delete(String host, int port) {
+	this.client
+		.prepareDeleteByQuery(AppConfig.INDEX)
 		.setTypes(AppConfig.CONF_TYPE)
-		.setQuery(QueryBuilders.termQuery("servers.host", host)).execute()
-		.actionGet();
+		.setQuery(
+			QueryBuilders
+				.boolQuery()
+				.must(QueryBuilders.termQuery("servers.host",
+					host))
+				.must(QueryBuilders.termQuery("servers.port",
+					port))).execute().actionGet();
 
 	this.client.prepareDeleteByQuery(AppConfig.INDEX)
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
@@ -85,30 +92,26 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public Collection<String> findAllHost() throws JsonProcessingException {
-	String aggregatorTerm = "hosts";
-
-	SearchResponse response = this.client
-		.prepareSearch(AppConfig.INDEX)
+    public Collection<String> findAllHost() throws JsonParseException, JsonMappingException, IOException {
+	SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.CONF_TYPE)
-		.setQuery(QueryBuilders.matchAllQuery())
-		.addAggregation(
-			AggregationBuilders.terms(aggregatorTerm).field("servers.host")
-				.order(Terms.Order.term(true)).size(0))
-		.execute().actionGet();
-
-	Terms agg = response.getAggregations().get(aggregatorTerm);
+		.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
 
 	List<String> hosts = new ArrayList<String>();
-	for (Bucket b : agg.getBuckets()) {
-	    hosts.add(b.getKey());
+	for (SearchHit hit : response.getHits().getHits()) {
+	    Document doc = mapper.readValue(hit.getSourceAsString(), Document.class);
+	    
+	    // Actually, there is only one server per document
+	    for (Server server : doc.getServers()) {
+		hosts.add(server.getHost() + ":" + server.getPort());
+	    }
 	}
 
 	return hosts;
     }
 
     @Override
-    public Response getByHost(String host) throws JsonParseException,
+    public Response getByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,
 	    ExecutionException {
 	SearchResponse searchResponse = this.client
@@ -116,9 +119,12 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.CONF_TYPE)
 		.setQuery(QueryBuilders.matchAllQuery())
 		.setPostFilter(
-			FilterBuilders.boolFilter().must(
-				FilterBuilders.termFilter("servers.host", host)))
-		.execute().actionGet();
+			FilterBuilders
+				.boolFilter()
+				.must(FilterBuilders.termFilter("servers.host",
+					host))
+				.must(FilterBuilders.termFilter("servers.port",
+					port))).execute().actionGet();
 
 	// When the method is called, the number of hits is always equal to 1.
 	if (searchResponse.getHits().getHits().length > 0) {
@@ -165,8 +171,9 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     @Override
     public void save(Document server) throws InterruptedException,
 	    ExecutionException, IOException {
-	Response response = this.getByHost(server.getServers().iterator()
-		.next().getHost());
+
+	Server s = server.getServers().iterator().next();
+	Response response = this.getByHost(s.getHost(), s.getPort());
 
 	if (response.getSource() != null) {
 	    response.getSource().getServers().iterator().next().getQueries()
@@ -309,6 +316,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	    for (ObjectName name : beanSet) {
 		ObjectNameRepresentation tmp = new ObjectNameRepresentation();
 		tmp.setHost(host);
+		tmp.setPort(port);
 		tmp.setName(name.toString());
 
 		List<String> attributes = new ArrayList<String>();
@@ -345,11 +353,14 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public Collection<String> prefixNameSuggestion(String host) {
+    public Collection<String> prefixNameSuggestion(String host, int port) {
 	SearchResponse response = this.client
 		.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
-		.setQuery(QueryBuilders.termQuery("host", host))
+		.setQuery(
+			QueryBuilders.boolQuery()
+				.must(QueryBuilders.termQuery("host", host))
+				.must(QueryBuilders.termQuery("port", port)))
 		.addAggregation(
 			AggregationBuilders.terms("names").field("name")
 				.order(Terms.Order.term(true)).size(0))
@@ -366,7 +377,8 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public Collection<String> prefixAttrSuggestion(String host, String name) {
+    public Collection<String> prefixAttrSuggestion(String host, int port,
+	    String name) {
 	SearchResponse response = this.client
 		.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.OBJECTNAME_TYPE)
@@ -374,6 +386,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setQuery(
 			QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("host", host))
+				.must(QueryBuilders.termQuery("port", port))
 				.must(QueryBuilders.termQuery("name", name)))
 		.execute().actionGet();
 
