@@ -371,7 +371,7 @@ app.directive('query', function() {
 				return s in $scope.errorMessage;
 			};
 
-			$scope.suggestName = function(name) {
+			$scope.suggestName = function() {
 				if (!$scope.nameSuggestions) {
 					var req = {
 						method: 'GET',
@@ -386,9 +386,11 @@ app.directive('query', function() {
 							$scope.nameSuggestions = response;
 						});
 				}
+
+				$scope.attrSuggestions = null;
 			};
 
-			$scope.suggestAttr = function(attr) {
+			$scope.suggestAttr = function() {
 				if (!$scope.attrSuggestions) {
 					var req = {
 						method: 'GET',

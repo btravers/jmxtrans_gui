@@ -17,7 +17,7 @@
 				<div class="form-group" ng-class="{'has-error': showErrorMessage(serverIndex, queryIndex, 'obj')}">
 					<label class="col-sm-2 control-label">Object</label>
 					<div class="col-sm-10">
-						<input type="text" class="form-control" ng-model="query.obj" ng-change="unsaved(); suggestName(query.obj);" typeahead="name for name in nameSuggestions | filter:$viewValue | limitTo:10">
+						<input type="text" class="form-control" ng-model="query.obj" ng-change="unsaved(); suggestName();" typeahead="name for name in nameSuggestions | filter:$viewValue | limitTo:10">
 						<p class="text-danger" ng-show="showErrorMessage(serverIndex, queryIndex, 'obj')">The submitted value is incorrect.</p>
 					</div>
 				</div>
@@ -58,7 +58,7 @@
 				<div ng-repeat="(i, attr) in query.attr track by $index" class="form-group">
 					<label class="col-sm-2 control-label">Attribute {{ $index + 1 }}</label>
 					<div class="col-sm-8">
-						<input type="text" class="form-control" ng-model="query.attr[i]" ng-change="unsaved(); suggestAttr(query.attr[i]);" typeahead="attr for attr in attrSuggestions | filter:$viewValue | limitTo:10">
+						<input type="text" class="form-control" ng-model="query.attr[i]" ng-change="unsaved(); suggestAttr();" typeahead="attr for attr in attrSuggestions | filter:$viewValue | limitTo:10">
 					</div>
 					<div class="col-sm-2">
 						<button type="button" class="btn btn-danger" ng-click="removeAttr($index)"><span class="glyphicon glyphicon-remove"></span> Remove</button>
@@ -68,7 +68,7 @@
 				<div ng-show="server.blankAttr[queryIndex]" class="form-group">
 					<label class="col-sm-2 control-label">Attribute {{ query.attr.length + 1 }}</label>
 					<div class="col-sm-8">
-						<input type="text" class="form-control" ng-model="server.blankAttr[queryIndex].value" ng-change="unsaved(); suggestAttr(server.blankAttr[queryIndex].value);" typeahead="attr for attr in attrSuggestions | filter:$viewValue | limitTo:10">
+						<input type="text" class="form-control" ng-model="server.blankAttr[queryIndex].value" ng-change="unsaved(); suggestAttr();" typeahead="attr for attr in attrSuggestions | filter:$viewValue | limitTo:10">
 					</div>
 					<div class="col-sm-2">
 						<button type="button" class="btn btn-danger" ng-click="removeBlankAttr()"><span class="glyphicon glyphicon-remove"></span> Remove</button>
