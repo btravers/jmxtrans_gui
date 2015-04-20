@@ -3,6 +3,8 @@ package com.zenika.back.web;
 import java.util.List;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -22,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ControllerAdvice
 public class RestErrorHandler extends ResponseEntityExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(RestErrorHandler.class);
+
     private MessageSource messageSource;
 
     @Autowired
@@ -39,8 +43,7 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
 	try {
 	    return new ResponseEntity(mapper.writeValueAsString(this.processValidationError(ex).getFieldErrors()), headers, status);
 	} catch (JsonProcessingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
 	
 	return new ResponseEntity("An error occured.", headers, HttpStatus.OK);

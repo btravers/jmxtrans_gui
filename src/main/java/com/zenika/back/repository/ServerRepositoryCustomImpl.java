@@ -29,6 +29,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -47,6 +49,8 @@ import com.zenika.back.model.Server;
 
 @Repository
 public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ServerRepositoryCustomImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
@@ -318,27 +322,21 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	    return result;
 	} catch (MalformedURLException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (InstanceNotFoundException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (IntrospectionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (ReflectionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} finally {
 	    if (jmxConnector != null) {
 		try {
 		    jmxConnector.close();
 		} catch (IOException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
+		    logger.error(e.getMessage());
 		}
 	    }
 	}

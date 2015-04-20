@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +32,8 @@ import com.zenika.back.service.JmxtransService;
 
 @Controller
 public class JmxtransController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(JmxtransController.class);
 
     private JmxtransService jmxtransService;
 
@@ -44,8 +48,7 @@ public class JmxtransController {
 	try {
 	    return this.jmxtransService.findHosts();
 	} catch (JsonProcessingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
 	return null;
     }
@@ -57,20 +60,15 @@ public class JmxtransController {
 	try {
 	    return this.jmxtransService.findServersByHost(host);
 	} catch (JsonParseException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (JsonMappingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (ExecutionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
 	return null;
     }
@@ -88,17 +86,13 @@ public class JmxtransController {
 	try {
 	    this.jmxtransService.addServer(server);
 	} catch (JsonProcessingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (ExecutionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
     }
 
@@ -110,16 +104,12 @@ public class JmxtransController {
 	try {
 	    this.jmxtransService.updateServer(id, server);
 	} catch (JsonProcessingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (ExecutionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
-	;
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
@@ -128,8 +118,7 @@ public class JmxtransController {
 	try {
 	    this.jmxtransService.updateSettings(settings);
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
     }
 
@@ -139,14 +128,11 @@ public class JmxtransController {
 	try {
 	    return this.jmxtransService.getSettings();
 	} catch (JsonParseException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (JsonMappingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
 	return null;
     }
@@ -179,14 +165,11 @@ public class JmxtransController {
 		    this.jmxtransService.addServer(d);
 		}
 	    } catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		logger.error(e.getMessage());
 	    } catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		logger.error(e.getMessage());
 	    } catch (ExecutionException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		logger.error(e.getMessage());
 	    }
 	}
     }
@@ -199,14 +182,11 @@ public class JmxtransController {
 	try {
 	    this.jmxtransService.refresh(host, port);
 	} catch (JsonProcessingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	} catch (ExecutionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
     }
 

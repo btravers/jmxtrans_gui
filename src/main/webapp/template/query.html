@@ -31,7 +31,7 @@
 
 				<hr>
 
-				<div ng-repeat="(i, attr) in query.typeNames track by $index" class="form-group">
+				<div ng-repeat="(i, typeName) in query.typeNames track by $index" class="form-group">
 					<label class="col-sm-2 control-label">Type name {{ $index + 1 }}</label>
 					<div class="col-sm-8">
 						<input type="text" class="form-control" ng-model="query.typeNames[i]" ng-change="unsaved()">

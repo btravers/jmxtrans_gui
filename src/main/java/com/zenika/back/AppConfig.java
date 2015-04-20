@@ -13,6 +13,8 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +31,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	"com.zenika.back.repository" })
 @EnableWebMvc
 public class AppConfig {
+    private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
+    
     public static final String INDEX = ".jmxtrans";
     public static final String CONF_TYPE = "conf";
     public static final String OBJECTNAME_TYPE = "objectname";
@@ -120,11 +124,9 @@ public class AppConfig {
 		    .setSource(mapper.readValue(settingsMapping, Map.class))
 		    .execute().actionGet();
 	} catch (ElasticsearchException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.info(e.getMessage());
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
 	}
 	return client;
     }
