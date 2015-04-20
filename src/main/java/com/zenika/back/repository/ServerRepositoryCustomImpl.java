@@ -71,7 +71,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     public void delete(String host) {
 	this.client.prepareDeleteByQuery(AppConfig.INDEX)
 		.setTypes(AppConfig.CONF_TYPE)
-		.setQuery(QueryBuilders.termQuery("host", host)).execute()
+		.setQuery(QueryBuilders.termQuery("servers.host", host)).execute()
 		.actionGet();
 
 	this.client.prepareDeleteByQuery(AppConfig.INDEX)
@@ -89,7 +89,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setTypes(AppConfig.CONF_TYPE)
 		.setQuery(QueryBuilders.matchAllQuery())
 		.addAggregation(
-			AggregationBuilders.terms(aggregatorTerm).field("host")
+			AggregationBuilders.terms(aggregatorTerm).field("servers.host")
 				.order(Terms.Order.term(true)).size(0))
 		.execute().actionGet();
 
@@ -113,7 +113,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 		.setQuery(QueryBuilders.matchAllQuery())
 		.setPostFilter(
 			FilterBuilders.boolFilter().must(
-				FilterBuilders.termFilter("host", host)))
+				FilterBuilders.termFilter("servers.host", host)))
 		.execute().actionGet();
 
 	// When the method is called, the number of hits is always equal to 1.
