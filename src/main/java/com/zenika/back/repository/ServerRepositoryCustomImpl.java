@@ -203,8 +203,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	mapper.getSerializationConfig().without(
 		SerializationFeature.WRITE_NULL_MAP_VALUES);
 
-	// TODO remove corresponding object name if host change
-	
 	GetResponse getResponse = this.client
 		.prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
 			AppConfig.SETTINGS_ID).execute().actionGet();

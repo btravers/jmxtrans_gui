@@ -52,7 +52,7 @@ public class AppConfig {
 	ppc.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
 	return ppc;
     }
-    
+
     @Bean
     public ObjectMapper objectMapper() {
 	return new ObjectMapper();
@@ -74,8 +74,17 @@ public class AppConfig {
 	    Node node = NodeBuilder
 		    .nodeBuilder()
 		    .settings(
-			    ImmutableSettings.settingsBuilder()
-				    .put("home", this.path).build()).node();
+			    ImmutableSettings
+				    .settingsBuilder()
+				    .put("path.home",
+					    this.path + "/elasticsearch")
+				    .put("path.data",
+					    this.path + "/elasticsearch/data")
+				    .put("path.work",
+					    this.path + "/elasticsearch/work")
+				    .put("path.logs",
+					    this.path + "/elasticsearch/logs")
+				    .build()).node();
 	    client = node.client();
 	} else {
 	    client = new TransportClient();
@@ -89,16 +98,26 @@ public class AppConfig {
 	    client.admin().indices().create(new CreateIndexRequest(INDEX))
 		    .actionGet();
 
-	    InputStream confMapping = getClass().getResourceAsStream("/conf_mapping.json");
-	    InputStream objectnameMapping = getClass().getResourceAsStream("/objectname_mapping.json");
-	    
+	    InputStream confMapping = getClass().getResourceAsStream(
+		    "/conf_mapping.json");
+	    InputStream objectnameMapping = getClass().getResourceAsStream(
+		    "/objectname_mapping.json");
+	    InputStream settingsMapping = getClass().getResourceAsStream(
+		    "/settings_mapping.json");
+
 	    ObjectMapper mapper = this.objectMapper();
-	   
+
 	    client.admin().indices().preparePutMapping(INDEX)
-		    .setType(CONF_TYPE).setSource(mapper.readValue(confMapping, Map.class)).execute()
-		    .actionGet();
+		    .setType(CONF_TYPE)
+		    .setSource(mapper.readValue(confMapping, Map.class))
+		    .execute().actionGet();
 	    client.admin().indices().preparePutMapping(INDEX)
-		    .setType(OBJECTNAME_TYPE).setSource(mapper.readValue(objectnameMapping, Map.class))
+		    .setType(OBJECTNAME_TYPE)
+		    .setSource(mapper.readValue(objectnameMapping, Map.class))
+		    .execute().actionGet();
+	    client.admin().indices().preparePutMapping(INDEX)
+		    .setType(SETTINGS_TYPE)
+		    .setSource(mapper.readValue(settingsMapping, Map.class))
 		    .execute().actionGet();
 	} catch (ElasticsearchException e) {
 	    // TODO Auto-generated catch block
