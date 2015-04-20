@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 public class Document {
 
-    
     private String name;
     @Valid @NotEmpty
     private Collection<Server> servers;

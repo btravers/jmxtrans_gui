@@ -5,9 +5,7 @@ import java.util.Collection;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.stereotype.Component;
 
-@Component
 public class Query {
 
     @NotNull @NotEmpty

@@ -14,7 +14,7 @@
 			
 			<div class="form-horizontal">
 				
-				<div class="form-group">
+				<div class="form-group" ng-class="{'has-error': showErrorMessage(serverIndex, queryIndex, 'obj')}">
 					<label class="col-sm-2 control-label">Object</label>
 					<div class="col-sm-10">
 						<input type="text" class="form-control" ng-model="query.obj" ng-change="unsaved(); suggestName(query.obj);" typeahead="name for name in nameSuggestions | filter:$viewValue | limitTo:10">

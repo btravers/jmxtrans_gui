@@ -5,11 +5,9 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Component
 public class OutputWriter {
 
     @JsonProperty("@class")

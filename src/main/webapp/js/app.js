@@ -206,7 +206,7 @@ app.directive('server', function() {
 			$scope.showErrorMessage = function(index, field) {
 				var s = 'servers[' + index + '].' + field;
 
-				return typeof $scope.errorMessage[s] != "undefined" && $scope.errorMessage[s] != null;
+				return s in $scope.errorMessage;
 			};
 
 			$scope.loadJMXTree = function() {
@@ -302,6 +302,8 @@ app.directive('server', function() {
 							}
 						};
 
+						$scope.errorMessage = {};
+
 						$http(req)
 							.success(function(response) {
 								$scope.server.saved = true;
@@ -322,6 +324,8 @@ app.directive('server', function() {
 								servers: [$scope.server.server]
 							}
 						};
+
+						$scope.errorMessage = {};
 
 						$http(req)
 							.success(function(response) {
@@ -364,7 +368,7 @@ app.directive('query', function() {
 			$scope.showErrorMessage = function(serverIndex, queryIndex, field) {
 				var s = 'servers[' + serverIndex + '].queries[' + queryIndex + '].' + field;
 
-				return typeof $scope.errorMessage[s] != "undefined" && $scope.errorMessage[s] != null;
+				return s in $scope.errorMessage;
 			};
 
 			$scope.suggestName = function(name) {

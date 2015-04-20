@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan({ "com.zenika.back.web", "com.zenika.back.service",
-	"com.zenika.back.repository", "com.zenika.back.model" })
+	"com.zenika.back.repository" })
 @EnableWebMvc
 public class AppConfig {
     public static final String INDEX = ".jmxtrans";
