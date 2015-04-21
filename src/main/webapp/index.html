@@ -169,13 +169,16 @@
 					<div class="well">
 						<ul class="nav nav-pills nav-stacked">
 							<li ng-repeat="item in list" role="presentation">
-								<button class="btn btn-link" ng-click="display(item)" style="display: inline;">
-									{{ item }}
+								<button class="btn btn-link" ng-click="display(item.host, item.port)" style="display: inline;">
+									{{ item.host }}:{{ item.port }}
 								</button> 
-								<button class="btn btn-link" ng-click="duplicate(item)" style="display: inline;"> 
+								<a class="btn btn-link" ng-href="service/server/_download?host={{ item.host }}&port={{ item.port }}" style="display: inline;"> 
+									<span class="glyphicon glyphicon-download-alt"></span>
+								</a> 
+								<button class="btn btn-link" ng-click="duplicate(item.host, item.port)" style="display: inline;"> 
 									<span class="glyphicon glyphicon-copy"></span>
 								</button> 
-								<button class="btn btn-link" ng-click="delete(item)" style="display: inline;">
+								<button class="btn btn-link" ng-click="delete(item.host, item.port)" style="display: inline;">
 									<span class="glyphicon glyphicon-trash"></span>
 								</button>
 							</li>

@@ -2,6 +2,7 @@ package com.zenika.back.service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -13,7 +14,7 @@ import com.zenika.back.model.Response;
 
 public interface JmxtransService {
 
-    Collection<String> findHosts() throws JsonProcessingException, IOException;
+    Collection<Map<String, String>> findHosts() throws JsonProcessingException, IOException;
 
     Response findServersByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,

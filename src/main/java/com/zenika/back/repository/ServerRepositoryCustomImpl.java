@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -92,18 +94,21 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public Collection<String> findAllHost() throws JsonParseException, JsonMappingException, IOException {
+    public Collection<Map<String, String>> findAllHost() throws JsonParseException, JsonMappingException, IOException {
 	SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.CONF_TYPE)
 		.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
 
-	List<String> hosts = new ArrayList<String>();
+	List<Map<String, String>> hosts = new ArrayList<Map<String, String>>();
 	for (SearchHit hit : response.getHits().getHits()) {
 	    Document doc = mapper.readValue(hit.getSourceAsString(), Document.class);
 	    
 	    // Actually, there is only one server per document
 	    for (Server server : doc.getServers()) {
-		hosts.add(server.getHost() + ":" + server.getPort());
+		Map<String, String> res = new HashMap<String, String>();
+		res.put("host", server.getHost());
+		res.put("port", String.valueOf(server.getPort()));
+		hosts.add(res);
 	    }
 	}
 

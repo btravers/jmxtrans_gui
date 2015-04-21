@@ -50,9 +50,9 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				$scope.list = response;
 
 				if ($scope.blankServer) {
-					$scope.display($scope.blankServer.server.host);
+					$scope.display($scope.blankServer.server.host, $scope.blankServer.server.port);
 				} else if ($scope.servers && $scope.servers.length > 0) {
-					$scope.display($scope.servers[0].server.host);
+					$scope.display($scope.servers[0].server.host, $scope.servers[0].server.port);
 				}
 			})
 			.error(function(response) {
@@ -98,15 +98,13 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			});
 	};
 
-	$scope.delete = function(item) {
-		var host = item.split(':');
-
+	$scope.delete = function(host, port) {
 		var req = {
 			method: 'DELETE',
 			url: 'service/server',
 			params: {
-				host: host[0],
-				port: host[1]
+				host: host,
+				port: port
 			}
 		};
 
@@ -124,15 +122,13 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			});
 	};
 
-	$scope.duplicate = function(item) {
-		var host = item.split(':');
-
+	$scope.duplicate = function(host, port) {
 		var req = {
 			method: 'GET',
 			url: 'service/server',
 			params: {
-				host: host[0],
-				port: host[1]
+				host: host,
+				port: port
 			}
 		};
 
@@ -156,15 +152,17 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			});
 	};
 
-	$scope.display = function(item) {
-		var host = item.split(':');
+	$scope.download = function(host, port) {
+		return 'service/server/_download?host=' + host + '&port=' + port
+	};
 
+	$scope.display = function(host, port) {
 		var req = {
 			method: 'GET',
 			url: 'service/server',
 			params: {
-				host: host[0],
-				port: host[1]
+				host: host,
+				port: port
 			}
 		};
 

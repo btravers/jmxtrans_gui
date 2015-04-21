@@ -1,9 +1,11 @@
 package com.zenika.back.web;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
@@ -11,6 +13,11 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,15 +44,21 @@ public class JmxtransController {
 	    .getLogger(JmxtransController.class);
 
     private JmxtransService jmxtransService;
+    private ObjectMapper mapper;
 
     @Autowired
     public void setJmxtransService(JmxtransService jmxtransService) {
 	this.jmxtransService = jmxtransService;
     }
 
+    @Autowired
+    public void setMapper(ObjectMapper mapper) {
+	this.mapper = mapper;
+    }
+
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<String> listHosts() {
+    public Collection<Map<String, String>> listHosts() {
 	try {
 	    return this.jmxtransService.findHosts();
 	} catch (JsonProcessingException e) {
@@ -73,6 +86,46 @@ public class JmxtransController {
 	    logger.error(e.getMessage());
 	} catch (ExecutionException e) {
 	    logger.error(e.getMessage());
+	}
+	return null;
+    }
+
+    @RequestMapping(value = "/server/_download", method = RequestMethod.GET)
+    public ResponseEntity<InputStreamResource> downloadServer(
+	    @RequestParam(value = "host", required = true) String host,
+	    @RequestParam(value = "port", required = true) int port) {
+
+	try {
+	    Response response = this.jmxtransService.findServersByHost(host,
+		    port);
+
+	    byte[] content = this.mapper
+		    .writeValueAsBytes(response.getSource());
+
+	    HttpHeaders respHeaders = new HttpHeaders();
+	    respHeaders.setContentType(MediaType.APPLICATION_JSON);
+	    respHeaders.setContentLength(content.length);
+	    respHeaders.setContentDispositionFormData("attachment", "server_"
+		    + host + ":" + port + ".json");
+
+	    return new ResponseEntity<InputStreamResource>(
+		    new InputStreamResource(new ByteArrayInputStream(content)),
+		    respHeaders, HttpStatus.OK);
+	} catch (JsonParseException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (JsonMappingException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (ExecutionException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
 	return null;
     }

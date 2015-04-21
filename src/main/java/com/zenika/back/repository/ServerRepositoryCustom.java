@@ -2,6 +2,7 @@ package com.zenika.back.repository;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -12,7 +13,7 @@ import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Response;
 
 public interface ServerRepositoryCustom {
-    Collection<String> findAllHost() throws JsonProcessingException, IOException;
+    Collection<Map<String, String>> findAllHost() throws JsonProcessingException, IOException;
 
     Response getByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,
