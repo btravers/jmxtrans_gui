@@ -94,15 +94,18 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     }
 
     @Override
-    public Collection<Map<String, String>> findAllHost() throws JsonParseException, JsonMappingException, IOException {
+    public Collection<Map<String, String>> findAllHost()
+	    throws JsonParseException, JsonMappingException, IOException {
 	SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.CONF_TYPE)
-		.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
+		.setQuery(QueryBuilders.matchAllQuery())
+		.setSize(Integer.MAX_VALUE).execute().actionGet();
 
 	List<Map<String, String>> hosts = new ArrayList<Map<String, String>>();
 	for (SearchHit hit : response.getHits().getHits()) {
-	    Document doc = mapper.readValue(hit.getSourceAsString(), Document.class);
-	    
+	    Document doc = mapper.readValue(hit.getSourceAsString(),
+		    Document.class);
+
 	    // Actually, there is only one server per document
 	    for (Server server : doc.getServers()) {
 		Map<String, String> res = new HashMap<String, String>();

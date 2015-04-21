@@ -224,6 +224,10 @@ public class JmxtransController {
 		Document doc = mapper.readValue(confFile, Document.class);
 
 		OutputWriter writer = this.getSettings();
+		if (writer.writer == null) {
+		    writer = doc.getServers().iterator().next().getQueries().iterator().next().getOutputWriters().iterator().next();
+		    this.jmxtransService.updateSettings(writer);
+		}
 
 		for (Server server : doc.getServers()) {
 		    // Use the default output writer.

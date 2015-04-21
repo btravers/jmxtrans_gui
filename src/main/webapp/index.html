@@ -34,6 +34,7 @@
 			<div class="row">
 
 				<alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{ alert.message }}</alert>
+				<alert type="warning" ng-show="!writer['@class']">No writer setted.</alert>
 
 				<div class="col-xs-3">
 

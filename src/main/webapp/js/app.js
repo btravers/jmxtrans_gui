@@ -14,6 +14,8 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 	$scope.uploader.onCompleteAll = function() {
 		setTimeout(function() {
+			$scope.loadSettings();
+
 			var req = {
 				method: 'GET',
 				url: 'service/server/all'
@@ -32,12 +34,27 @@ app.controller('Main', function($scope, $http, FileUploader) {
 		}, 1000);
 	};
 
-	$http.get('service/settings').success(function(data) {
-		$scope.writer = data;
-		if (!$scope.writer.settings) {
-			$scope.writer.settings = {};
-		}
-	});
+	$scope.loadSettings = function() {
+		$http.get('service/settings')
+			.success(function(data) {
+				$scope.writer = data;
+				if (!$scope.writer.settings) {
+					$scope.writer.settings = {};
+				}
+			})
+			.error(function(response) {
+				$scope.alers.push({
+					type: 'danger',
+					message: 'Fail to load writer settings.'
+				});
+			});
+	};
+
+	$scope.loadSettings;
+
+	$scope.closeAlert = function(index) {
+		$scope.alerts.splice(index, 1);
+	};
 
 	$scope.updateServersList = function() {
 		var req = {
