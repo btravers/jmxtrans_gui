@@ -43,14 +43,14 @@ app.controller('Main', function($scope, $http, FileUploader) {
 				}
 			})
 			.error(function(response) {
-				$scope.alers.push({
+				$scope.alerts.push({
 					type: 'danger',
 					message: 'Fail to load writer settings.'
 				});
 			});
 	};
 
-	$scope.loadSettings;
+	$scope.loadSettings();
 
 	$scope.closeAlert = function(index) {
 		$scope.alerts.splice(index, 1);
@@ -494,6 +494,8 @@ app.directive('query', function() {
 				$scope.server.blankAttr[$scope.queryIndex] = {
 					value: null
 				};
+
+				$scope.suggestAttr();
 			};
 
 			$scope.removeAttr = function(index) {

@@ -223,7 +223,7 @@ public class JmxtransController {
 		ObjectMapper mapper = new ObjectMapper();
 		Document doc = mapper.readValue(confFile, Document.class);
 
-		OutputWriter writer = this.getSettings();
+		OutputWriter writer = this.jmxtransService.getSettings();
 		if (writer.writer == null) {
 		    writer = doc.getServers().iterator().next().getQueries().iterator().next().getOutputWriters().iterator().next();
 		    this.jmxtransService.updateSettings(writer);

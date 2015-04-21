@@ -35,7 +35,7 @@ public interface ServerRepositoryCustom {
     void refresh(String host, int port) throws JsonProcessingException,
 	    InterruptedException, ExecutionException;
 
-    void updateSettings(OutputWriter settings) throws IOException;
+    void saveSettings(OutputWriter settings) throws IOException;
 
     Collection<String> prefixAttrSuggestion(String host, int port, String name);
 

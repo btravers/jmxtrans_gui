@@ -65,7 +65,7 @@ public class JmxtransServiceImpl implements JmxtransService {
 
     @Override
     public void updateSettings(OutputWriter settings) throws IOException {
-	this.serverRepositoryCustom.updateSettings(settings);
+	this.serverRepositoryCustom.saveSettings(settings);
     }
 
     @Override

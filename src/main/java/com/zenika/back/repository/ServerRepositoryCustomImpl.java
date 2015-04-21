@@ -40,7 +40,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.zenika.back.AppConfig;
 import com.zenika.back.model.Document;
 import com.zenika.back.model.ObjectNameRepresentation;
@@ -98,6 +97,7 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 	    throws JsonParseException, JsonMappingException, IOException {
 	SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
 		.setTypes(AppConfig.CONF_TYPE)
+		//.addFields("host", "port")
 		.setQuery(QueryBuilders.matchAllQuery())
 		.setSize(Integer.MAX_VALUE).execute().actionGet();
 
@@ -189,9 +189,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	    this.updateOne(response.getId(), response.getSource());
 	} else {
-	    mapper.getSerializationConfig().without(
-		    SerializationFeature.WRITE_NULL_MAP_VALUES);
-
 	    String json = mapper.writeValueAsString(server);
 
 	    IndexRequest indexRequest = new IndexRequest();
@@ -207,9 +204,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     public void updateOne(String id, Document server)
 	    throws JsonProcessingException, InterruptedException,
 	    ExecutionException {
-	mapper.getSerializationConfig().without(
-		SerializationFeature.WRITE_NULL_MAP_VALUES);
-
 	String json = mapper.writeValueAsString(server);
 
 	this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
@@ -219,9 +213,6 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
     @Override
     public OutputWriter settings() throws JsonParseException,
 	    JsonMappingException, IOException {
-	mapper.getSerializationConfig().without(
-		SerializationFeature.WRITE_NULL_MAP_VALUES);
-
 	GetResponse getResponse = this.client
 		.prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
 			AppConfig.SETTINGS_ID).execute().actionGet();
@@ -234,19 +225,15 @@ public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
 	    this.client
 		    .prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
-			    AppConfig.SETTINGS_ID)
-		    .setSource(mapper.writeValueAsString(settings)).execute()
-		    .actionGet();
+			    AppConfig.SETTINGS_ID).setSource(mapper.writeValueAsString(settings))
+		    .execute().actionGet();
 
 	    return settings;
 	}
     }
 
     @Override
-    public void updateSettings(OutputWriter settings) throws IOException {
-	mapper.getSerializationConfig().without(
-		SerializationFeature.WRITE_NULL_MAP_VALUES);
-
+    public void saveSettings(OutputWriter settings) throws IOException {
 	String json = mapper.writeValueAsString(settings);
 
 	UpdateRequest updateRequest = new UpdateRequest();

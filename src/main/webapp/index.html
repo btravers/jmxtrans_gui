@@ -29,7 +29,7 @@
 		  	</div>
 		</div>
 
-		<div class="container" ng-controller="Main">
+		<div class="container-fluid" ng-controller="Main">
 
 			<div class="row">
 
@@ -167,21 +167,27 @@
 
 					<br>
 
-					<div class="well">
+					<div class="well servers-list">
 						<ul class="nav nav-pills nav-stacked">
-							<li ng-repeat="item in list" role="presentation">
-								<button class="btn btn-link" ng-click="display(item.host, item.port)" style="display: inline;">
-									{{ item.host }}:{{ item.port }}
-								</button> 
-								<a class="btn btn-link" ng-href="service/server/_download?host={{ item.host }}&port={{ item.port }}" style="display: inline;"> 
-									<span class="glyphicon glyphicon-download-alt"></span>
-								</a> 
-								<button class="btn btn-link" ng-click="duplicate(item.host, item.port)" style="display: inline;"> 
-									<span class="glyphicon glyphicon-copy"></span>
-								</button> 
-								<button class="btn btn-link" ng-click="delete(item.host, item.port)" style="display: inline;">
-									<span class="glyphicon glyphicon-trash"></span>
-								</button>
+							<li class="server-item" ng-repeat="item in list" role="presentation">
+								<div class="row">
+									<div class="col-sm-7">
+										<a class="btn btn-link" ng-click="display(item.host, item.port)">
+											{{ item.host }}:{{ item.port }}
+										</a> 
+									</div>
+									<div class="col-sm-5">
+										<a class="btn btn-link" ng-href="service/server/_download?host={{ item.host }}&port={{ item.port }}" style="display: inline-block;"> 
+											<span class="glyphicon glyphicon-download-alt"></span>
+										</a> 
+										<a class="btn btn-link" ng-click="duplicate(item.host, item.port)" style="display: inline-block;"> 
+											<span class="glyphicon glyphicon-copy"></span>
+										</a> 
+										<a class="btn btn-link" ng-click="delete(item.host, item.port)" style="display: inline-block;">
+											<span class="glyphicon glyphicon-trash"></span>
+										</a>
+									</div>
+								</div>
 							</li>
 						</ul>
 					</div>
