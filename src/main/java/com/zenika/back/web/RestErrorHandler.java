@@ -15,38 +15,55 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zenika.back.exception.JmxtransException;
 
 @ControllerAdvice
-public class RestErrorHandler extends ResponseEntityExceptionHandler {
+public class RestErrorHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestErrorHandler.class);
+    private static final Logger logger = LoggerFactory
+	    .getLogger(RestErrorHandler.class);
 
     private MessageSource messageSource;
+    private ObjectMapper mapper;
 
     @Autowired
     public void setMessageSource(MessageSource messageSource) {
 	this.messageSource = messageSource;
     }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-	    MethodArgumentNotValidException ex, HttpHeaders headers,
-	    HttpStatus status, WebRequest request) {
-	
-	ObjectMapper mapper = new ObjectMapper();
-	
-	try {
-	    return new ResponseEntity(mapper.writeValueAsString(this.processValidationError(ex).getFieldErrors()), headers, status);
-	} catch (JsonProcessingException e) {
-	    logger.error(e.getMessage());
+    @Autowired
+    public void setMapper(ObjectMapper mapper) {
+	this.mapper = mapper;
+    }
+
+    @ExceptionHandler(value = { MethodArgumentNotValidException.class,
+	    JmxtransException.class })
+    public ResponseEntity<Object> handleException(Exception ex,
+	    WebRequest request) {
+	HttpHeaders headers = new HttpHeaders();
+
+	if (ex instanceof MethodArgumentNotValidException) {
+	    try {
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		return new ResponseEntity<Object>(
+			mapper.writeValueAsString(this.processValidationError(
+				(MethodArgumentNotValidException) ex)
+				.getFieldErrors()), headers, status);
+	    } catch (JsonProcessingException e) {
+		logger.error(e.getMessage());
+	    }
+	} else if (ex instanceof JmxtransException) {
+	    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+	    return new ResponseEntity<Object>(status);
 	}
-	
-	return new ResponseEntity("An error occured.", headers, HttpStatus.OK);
+
+	HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+	return new ResponseEntity<Object>(status);
     }
 
     private ValidationError processValidationError(

@@ -30,6 +30,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zenika.back.exception.JmxtransException;
 import com.zenika.back.model.Document;
 import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Query;
@@ -58,42 +59,49 @@ public class JmxtransController {
 
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<Map<String, String>> listHosts() {
+    public Collection<Map<String, String>> listHosts() throws JmxtransException {
 	try {
 	    return this.jmxtransService.findHosts();
 	} catch (JsonProcessingException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (IOException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
-	return null;
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.GET)
     @ResponseBody
     public Response showServer(
 	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port) {
+	    @RequestParam(value = "port", required = true) int port)
+	    throws JmxtransException {
 	try {
 	    return this.jmxtransService.findServersByHost(host, port);
 	} catch (JsonParseException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (JsonMappingException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (IOException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (InterruptedException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (ExecutionException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
-	return null;
     }
 
     @RequestMapping(value = "/server/_download", method = RequestMethod.GET)
     public ResponseEntity<InputStreamResource> downloadServer(
 	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port) {
+	    @RequestParam(value = "port", required = true) int port)
+	    throws JmxtransException {
 
 	try {
 	    Response response = this.jmxtransService.findServersByHost(host,
@@ -112,22 +120,21 @@ public class JmxtransController {
 		    new InputStreamResource(new ByteArrayInputStream(content)),
 		    respHeaders, HttpStatus.OK);
 	} catch (JsonParseException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (JsonMappingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (ExecutionException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
-	return null;
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.DELETE)
@@ -140,17 +147,21 @@ public class JmxtransController {
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
     @ResponseBody
-    public void addServer(@Valid @RequestBody Document server) {
+    public void addServer(@Valid @RequestBody Document server) throws JmxtransException {
 	try {
 	    this.jmxtransService.addServer(server);
 	} catch (JsonProcessingException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (InterruptedException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (ExecutionException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (IOException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
     }
 
@@ -158,46 +169,52 @@ public class JmxtransController {
     @ResponseBody
     public void updateServer(
 	    @RequestParam(value = "id", required = true) String id,
-	    @Valid @RequestBody Document server) {
+	    @Valid @RequestBody Document server) throws JmxtransException {
 	try {
 	    this.jmxtransService.updateServer(id, server);
 	} catch (JsonProcessingException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (InterruptedException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (ExecutionException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
     @ResponseBody
-    public void updateSettings(@Valid @RequestBody OutputWriter settings) {
+    public void updateSettings(@Valid @RequestBody OutputWriter settings) throws JmxtransException {
 	try {
 	    this.jmxtransService.updateSettings(settings);
 	} catch (IOException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.GET)
     @ResponseBody
-    public OutputWriter getSettings() {
+    public OutputWriter getSettings() throws JmxtransException {
 	try {
 	    return this.jmxtransService.getSettings();
 	} catch (JsonParseException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (JsonMappingException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (IOException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
-	return null;
     }
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
-    public void upload(@RequestParam("file") MultipartFile file) {
+    public void upload(@RequestParam("file") MultipartFile file) throws JmxtransException {
 	if (!file.isEmpty()) {
 	    try {
 		byte[] bytes = file.getBytes();
@@ -224,10 +241,13 @@ public class JmxtransController {
 		}
 	    } catch (IOException e) {
 		logger.error(e.getMessage());
+		throw new JmxtransException(e.getMessage());
 	    } catch (InterruptedException e) {
 		logger.error(e.getMessage());
+		throw new JmxtransException(e.getMessage());
 	    } catch (ExecutionException e) {
 		logger.error(e.getMessage());
+		throw new JmxtransException(e.getMessage());
 	    }
 	}
     }
@@ -236,15 +256,18 @@ public class JmxtransController {
     @ResponseBody
     public void refresh(
 	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port) {
+	    @RequestParam(value = "port", required = true) int port) throws JmxtransException {
 	try {
 	    this.jmxtransService.refresh(host, port);
 	} catch (JsonProcessingException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (InterruptedException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	} catch (ExecutionException e) {
 	    logger.error(e.getMessage());
+	    throw new JmxtransException(e.getMessage());
 	}
     }
 
