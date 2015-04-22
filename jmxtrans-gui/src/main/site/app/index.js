@@ -1,3 +1,5 @@
+'use strict';
+
 var app = angular.module('Jmxtrans', ['angularFileUpload', 'ui.bootstrap']);
 
 app.controller('Main', function($scope, $http, FileUploader) {
@@ -376,7 +378,7 @@ app.directive('server', function() {
 			server: '=server',
 			alerts: '=alerts'
 		},
-		templateUrl: 'template/server.html'
+		templateUrl: 'app/templates/server.html'
 	};
 });
 
@@ -480,7 +482,7 @@ app.directive('query', function() {
 			
 
 		},
-		templateUrl: 'template/query.html'
+		templateUrl: 'app/templates/query.html'
 	};
 });
 
@@ -497,7 +499,7 @@ app.directive('bluefloodWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'template/bluefloodWriterForm.html'
+		templateUrl: 'app/templates/bluefloodWriterForm.html'
 	};
 });
 
@@ -508,7 +510,7 @@ app.directive('dailyKeyOutWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'template/dailyKeyOutWriterForm.html'
+		templateUrl: 'app/templates/dailyKeyOutWriterForm.html'
 	};
 });
 
@@ -519,7 +521,7 @@ app.directive('gangliaWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'template/gangliaWriterForm.html'
+		templateUrl: 'app/templates/gangliaWriterForm.html'
 	};
 });
 
@@ -530,7 +532,7 @@ app.directive('graphiteWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'template/graphiteWriterForm.html'
+		templateUrl: 'app/templates/graphiteWriterForm.html'
 	};
 });
 
@@ -541,7 +543,7 @@ app.directive('statsDWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'template/statsDWriterForm.html'
+		templateUrl: 'app/templates/statsDWriterForm.html'
 	};
 });
 
@@ -552,6 +554,6 @@ app.directive('rrdToolWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'template/rrdToolWriterForm.html'
+		templateUrl: 'app/templates/rrdToolWriterForm.html'
 	};
 });

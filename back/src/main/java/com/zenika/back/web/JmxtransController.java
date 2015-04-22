@@ -58,6 +58,11 @@ public class JmxtransController {
 	this.mapper = mapper;
     }
 
+	@RequestMapping("/")
+	public String index() {
+		return "index.html";
+	}
+
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Map<String, String>> listHosts() throws JmxtransException {
