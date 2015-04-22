@@ -1,60 +1,151 @@
 var app = angular.module('Jmxtrans', ['angularFileUpload', 'ui.bootstrap']);
 
 app.controller('Main', function($scope, $http, FileUploader) {
-	
-	$scope.list = [];
 
-	$scope.alerts = [];
+	/*
+		Server conf file modelisation
+	*/
+	var ServerObject = function() {
+		this.id = null;
+		this.server = {
+			port: null,
+			host: null,
+			queries: []
+		};
+		this.saved = false;
 
-	$scope.errorMessage = {};
+		this.blankQuery = null;
+		this.blankAttr = [];
+		this.blankTypeNames = [];
 
-	$scope.uploader = new FileUploader({ 
-		url: 'service/upload' 
-	});
+		this.errorMessage = {};
 
-	$scope.uploader.onCompleteAll = function() {
-		setTimeout(function() {
-			$scope.loadSettings();
+		this.loadJMXTree = function() {
+			if (this.server.host && this.server.port) {
+				var req = {
+					method: 'GET',
+					url: 'service/refresh',
+					params: {
+						host: this.server.host,
+						port: this.server.port
+					}
+				};
 
-			var req = {
-				method: 'GET',
-				url: 'service/server/all'
-			};
-
-			$http(req)
-				.success(function(response) {
-					$scope.list = response;
-				})
-				.error(function(response) {
-					$scope.alerts.push({
-						type: 'danger',
-						message: 'Fail to load severs list.'
+				$http(req)
+					.error(function() {
+						
 					});
-				});
-		}, 1000);
-	};
+			}		
+		};
 
-	$scope.loadSettings = function() {
-		$http.get('service/settings')
-			.success(function(data) {
-				$scope.writer = data;
-				if (!$scope.writer.settings) {
-					$scope.writer.settings = {};
+		this.save = function() {
+			if (!this.saved) {
+				if (this.blankQuery && this.blankQuery.obj) {
+					this.server.queries.push(this.blankQuery);
+					this.blankQuery = null;
 				}
-			})
-			.error(function(response) {
-				$scope.alerts.push({
-					type: 'danger',
-					message: 'Fail to load writer settings.'
+
+				angular.forEach(this.blankAttr, function(attr, i) {
+					if (attr && attr.value) {
+						if (!this.server.queries[i].attr) {
+							this.server.queries[i].attr = [];
+						}
+						this.queries[i].attr.push(attr.value);
+						this.blankAttr[i] = null;
+					}
 				});
-			});
-	};
 
-	$scope.loadSettings();
+				angular.forEach(this.blankTypeNames, function(typeName, i) {
+					if (typeName && typeName.value) {
+						if (!this.server.queries[i].typeNames) {
+							this.server.queries[i].typeNames = [];
+						}
+						this.server.queries[i].typeNames.push(typeName.value);
+						this.blankTypeNames[i] = null;
+					}
+				});
 
-	$scope.closeAlert = function(index) {
-		$scope.alerts.splice(index, 1);
+				if (this.id) {
+					var req = {
+						method: 'POST',
+						url: 'service/server/_update',
+						params: {
+							id: this.id
+						},
+						data: {
+							servers: [this.server]
+						}
+					};
+
+					$http(req)
+						.success(function() {
+							this.saved = true;
+							setTimeout(function() {
+								if (this.onSave) {
+									this.onSave();
+								}
+							}, 1000);
+						})
+						.error(function(response) {
+							angular.forEach(response, function(message) {
+								this.errorMessage[message.field] = message.message;
+							});
+						});
+				} else {
+					var req = {
+						method: 'POST',
+						url: 'service/server',
+						data: { 
+							servers: [this.server]
+						}
+					};
+
+					$http(req)
+						.success(function() {
+							setTimeout(function() {
+								if (this.onSave) {
+									this.onSave();
+								}
+							}, 1000);
+						})
+						.error(function(response) {
+							angular.forEach(response, function(message) {
+								this.errorMessage[message.field] = message.message;
+							});
+						});
+				}
+			}
+		};
+
+		this.removeQuery = function(index) {
+			this.server.queries.splice(index, 1);
+			this.saved = false;
+		};
+
+		this.addBlankQuery = function() {
+			if (this.blankQuery && this.blankQuery.obj) {
+				this.server.queries.push(this.blankQuery);
+			}
+
+			this.blankQuery = {
+				obj: null,
+				attr: [],
+				typeNames: [],
+				outputWriters: [
+					this.writer
+				]
+			};
+		};
+
+		this.showErrorMessage = function(key) {
+			return key in this.errorMessage;
+		};
 	};
+	
+	/**
+		Servers list 
+	**/
+	$scope.list = [];
 
 	$scope.updateServersList = function() {
 		var req = {
@@ -68,8 +159,8 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 				if ($scope.blankServer) {
 					$scope.display($scope.blankServer.server.host, $scope.blankServer.server.port);
-				} else if ($scope.servers && $scope.servers.length > 0) {
-					$scope.display($scope.servers[0].server.host, $scope.servers[0].server.port);
+				} else if ($scope.server) {
+					$scope.display($scope.server.server.host, $scope.server.server.port);
 				}
 			})
 			.error(function(response) {
@@ -81,39 +172,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	};
 
 	$scope.updateServersList();
-
-	$scope.writerChange = function() {
-		switch($scope.writer['@class']) {
-			case 'com.googlecode.jmxtrans.model.output.BluefloodWriter':
-				$scope.writer.settings.port = 19000;
-				break;
-			case 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriterForm':
-				break;
-			case 'com.googlecode.jmxtrans.model.output.Ganglia':
-				break;
-			case 'com.googlecode.jmxtrans.model.output.Graphite':
-				$scope.writer.settings.port = 2003;
-				break;
-		}
-	};
-
-	$scope.saveWriter = function() {
-		var req = {
-			method: 'POST',
-			url: 'service/settings',
-			data: $scope.writer
-		}
-
-		$http(req)
-			.success(function(response) {
-
-			})
-			.error(function(response) {
-				angular.forEach(response, function(message) {
-					$scope.errorMessage[message.field] = message.message;
-				});
-			});
-	};
+	ServerObject.prototype.onSave = $scope.updateServersList();
 
 	$scope.delete = function(host, port) {
 		var req = {
@@ -126,12 +185,12 @@ app.controller('Main', function($scope, $http, FileUploader) {
 		};
 
 		$http(req)
-			.success(function(response) {
+			.success(function() {
 				setTimeout(function() {
 					$scope.updateServersList();
 				}, 1000);
 			})
-			.error(function(response) {
+			.error(function() {
 				$scope.alerts.push({
 					type: 'danger',
 					message: 'Fail to delete the server.'
@@ -151,26 +210,18 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 		$http(req)
 			.success(function(response) {
-				$scope.blankServer = {
-					saved: false,
-					blankAttr: [],
-					blankTypeNames: [],
-					server: response.source.servers[0],
-					id: null
-				};
+				$scope.blankServer = new ServerObject();
+				$scope.blankServer.server = response.source.servers[0];
+				
 				$scope.blankServer.server.host = null;
 				$scope.blankServer.server.port = null;
 			})
-			.error(function(response) {
+			.error(function() {
 				$scope.alerts.push({
 					type: 'danger',
 					message: 'Fail to load the requested server.'
 				});
 			});
-	};
-
-	$scope.download = function(host, port) {
-		return 'service/server/_download?host=' + host + '&port=' + port
 	};
 
 	$scope.display = function(host, port) {
@@ -186,25 +237,20 @@ app.controller('Main', function($scope, $http, FileUploader) {
 		$http(req)
 			.success(function(response) {
 				if (response.source) {
-					var server = {
-						saved: true,
-						blankAttr: [],
-						blankTypeNames: [],
-						server: response.source.servers[0],
-						id: response.id
-					};
+					$scope.server = new ServerObject();
+					$scope.server.id = response.id;
+					$scope.server.server = response.source.servers[0];
+					$scope.server.saved = true;
 
-					$scope.servers = [server];
-
-					$scope.loadJMXTree(server.server.host, server.server.port);
+					$scope.server.loadJMXTree();
 				} else {
-					$scope.servers = [];
+					$scope.server = null;
 				}
 
 				$scope.blankServer = null;
 
 			})
-			.error(function(response) {
+			.error(function() {
 				$scope.alerts.push({
 					type: 'danger',
 					message: 'Fail to load the requested server.'
@@ -212,36 +258,109 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			});
 	};
 
-	$scope.loadJMXTree = function(host, port) {
-		var req = {
-			method: 'GET',
-			url: 'service/refresh',
-			params: {
-				host: host,
-				port: port
-			}
-		};
 
-		$http(req)
+	/**
+		Output writer settings
+	**/
+	$scope.loadSettings = function() {
+		$http.get('service/settings')
+			.success(function(data) {
+				$scope.writer = data;
+				if (!$scope.writer.settings) {
+					$scope.writer.settings = {};
+				}
+				ServerObject.prototype.writer = $scope.writer;
+			})
 			.error(function(response) {
 				$scope.alerts.push({
 					type: 'danger',
-					message: 'Fail to load JMX tree in elasticsearch.'
+					message: 'Fail to load writer settings.'
 				});
-			});		
+			});
 	};
 
+	$scope.loadSettings();
+
+	$scope.writerChange = function() {
+		switch($scope.writer['@class']) {
+			case 'com.googlecode.jmxtrans.model.output.BluefloodWriter':
+				$scope.writer.settings.port = 19000;
+				break;
+			case 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriterForm':
+				break;
+			case 'com.googlecode.jmxtrans.model.output.Ganglia':
+				break;
+			case 'com.googlecode.jmxtrans.model.output.Graphite':
+				$scope.writer.settings.port = 2003;
+				break;
+			case 'com.googlecode.jmxtrans.model.output.RRDToolWriter':
+				break;
+			case 'com.googlecode.jmxtrans.model.output.StatsDWriter':
+				break;
+		}
+	};
+
+	$scope.saveWriter = function() {
+		var req = {
+			method: 'POST',
+			url: 'service/settings',
+			data: $scope.writer
+		}
+
+		$http(req)
+			.success(function() {
+				ServerObject.prototype.writer = $scope.writer;
+			})
+			.error(function(response) {
+				angular.forEach(response, function(message) {
+					$scope.errorMessage[message.field] = message.message;
+				});
+			});
+	};
+
+
+	/** 
+		JSON File uploader 
+	**/
+	$scope.uploader = new FileUploader({ 
+		url: 'service/upload' 
+	});
+
+	$scope.uploader.onCompleteAll = function() {
+		setTimeout(function() {
+			$scope.loadSettings();
+
+			var req = {
+				method: 'GET',
+				url: 'service/server/all'
+			};
+
+			$http(req)
+				.success(function(response) {
+					$scope.list = response;
+				})
+				.error(function() {
+					$scope.alerts.push({
+						type: 'danger',
+						message: 'Fail to load severs list.'
+					});
+				});
+		}, 1000);
+	};
+
+
+
+	$scope.alerts = [];
+
+	$scope.errorMessage = {};
+
+	$scope.closeAlert = function(index) {
+		$scope.alerts.splice(index, 1);
+	};
+
+
 	$scope.addBlankServer = function() {
-		$scope.blankServer = {
-			saved: false,
-			blankAttr: [],
-			blankTypeNames: [],
-			server: {
-				port: null,
-				host: null,
-				queries: []
-			}
-		};
+		$scope.blankServer = new ServerObject();
 	};
 
 	$scope.cancelBlankServer = function() {
@@ -255,166 +374,7 @@ app.directive('server', function() {
 		replace: true,
 		scope: {
 			server: '=server',
-			index: '=index',
-			writer: '=writer',
-			updateServersList: '&updateServersList',
 			alerts: '=alerts'
-		},
-		controller: function($scope, $http) {
-
-			$scope.update = $scope.updateServersList();
-
-			$scope.errorMessage = {};
-
-			$scope.showErrorMessage = function(index, field) {
-				var s = 'servers[' + index + '].' + field;
-
-				return s in $scope.errorMessage;
-			};
-
-			$scope.loadJMXTree = function() {
-				if ($scope.server.server.host && $scope.server.server.port) {
-					var req = {
-						method: 'GET',
-						url: 'service/refresh',
-						params: {
-							host: $scope.server.server.host,
-							port: $scope.server.server.port
-						}
-					};
-
-					$http(req)
-						.error(function(response) {
-							$scope.alerts.push({
-								type: 'danger',
-								message: 'Fail to load JMX tree.'
-							});
-						});
-				}		
-			};
-			
-			$scope.addBlankQuery = function() {
-				if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
-					if (!$scope.server.queries) {
-						$scope.server.queries = [];
-					}
-					$scope.server.server.queries.push($scope.server.blankQuery);
-				}
-
-				$scope.server.blankQuery = {
-					obj: null,
-					attr: [],
-					typeNames: [],
-					outputWriters: [
-						{
-							'@class': $scope.writer.class, 
-							settings: {
-								port: $scope.writer.port, 
-								host: $scope.writer.host
-							}
-						}
-					]
-				};
-
-				if ($scope.writer.username) {
-					$scope.server.blankQuery.outputWriters.settings.username = $scope.writer.username;
-				}
-
-				if ($scope.writer.password) {
-					$scope.server.blankQuery.outputWriters.settings.password = $scope.writer.password;
-				}
-			};
-
-			$scope.saveServer = function() {
-				if (!$scope.server.saved) {
-					if ($scope.server.blankQuery && $scope.server.blankQuery.obj) {
-						if (!$scope.server.queries) {
-							$scope.server.queries = [];
-						}
-						$scope.server.server.queries.push($scope.server.blankQuery);
-						$scope.server.blankQuery = null;
-					}
-
-					if ($scope.server.blankAttr) {
-						angular.forEach($scope.server.blankAttr, function(attr, i) {
-							if (attr && attr.value) {
-								if (!$scope.server.server.queries[i].attr) {
-									$scope.server.server.queries[i].attr = [];
-								}
-								$scope.server.server.queries[i].attr.push(attr.value);
-								$scope.server.blankAttr[i] = null;
-							}
-						});
-					}
-
-					if ($scope.server.blankTypeNames) {
-						angular.forEach($scope.server.blankTypeNames, function(typeName, i) {
-							if (typeName && typeName.value) {
-								if (!$scope.server.server.queries[i].typeNames) {
-									$scope.server.server.queries[i].typeNames = [];
-								}
-								$scope.server.server.queries[i].typeNames.push(typeName.value);
-								$scope.server.blankTypeNames[i] = null;
-							}
-						});
-					}
-
-					if ($scope.server.id) {
-						var req = {
-							method: 'POST',
-							url: 'service/server/_update',
-							params: {
-								id: $scope.server.id
-							},
-							data: {
-								servers: [$scope.server.server]
-							}
-						};
-
-						$scope.errorMessage = {};
-
-						$http(req)
-							.success(function(response) {
-								$scope.server.saved = true;
-								setTimeout(function() {
-									$scope.update();
-								}, 1000);
-							})
-							.error(function(response) {
-								angular.forEach(response, function(message) {
-									$scope.errorMessage[message.field] = message.message;
-								});
-							});
-					} else {
-						var req = {
-							method: 'POST',
-							url: 'service/server',
-							data: { 
-								servers: [$scope.server.server]
-							}
-						};
-
-						$scope.errorMessage = {};
-
-						$http(req)
-							.success(function(response) {
-								$scope.server = null;
-								setTimeout(function() {
-									$scope.update();
-								}, 1000);
-							})
-							.error(function(response) {
-								angular.forEach(response, function(message) {
-									$scope.errorMessage[message.field] = message.message;
-								});
-							});
-					}
-				}
-			};
-
-			$scope.unsaved = function() {
-				$scope.server.saved = false;
-			};
 		},
 		templateUrl: 'template/server.html'
 	};
@@ -428,17 +388,9 @@ app.directive('query', function() {
 		scope: {
 			query: '=query',
 			server: '=server',
-			queryIndex: '=queryIndex',
-			serverIndex: '=serverIndex',
-			errorMessage: "=errorMessage"
+			queryIndex: '=index'
 		},
 		controller: function($scope, $http) {
-
-			$scope.showErrorMessage = function(serverIndex, queryIndex, field) {
-				var s = 'servers[' + serverIndex + '].queries[' + queryIndex + '].' + field;
-
-				return s in $scope.errorMessage;
-			};
 
 			$scope.suggestName = function() {
 				if (!$scope.nameSuggestions) {
@@ -477,10 +429,6 @@ app.directive('query', function() {
 							$scope.attrSuggestions = response;
 						});
 				}
-			};
-
-			$scope.unsaved = function() {
-				$scope.server.saved = false;
 			};
 
 			$scope.addBlankAttr = function() {
@@ -529,18 +477,18 @@ app.directive('query', function() {
 				$scope.server.blankTypeNames[$scope.queryIndex] = null;
 			};
 
-			$scope.removeQuery = function() {
-				if ($scope.queryIndex < $scope.server.server.queries.length) {
-					$scope.server.server.queries.splice($scope.queryIndex, 1);
-					$scope.server.saved = false;
-				}
-				$scope.query = null;
-			}
+			
 
 		},
 		templateUrl: 'template/query.html'
 	};
 });
+
+
+
+/** 
+	Output writers templates 
+**/
 
 app.directive('bluefloodWriterForm', function() {
 	return {
@@ -552,7 +500,6 @@ app.directive('bluefloodWriterForm', function() {
 		templateUrl: 'template/bluefloodWriterForm.html'
 	};
 });
-
 
 app.directive('dailyKeyOutWriterForm', function() {
 	return {

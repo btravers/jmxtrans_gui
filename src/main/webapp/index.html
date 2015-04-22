@@ -53,24 +53,29 @@
 								</div>
 								<div class="modal-body">
 
-									<div class="form-group">
-										<label class="control-label">Writer</label>
-										<select type="text" class="form-control" ng-model="writer['@class']" ng-change="writerChange()">
-											<option value="com.googlecode.jmxtrans.model.output.BluefloodWriter">Blueflood</option>
-											<option value="com.googlecode.jmxtrans.model.output.DailyKeyOutWriter">DailyKeyOutWriter</option>
-											<option value="com.googlecode.jmxtrans.model.output.GangliaWriter">Ganglia</option>
-											<option value="com.googlecode.jmxtrans.model.output.GraphiteWriter">Graphite</option>
-											<option value="com.googlecode.jmxtrans.model.output.RRDToolWriter">RRDTool</option>
-											<option value="com.googlecode.jmxtrans.model.output.StatsDWriter">StatsD</option>
-										</select>
-									</div>
+									
 
-									<blueflood-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.BluefloodWriter'"></blueflood-writer-form>
-									<daily-key-out-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriter'"></daily-key-out-writer-form>
-									<graphite-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GraphiteWriter'"></graphite-writer-form>
-									<ganglia-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GangliaWriter'"></ganglia-writer-form>
-									<stats-d-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.StatsDWriter'"></stats-d-writer-form>
-									<rrd-tool-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.RRDToolWriter'"></rrd-tool-writer-form>								
+										<div class="form-group">
+											<label class="control-label">Writer</label>
+											<select type="text" class="form-control" ng-model="writer['@class']" ng-change="writerChange()">
+												<option value="com.googlecode.jmxtrans.model.output.BluefloodWriter">Blueflood</option>
+												<option value="com.googlecode.jmxtrans.model.output.DailyKeyOutWriter">DailyKeyOutWriter</option>
+												<option value="com.googlecode.jmxtrans.model.output.GangliaWriter">Ganglia</option>
+												<option value="com.googlecode.jmxtrans.model.output.GraphiteWriter">Graphite</option>
+												<option value="com.googlecode.jmxtrans.model.output.RRDToolWriter">RRDTool</option>
+												<option value="com.googlecode.jmxtrans.model.output.StatsDWriter">StatsD</option>
+											</select>
+										</div>
+
+										<blueflood-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.BluefloodWriter'"></blueflood-writer-form>
+										<daily-key-out-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriter'"></daily-key-out-writer-form>
+										<graphite-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GraphiteWriter'"></graphite-writer-form>
+										<ganglia-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GangliaWriter'"></ganglia-writer-form>
+										<stats-d-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.StatsDWriter'"></stats-d-writer-form>
+										<rrd-tool-writer-form writer="writer" ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.RRDToolWriter'"></rrd-tool-writer-form>
+
+										
+
 								</div>
 								<div class="modal-footer">
 									<button type="button" class="btn btn-primary" ng-click="saveWriter()">Save changes</button>
@@ -195,13 +200,11 @@
 				</div>
 
 				<div class="col-xs-9">
-					<div class="panel-group" id="server-accordion" role="tablist" aria-multiselectable="true">
+					
+					<server ng-hide="blankServer || !server" server="server" alerts="alerts"></server>
 
-						<server ng-hide="blankServer" ng-repeat="server in servers" server="server" index="$index" writer="writer" update-servers-list="updateServersList" alerts="alerts"></server>
+					<server ng-show="blankServer" server="blankServer" alerts="alerts"></server>
 
-						<server ng-show="blankServer" server="blankServer" writer="writer" update-servers-list="updateServersList" index="0" alerts="alerts"></server>
-
-					</div>
 				</div>
 
 			</div>
