@@ -22,14 +22,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
-@ComponentScan({ "com.zenika.back.web", "com.zenika.back.service",
+@ComponentScan({"com.zenika.back.service",
 	"com.zenika.back.repository" })
-@EnableWebMvc
 public class AppConfig {
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
     
