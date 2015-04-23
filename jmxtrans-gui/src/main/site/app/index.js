@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('Jmxtrans', ['angularFileUpload', 'ui.bootstrap']);
+var app = angular.module('jmxtransGui', ['angularFileUpload', 'ui.bootstrap']);
 
 app.controller('Main', function($scope, $http, FileUploader) {
 
@@ -35,9 +35,9 @@ app.controller('Main', function($scope, $http, FileUploader) {
 
 				$http(req)
 					.error(function() {
-						
+
 					});
-			}		
+			}
 		};
 
 		this.save = function() {
@@ -97,7 +97,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 					var req = {
 						method: 'POST',
 						url: 'service/server',
-						data: { 
+						data: {
 							servers: [this.server]
 						}
 					};
@@ -143,9 +143,9 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			return key in this.errorMessage;
 		};
 	};
-	
+
 	/**
-		Servers list 
+		Servers list
 	**/
 	$scope.list = [];
 
@@ -214,7 +214,7 @@ app.controller('Main', function($scope, $http, FileUploader) {
 			.success(function(response) {
 				$scope.blankServer = new ServerObject();
 				$scope.blankServer.server = response.source.servers[0];
-				
+
 				$scope.blankServer.server.host = null;
 				$scope.blankServer.server.port = null;
 			})
@@ -321,11 +321,11 @@ app.controller('Main', function($scope, $http, FileUploader) {
 	};
 
 
-	/** 
-		JSON File uploader 
+	/**
+		JSON File uploader
 	**/
-	$scope.uploader = new FileUploader({ 
-		url: 'service/upload' 
+	$scope.uploader = new FileUploader({
+		url: 'service/upload'
 	});
 
 	$scope.uploader.onCompleteAll = function() {
@@ -378,7 +378,7 @@ app.directive('server', function() {
 			server: '=server',
 			alerts: '=alerts'
 		},
-		templateUrl: 'app/templates/server.html'
+		templateUrl: 'app/components/server/server.html'
 	};
 });
 
@@ -479,17 +479,17 @@ app.directive('query', function() {
 				$scope.server.blankTypeNames[$scope.queryIndex] = null;
 			};
 
-			
+
 
 		},
-		templateUrl: 'app/templates/query.html'
+		templateUrl: 'app/components/query/query.html'
 	};
 });
 
 
 
-/** 
-	Output writers templates 
+/**
+	Output writers templates
 **/
 
 app.directive('bluefloodWriterForm', function() {
@@ -499,7 +499,7 @@ app.directive('bluefloodWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'app/templates/bluefloodWriterForm.html'
+		templateUrl: 'app/components/blueflood-writer-form/blueflood-writer-form.html'
 	};
 });
 
@@ -510,7 +510,7 @@ app.directive('dailyKeyOutWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'app/templates/dailyKeyOutWriterForm.html'
+		templateUrl: 'app/components/daily-key-out-writer-form/daily-key-out-writer-form.html'
 	};
 });
 
@@ -521,7 +521,7 @@ app.directive('gangliaWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'app/templates/gangliaWriterForm.html'
+		templateUrl: 'app/components/ganglia-writer-form/ganglia-writer-form.html'
 	};
 });
 
@@ -532,7 +532,7 @@ app.directive('graphiteWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'app/templates/graphiteWriterForm.html'
+		templateUrl: 'app/components/graphite-writer-form/graphite-writer-form.html'
 	};
 });
 
@@ -543,7 +543,7 @@ app.directive('statsDWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'app/templates/statsDWriterForm.html'
+		templateUrl: 'app/components/stats-d-writer-form/stats-d-writer-form.html'
 	};
 });
 
@@ -554,6 +554,6 @@ app.directive('rrdToolWriterForm', function() {
 		scope: {
 			writer: '=writer'
 		},
-		templateUrl: 'app/templates/rrdToolWriterForm.html'
+		templateUrl: 'app/components/rrd-tool-writer-form/rrd-tool-writer-form.html'
 	};
 });
