@@ -1,0 +1,43 @@
+<div class="modal-header">
+  <button class="close" ng-click="cancel()"><span>&times;</span></button>
+  <h4 class="modal-title">Writer settings</h4>
+</div>
+
+<div class="modal-body">
+
+  <div class="form-group">
+    <label class="control-label">Writer</label>
+    <select type="text" class="form-control" ng-model="writer['@class']"
+            ng-change="writerChange()">
+      <option value="com.googlecode.jmxtrans.model.output.BluefloodWriter">Blueflood
+      </option>
+      <option value="com.googlecode.jmxtrans.model.output.DailyKeyOutWriter">
+        DailyKeyOutWriter
+      </option>
+      <option value="com.googlecode.jmxtrans.model.output.GangliaWriter">Ganglia</option>
+      <option value="com.googlecode.jmxtrans.model.output.GraphiteWriter">Graphite
+      </option>
+      <option value="com.googlecode.jmxtrans.model.output.RRDToolWriter">RRDTool</option>
+      <option value="com.googlecode.jmxtrans.model.output.StatsDWriter">StatsD</option>
+    </select>
+  </div>
+
+  <blueflood-writer-form writer="writer"
+                         ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.BluefloodWriter'"></blueflood-writer-form>
+  <daily-key-out-writer-form writer="writer"
+                             ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.DailyKeyOutWriter'"></daily-key-out-writer-form>
+  <graphite-writer-form writer="writer"
+                        ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GraphiteWriter'"></graphite-writer-form>
+  <ganglia-writer-form writer="writer"
+                       ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.GangliaWriter'"></ganglia-writer-form>
+  <stats-d-writer-form writer="writer"
+                       ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.StatsDWriter'"></stats-d-writer-form>
+  <rrd-tool-writer-form writer="writer"
+                        ng-show="writer['@class'] == 'com.googlecode.jmxtrans.model.output.RRDToolWriter'"></rrd-tool-writer-form>
+
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="save()">Save changes</button>
+  <button class="btn btn-default" ng-click="cancel()">Close</button>
+</div>

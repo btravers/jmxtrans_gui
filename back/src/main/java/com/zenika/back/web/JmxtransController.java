@@ -39,7 +39,6 @@ import com.zenika.back.model.Server;
 import com.zenika.back.service.JmxtransService;
 
 @Controller
-@RequestMapping("/service")
 public class JmxtransController {
 
     private static final Logger logger = LoggerFactory

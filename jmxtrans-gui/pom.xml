@@ -46,7 +46,7 @@
       </properties>
     </profile>
     <profile>
-      <id>for-nix</id>
+      <id>for-unix</id>
       <activation>
         <os>
           <family>Linux</family>
