@@ -2,9 +2,9 @@
 
 var app = angular.module('jmxtransGui');
 
-app.factory('serverFactory', function ($rootScope, $http, writerService, configService) {
+app.factory('serverFactory', function ($rootScope, $http, writerService, configService, ngToast) {
 
-  var Server = function() {
+  var Server = function () {
     var ref = this;
 
     this.id = null;
@@ -57,7 +57,10 @@ app.factory('serverFactory', function ($rootScope, $http, writerService, configS
 
         $http(req)
           .error(function () {
-
+            ngToast.create({
+              className: 'danger',
+              content: 'An error occurred when retrieving JMX object names information'
+            });
           });
       }
     };
@@ -106,6 +109,10 @@ app.factory('serverFactory', function ($rootScope, $http, writerService, configS
           $http(req)
             .success(function () {
               ref.saved = true;
+              ngToast.create({
+                className: 'success',
+                content: 'Save server conf document successfully'
+              });
               setTimeout(function () {
                 $rootScope.$broadcast('update', {
                   host: ref.server.host,
@@ -116,6 +123,10 @@ app.factory('serverFactory', function ($rootScope, $http, writerService, configS
             .error(function (response) {
               angular.forEach(response, function (message) {
                 ref.errorMessage[message.field] = message.message;
+              });
+              ngToast.create({
+                className: 'danger',
+                content: 'An error occurred when saving server conf document'
               });
             });
         } else {
@@ -132,6 +143,10 @@ app.factory('serverFactory', function ($rootScope, $http, writerService, configS
           $http(req)
             .success(function () {
               setTimeout(function () {
+                ngToast.create({
+                  className: 'success',
+                  content: 'Save server conf document successfully'
+                });
                 $rootScope.$broadcast('update', {
                   host: ref.server.host,
                   port: ref.server.port
@@ -141,6 +156,10 @@ app.factory('serverFactory', function ($rootScope, $http, writerService, configS
             .error(function (response) {
               angular.forEach(response, function (message) {
                 ref.errorMessage[message.field] = message.message;
+              });
+              ngToast.create({
+                className: 'danger',
+                content: 'An error occurred when saving server conf document'
               });
             });
         }

@@ -2,7 +2,7 @@
 
 var app = angular.module('jmxtransGui');
 
-app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, serverFactory, writerService, configService) {
+app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, serverFactory, writerService, configService, ngToast) {
 
   $scope.$on('update', function (event, data) {
     $scope.updateServersList();
@@ -14,6 +14,15 @@ app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, server
    */
   writerService.get().then(function (writer) {
     $scope.writer = writer;
+    if (!$scope.writer['@class']) {
+      ngToast.create({
+        className: 'warning',
+        dismissOnTimeout: false,
+        content: 'No writer set'
+      });
+    }
+  }, function() {
+
   });
 
   $scope.server = null;
@@ -34,7 +43,10 @@ app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, server
         $scope.list = response;
       })
       .error(function () {
-
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred when loading servers list'
+        });
       });
   };
 
@@ -70,7 +82,13 @@ app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, server
           server: response.source.servers[0]
         });
       })
-      .error();
+      .error(function () {
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred when loading server conf document'
+        });
+      }
+    );
 
     return server.promise;
   };
@@ -116,15 +134,22 @@ app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, server
 
     $http(req)
       .success(function () {
-        // TODO 
+        // TODO
         $scope.server = null;
+        ngToast.create({
+          className: 'success',
+          content: "Delete server conf document successfully"
+        });
 
         setTimeout(function () {
           $scope.updateServersList();
         }, 1000);
       })
       .error(function () {
-
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred during the deletion of the server conf document'
+        });
       });
   };
 
@@ -142,7 +167,10 @@ app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, server
         writerService.get().then(function (writer) {
           $scope.writer = writer;
         }, function () {
-
+          $scope.writer = {
+            '@class': null,
+            settings: {}
+          };
         });
 
         $scope.save = function () {
@@ -210,7 +238,7 @@ app.controller('Main', function ($http, $scope, $q, $modal, FileUploader, server
         };
 
       }, resolve: {
-        updateServersList: function() {
+        updateServersList: function () {
           return $scope.updateServersList;
         }
       }

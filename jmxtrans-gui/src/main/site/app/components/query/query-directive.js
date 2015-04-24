@@ -30,6 +30,9 @@ app.directive('query', function () {
           $http(req)
             .success(function (response) {
               $scope.nameSuggestions = response;
+            })
+            .error(function() {
+
             });
         }
 
@@ -53,6 +56,9 @@ app.directive('query', function () {
           $http(req)
             .success(function (response) {
               $scope.attrSuggestions = response;
+            })
+            .error(function() {
+
             });
         }
       };

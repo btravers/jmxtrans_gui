@@ -2,7 +2,7 @@
 
 var app = angular.module('jmxtransGui');
 
-app.service('writerService', function ($http, $q, configService) {
+app.service('writerService', function ($http, $q, configService, ngToast) {
 
   this.get = function () {
     var req = {
@@ -23,6 +23,10 @@ app.service('writerService', function ($http, $q, configService) {
       })
       .error(function () {
         writer.reject();
+        ngToast.create({
+          className: 'danger',
+          content: 'An error when loading output writer configuration'
+        });
       });
 
     return writer.promise;
@@ -39,10 +43,16 @@ app.service('writerService', function ($http, $q, configService) {
 
     $http(req)
       .success(function () {
-
+        ngToast.create({
+          className: 'success',
+          content: 'Save output writer configuration successfully'
+        });
       })
       .error(function () {
-
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred when saving output writer configuration'
+        });
       });
   };
 
