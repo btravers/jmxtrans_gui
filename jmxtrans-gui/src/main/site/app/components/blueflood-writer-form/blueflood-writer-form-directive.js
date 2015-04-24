@@ -1,14 +1,18 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular
+    .module('jmxtransGui')
+    .directive('bluefloodWriterForm', bluefloodWriterForm);
 
-app.directive('bluefloodWriterForm', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      writer: '=writer'
-    },
-    templateUrl: 'app/components/blueflood-writer-form/blueflood-writer-form.html'
-  };
-});
+  function bluefloodWriterForm() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        writer: '=writer'
+      },
+      templateUrl: 'app/components/blueflood-writer-form/blueflood-writer-form.html'
+    };
+  }
+})();

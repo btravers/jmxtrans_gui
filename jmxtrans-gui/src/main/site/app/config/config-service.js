@@ -1,12 +1,23 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui')
+  angular
+    .module('jmxtransGui')
+    .service('configService', configService);
 
-app.service('configService', function () {
-  var url = 'http://localhost:8080/';
+  function configService() {
+    var url = 'http://localhost:8080/';
+    var reloadInterval = 60000;
 
-  this.getUrl = function () {
-    return url;
-  };
+    this.getUrl = getUrl;
+    this.getReloadInterval = getReloadInterval;
 
-});
+    function getUrl() {
+      return url;
+    }
+
+    function getReloadInterval() {
+      return reloadInterval;
+    }
+  }
+})();

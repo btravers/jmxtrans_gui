@@ -1,14 +1,18 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular
+    .module('jmxtransGui')
+    .directive('graphiteWriterForm', graphiteWriterForm);
 
-app.directive('graphiteWriterForm', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      writer: '=writer'
-    },
-    templateUrl: 'app/components/graphite-writer-form/graphite-writer-form.html'
-  };
-});
+  function graphiteWriterForm() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        writer: '=writer'
+      },
+      templateUrl: 'app/components/graphite-writer-form/graphite-writer-form.html'
+    };
+  }
+})();

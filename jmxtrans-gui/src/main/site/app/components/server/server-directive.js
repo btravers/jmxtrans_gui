@@ -1,15 +1,19 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular
+    .module('jmxtransGui')
+    .directive('server', server);
 
-app.directive('server', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      server: '=server',
-      alerts: '=alerts'
-    },
-    templateUrl: 'app/components/server/server.html'
-  };
-});
+  function server() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        server: '=server',
+        alerts: '=alerts'
+      },
+      templateUrl: 'app/components/server/server.html'
+    };
+  }
+})();

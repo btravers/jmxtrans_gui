@@ -1,14 +1,18 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular
+    .module('jmxtransGui')
+    .directive('statsDWriterForm', statsDWriterForm);
 
-app.directive('statsDWriterForm', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      writer: '=writer'
-    },
-    templateUrl: 'app/components/stats-d-writer-form/stats-d-writer-form.html'
-  };
-});
+  function statsDWriterForm() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        writer: '=writer'
+      },
+      templateUrl: 'app/components/stats-d-writer-form/stats-d-writer-form.html'
+    };
+  }
+})();

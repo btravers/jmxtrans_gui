@@ -58,23 +58,23 @@
           <li class="server-item" ng-repeat="item in list" role="presentation">
             <div class="row">
               <div class="col-sm-7">
-                <a class="btn btn-link" ng-click="display(item.host, item.port)">
+                <button class="btn btn-link" ng-click="display(item.host, item.port)">
                   {{ item.host }}:{{ item.port }}
-                </a>
+                </button>
               </div>
               <div class="col-sm-5">
-                <a class="btn btn-link"
-                   ng-href="{{ download(item.host, item.port) }}" style="display: inline-block;">
+                <button class="btn btn-link"
+                   ng-click="download(item.host, item.port)" style="display: inline-block;">
                   <span class="glyphicon glyphicon-download-alt"></span>
-                </a>
-                <a class="btn btn-link" ng-click="duplicate(item.host, item.port)"
+                </button>
+                <button class="btn btn-link" ng-click="duplicate(item.host, item.port)"
                    style="display: inline-block;">
                   <span class="glyphicon glyphicon-copy"></span>
-                </a>
-                <a class="btn btn-link" ng-click="delete(item.host, item.port)"
+                </button>
+                <button class="btn btn-link" ng-click="delete(item.host, item.port)"
                    style="display: inline-block;">
                   <span class="glyphicon glyphicon-trash"></span>
-                </a>
+                </button>
               </div>
             </div>
           </li>

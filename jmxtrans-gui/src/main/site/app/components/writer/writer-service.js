@@ -1,59 +1,65 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular
+    .module('jmxtransGui')
+    .service('writerService', writerService);
 
-app.service('writerService', function ($http, $q, configService, ngToast) {
+  function writerService($http, $q, configService, ngToast) {
 
-  this.get = function () {
-    var req = {
-      method: 'GET',
-      url: 'settings'
-    };
+    this.get = get;
+    this.set = set;
 
-    req.url = configService.getUrl() + req.url;
+    function get() {
+      var req = {
+        method: 'GET',
+        url: 'settings'
+      };
 
-    var writer = $q.defer();
+      req.url = configService.getUrl() + req.url;
 
-    $http(req)
-      .success(function (response) {
-        if (!response.settings) {
-          response.settings = {};
-        }
-        writer.resolve(response);
-      })
-      .error(function () {
-        writer.reject();
-        ngToast.create({
-          className: 'danger',
-          content: 'An error when loading output writer configuration'
+      var writer = $q.defer();
+
+      $http(req)
+        .success(function (response) {
+          if (!response.settings) {
+            response.settings = {};
+          }
+          writer.resolve(response);
+        })
+        .error(function () {
+          writer.reject();
+          ngToast.create({
+            className: 'danger',
+            content: 'An error when loading output writer configuration'
+          });
         });
-      });
 
-    return writer.promise;
-  };
+      return writer.promise;
+    }
 
-  this.set = function (writer) {
-    var req = {
-      method: 'POST',
-      url: 'settings',
-      data: writer.writer
-    };
+    function set(writer) {
+      var req = {
+        method: 'POST',
+        url: 'settings',
+        data: writer.writer
+      };
 
-    req.url = configService.getUrl() + req.url;
+      req.url = configService.getUrl() + req.url;
 
-    $http(req)
-      .success(function () {
-        ngToast.create({
-          className: 'success',
-          content: 'Save output writer configuration successfully'
+      $http(req)
+        .success(function () {
+          ngToast.create({
+            className: 'success',
+            content: 'Save output writer configuration successfully'
+          });
+        })
+        .error(function () {
+          ngToast.create({
+            className: 'danger',
+            content: 'An error occurred when saving output writer configuration'
+          });
         });
-      })
-      .error(function () {
-        ngToast.create({
-          className: 'danger',
-          content: 'An error occurred when saving output writer configuration'
-        });
-      });
-  };
-
-});
+    }
+  }
+})();

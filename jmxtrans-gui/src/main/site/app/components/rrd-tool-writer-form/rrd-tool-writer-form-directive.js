@@ -1,14 +1,17 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular.module('jmxtransGui')
+    .directive('rrdToolWriterForm', rrdToolWriterForm);
 
-app.directive('rrdToolWriterForm', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      writer: '=writer'
-    },
-    templateUrl: 'app/components/rrd-tool-writer-form/rrd-tool-writer-form.html'
-  };
-});
+  function rrdToolWriterForm() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        writer: '=writer'
+      },
+      templateUrl: 'app/components/rrd-tool-writer-form/rrd-tool-writer-form.html'
+    };
+  }
+})();

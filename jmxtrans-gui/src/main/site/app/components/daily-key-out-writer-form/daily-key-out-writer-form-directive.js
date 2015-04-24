@@ -1,14 +1,18 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular
+    .module('jmxtransGui')
+    .directive('dailyKeyOutWriterForm', dailyKeyOutWriterForm);
 
-app.directive('dailyKeyOutWriterForm', function () {
-  return {
-    restrict: 'E',
-    replace: true,
-    scope: {
-      writer: '=writer'
-    },
-    templateUrl: 'app/components/daily-key-out-writer-form/daily-key-out-writer-form.html'
-  };
-});
+  function dailyKeyOutWriterForm() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        writer: '=writer'
+      },
+      templateUrl: 'app/components/daily-key-out-writer-form/daily-key-out-writer-form.html'
+    };
+  }
+})();

@@ -1,10 +1,14 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui', ['angularFileUpload', 'ui.bootstrap', 'ngToast']);
+  angular
+    .module('jmxtransGui', ['angularFileUpload', 'ui.bootstrap', 'ngToast'])
+    .config(config);
 
-app.config(function(ngToastProvider) {
-  ngToastProvider.configure({
-    timeout: 5000,
-    dismissButton: true
-  });
-});
+  function config(ngToastProvider) {
+    ngToastProvider.configure({
+      timeout: 5000,
+      dismissButton: true
+    });
+  }
+})();

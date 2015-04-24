@@ -1,175 +1,179 @@
-'use strict';
+(function () {
+  'use strict';
 
-var app = angular.module('jmxtransGui');
+  angular
+    .module('jmxtransGui')
+    .factory('serverFactory', serverFactory);
 
-app.factory('serverFactory', function ($rootScope, $http, writerService, configService, ngToast) {
+  function serverFactory($rootScope, $http, writerService, configService, ngToast) {
 
-  var Server = function () {
-    var ref = this;
+    var Server = function () {
+      var vm = this;
 
-    this.id = null;
-
-    this.server = {
-      port: null,
-      host: null,
-      queries: []
-    };
-    this.saved = false;
-
-    this.blankQuery = null;
-    this.blankAttr = [];
-    this.blankTypeNames = [];
-
-    this.errorMessage = {};
-
-    this.removeQuery = function (index) {
-      this.server.queries.splice(index, 1);
-      this.saved = false;
-    };
-
-    this.addBlankQuery = function () {
-      if (this.blankQuery && this.blankQuery.obj) {
-        this.server.queries.push(this.blankQuery);
-      }
-
-      this.blankQuery = {
-        obj: null,
-        attr: [],
-        typeNames: [],
-        outputWriters: [
-          writerService.get()
-        ]
+      vm.id = null;
+      vm.server = {
+        port: null,
+        host: null,
+        queries: []
       };
-    };
+      vm.saved = false;
+      vm.blankQuery = null;
+      vm.blankAttr = [];
+      vm.blankTypeNames = [];
+      vm.errorMessage = {};
 
-    this.loadJMXTree = function () {
-      if (this.server.host && this.server.port) {
-        var req = {
-          method: 'GET',
-          url: 'refresh',
-          params: {
-            host: this.server.host,
-            port: this.server.port
-          }
-        };
+      vm.removeQuery = removeQuery;
+      vm.addBlankQuery = addBlankQuery;
+      vm.loadJMXTree = loadJMXTree;
+      vm.save = save;
+      vm.showErrorMessage = showErrorMessage;
 
-        req.url = configService.getUrl() + req.url;
 
-        $http(req)
-          .error(function () {
-            ngToast.create({
-              className: 'danger',
-              content: 'An error occurred when retrieving JMX object names information'
-            });
-          });
+      function removeQuery(index) {
+        vm.server.queries.splice(index, 1);
+        vm.saved = false;
       }
-    };
 
-    this.save = function () {
-      if (!this.saved) {
-        if (this.blankQuery && this.blankQuery.obj) {
-          this.server.queries.push(this.blankQuery);
-          this.blankQuery = null;
+      function addBlankQuery() {
+        if (vm.blankQuery && vm.blankQuery.obj) {
+          vm.server.queries.push(vm.blankQuery);
         }
 
-        angular.forEach(this.blankAttr, function (attr, i) {
-          if (attr && attr.value) {
-            if (!ref.server.queries[i].attr) {
-              ref.server.queries[i].attr = [];
-            }
-            ref.server.queries[i].attr.push(attr.value);
-            ref.blankAttr[i] = null;
-          }
-        });
+        vm.blankQuery = {
+          obj: null,
+          attr: [],
+          typeNames: [],
+          outputWriters: [
+            writerService.get()
+          ]
+        };
+      }
 
-        angular.forEach(this.blankTypeNames, function (typeName, i) {
-          if (typeName && typeName.value) {
-            if (!ref.server.queries[i].typeNames) {
-              ref.server.queries[i].typeNames = [];
-            }
-            ref.server.queries[i].typeNames.push(typeName.value);
-            ref.blankTypeNames[i] = null;
-          }
-        });
-
-        if (this.id) {
+      function loadJMXTree() {
+        if (vm.server.host && vm.server.port) {
           var req = {
-            method: 'POST',
-            url: 'server/_update',
+            method: 'GET',
+            url: 'refresh',
             params: {
-              id: this.id
-            },
-            data: {
-              servers: [this.server]
+              host: vm.server.host,
+              port: vm.server.port
             }
           };
 
           req.url = configService.getUrl() + req.url;
 
           $http(req)
-            .success(function () {
-              ref.saved = true;
-              ngToast.create({
-                className: 'success',
-                content: 'Save server conf document successfully'
-              });
-              setTimeout(function () {
-                $rootScope.$broadcast('update', {
-                  host: ref.server.host,
-                  port: ref.server.port
-                });
-              }, 1000);
-            })
-            .error(function (response) {
-              angular.forEach(response, function (message) {
-                ref.errorMessage[message.field] = message.message;
-              });
+            .error(function () {
               ngToast.create({
                 className: 'danger',
-                content: 'An error occurred when saving server conf document'
+                content: 'An error occurred when retrieving JMX object names information'
               });
             });
-        } else {
-          var req = {
-            method: 'POST',
-            url: 'server',
-            data: {
-              servers: [this.server]
+        }
+      }
+
+      function save() {
+        if (!vm.saved) {
+          if (vm.blankQuery && vm.blankQuery.obj) {
+            vm.server.queries.push(vm.blankQuery);
+            vm.blankQuery = null;
+          }
+
+          angular.forEach(vm.blankAttr, function (attr, i) {
+            if (attr && attr.value) {
+              if (!vm.server.queries[i].attr) {
+                vm.server.queries[i].attr = [];
+              }
+              vm.server.queries[i].attr.push(attr.value);
+              vm.blankAttr[i] = null;
             }
-          };
+          });
 
-          req.url = configService.getUrl() + req.url;
+          angular.forEach(vm.blankTypeNames, function (typeName, i) {
+            if (typeName && typeName.value) {
+              if (!vm.server.queries[i].typeNames) {
+                vm.server.queries[i].typeNames = [];
+              }
+              vm.server.queries[i].typeNames.push(typeName.value);
+              vm.blankTypeNames[i] = null;
+            }
+          });
 
-          $http(req)
-            .success(function () {
-              setTimeout(function () {
+          if (vm.id) {
+            var req = {
+              method: 'POST',
+              url: 'server/_update',
+              params: {
+                id: vm.id
+              },
+              data: {
+                servers: [vm.server]
+              }
+            };
+
+            req.url = configService.getUrl() + req.url;
+
+            $http(req)
+              .success(function () {
+                vm.saved = true;
                 ngToast.create({
                   className: 'success',
                   content: 'Save server conf document successfully'
                 });
-                $rootScope.$broadcast('update', {
-                  host: ref.server.host,
-                  port: ref.server.port
+                $rootScope.$emit('update', {
+                  host: vm.server.host,
+                  port: vm.server.port
                 });
-              }, 1000);
-            })
-            .error(function (response) {
-              angular.forEach(response, function (message) {
-                ref.errorMessage[message.field] = message.message;
+              })
+              .error(function (response) {
+                angular.forEach(response, function (message) {
+                  vm.errorMessage[message.field] = message.message;
+                });
+                ngToast.create({
+                  className: 'danger',
+                  content: 'An error occurred when saving server conf document'
+                });
               });
-              ngToast.create({
-                className: 'danger',
-                content: 'An error occurred when saving server conf document'
+          } else {
+            var req = {
+              method: 'POST',
+              url: 'server',
+              data: {
+                servers: [vm.server]
+              }
+            };
+
+            req.url = configService.getUrl() + req.url;
+
+            $http(req)
+              .success(function () {
+                ngToast.create({
+                  className: 'success',
+                  content: 'Save server conf document successfully'
+                });
+                $rootScope.$emit('update', {
+                  host: vm.server.host,
+                  port: vm.server.port
+                });
+              })
+              .error(function (response) {
+                angular.forEach(response, function (message) {
+                  vm.errorMessage[message.field] = message.message;
+                });
+                ngToast.create({
+                  className: 'danger',
+                  content: 'An error occurred when saving server conf document'
+                });
               });
-            });
+          }
         }
+      }
+
+      function showErrorMessage(key) {
+        return key in vm.errorMessage;
       }
     };
 
-    this.showErrorMessage = function (key) {
-      return key in this.errorMessage;
-    };
-  };
-
-  return Server;
-});
+    return Server;
+  }
+})();
