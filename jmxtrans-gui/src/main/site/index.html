@@ -41,13 +41,15 @@
       <button ng-show="blankServer" type="button" class="btn btn-default btn-lg btn-block"
               ng-click="cancelBlankServer()">Cancel
       </button>
+      <button type="button" class="btn btn-default btn-lg btn-block"
+              ng-click="updateServersList()"><span class="glyphicon glyphicon-refresh"></span> Reload servers list
+      </button>
       <button type="button" class="btn btn-default btn-lg btn-block" ng-click="openUploader()">
         <span class="glyphicon glyphicon-upload"></span> Load JSON files
       </button>
       <button type="button" class="btn btn-default btn-lg btn-block" ng-click="openWriter()">
         <span class="glyphicon glyphicon-cog"></span> Settings
       </button>
-
 
       <br>
 
@@ -62,8 +64,7 @@
               </div>
               <div class="col-sm-5">
                 <a class="btn btn-link"
-                   ng-href="service/server/_download?host={{ item.host }}&port={{ item.port }}"
-                   style="display: inline-block;">
+                   ng-href="{{ download(item.host, item.port) }}" style="display: inline-block;">
                   <span class="glyphicon glyphicon-download-alt"></span>
                 </a>
                 <a class="btn btn-link" ng-click="duplicate(item.host, item.port)"
@@ -84,9 +85,9 @@
 
     <div class="col-xs-9">
 
-      <server ng-hide="blankServer || !server" server="server" alerts="alerts"></server>
+      <server ng-show="server" server="server"></server>
 
-      <server ng-show="blankServer" server="blankServer" alerts="alerts"></server>
+      <server ng-show="blankServer" server="blankServer"></server>
 
     </div>
 

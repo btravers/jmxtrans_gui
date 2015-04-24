@@ -2,141 +2,155 @@
 
 var app = angular.module('jmxtransGui');
 
-app.factory('serverFactory', function ($http, serverService, writerService) {
+app.factory('serverFactory', function ($rootScope, $http, writerService, configService) {
 
-  var factory = {};
+  var Server = function() {
+    var ref = this;
 
-  factory.id = null;
-  factory.server = {
-    port: null,
-    host: null,
-    queries: []
-  };
-  factory.saved = false;
+    this.id = null;
 
-  factory.blankQuery = null;
-  factory.blankAttr = [];
-  factory.blankTypeNames = [];
+    this.server = {
+      port: null,
+      host: null,
+      queries: []
+    };
+    this.saved = false;
 
-  factory.errorMessage = {};
+    this.blankQuery = null;
+    this.blankAttr = [];
+    this.blankTypeNames = [];
 
-  factory.loadJMXTree = function () {
-    if (factory.server.host && factory.server.port) {
-      var req = {
-        method: 'GET',
-        url: 'refresh',
-        params: {
-          host: factory.server.host,
-          port: factory.server.port
-        }
+    this.errorMessage = {};
+
+    this.removeQuery = function (index) {
+      this.server.queries.splice(index, 1);
+      this.saved = false;
+    };
+
+    this.addBlankQuery = function () {
+      if (this.blankQuery && this.blankQuery.obj) {
+        this.server.queries.push(this.blankQuery);
+      }
+
+      this.blankQuery = {
+        obj: null,
+        attr: [],
+        typeNames: [],
+        outputWriters: [
+          writerService.get()
+        ]
       };
+    };
 
-      $http(req)
-        .error(function () {
-
-        });
-    }
-  };
-
-  factory.save = function () {
-    if (!factory.saved) {
-      if (factory.blankQuery && factory.blankQuery.obj) {
-        factory.server.queries.push(factory.blankQuery);
-        factory.blankQuery = null;
-      }
-
-      angular.forEach(this.blankAttr, function (attr, i) {
-        if (attr && attr.value) {
-          if (!factory.server.queries[i].attr) {
-            factory.server.queries[i].attr = [];
-          }
-          factory.queries[i].attr.push(attr.value);
-          factory.blankAttr[i] = null;
-        }
-      });
-
-      angular.forEach(factory.blankTypeNames, function (typeName, i) {
-        if (typeName && typeName.value) {
-          if (!factory.server.queries[i].typeNames) {
-            factory.server.queries[i].typeNames = [];
-          }
-          factory.server.queries[i].typeNames.push(typeName.value);
-          factory.blankTypeNames[i] = null;
-        }
-      });
-
-      if (factory.id) {
+    this.loadJMXTree = function () {
+      if (this.server.host && this.server.port) {
         var req = {
-          method: 'POST',
-          url: 'server/_update',
+          method: 'GET',
+          url: 'refresh',
           params: {
-            id: factory.id
-          },
-          data: {
-            servers: [factory.server]
+            host: this.server.host,
+            port: this.server.port
           }
         };
 
-        $http(req)
-          .success(function () {
-            factory.saved = true;
-            setTimeout(function () {
-              serverService.display(factory.server.host, factory.server.port);
-            }, 1000);
-          })
-          .error(function (response) {
-            angular.forEach(response, function (message) {
-              factory.errorMessage[message.field] = message.message;
-            }, factory);
-          });
-      } else {
-        var req = {
-          method: 'POST',
-          url: 'server',
-          data: {
-            servers: [factory.server]
-          }
-        };
+        req.url = configService.getUrl() + req.url;
 
         $http(req)
-          .success(function () {
-            setTimeout(function () {
-              serverService.display(factory.server.host, factory.server.port);
-            }, 1000);
-          })
-          .error(function (response) {
-            angular.forEach(response, function (message) {
-              factory.errorMessage[message.field] = message.message;
-            }, factory);
+          .error(function () {
+
           });
       }
-    }
-  };
+    };
 
-  factory.removeQuery = function (index) {
-    factory.server.queries.splice(index, 1);
-    factory.saved = false;
-  };
+    this.save = function () {
+      if (!this.saved) {
+        if (this.blankQuery && this.blankQuery.obj) {
+          this.server.queries.push(this.blankQuery);
+          this.blankQuery = null;
+        }
 
-  factory.addBlankQuery = function () {
-    if (factory.blankQuery && factory.blankQuery.obj) {
-      factory.server.queries.push(factory.blankQuery);
-    }
+        angular.forEach(this.blankAttr, function (attr, i) {
+          if (attr && attr.value) {
+            if (!ref.server.queries[i].attr) {
+              ref.server.queries[i].attr = [];
+            }
+            ref.server.queries[i].attr.push(attr.value);
+            ref.blankAttr[i] = null;
+          }
+        });
 
-    factory.blankQuery = {
-      obj: null,
-      attr: [],
-      typeNames: [],
-      outputWriters: [
-        writerService.get()
-      ]
+        angular.forEach(this.blankTypeNames, function (typeName, i) {
+          if (typeName && typeName.value) {
+            if (!ref.server.queries[i].typeNames) {
+              ref.server.queries[i].typeNames = [];
+            }
+            ref.server.queries[i].typeNames.push(typeName.value);
+            ref.blankTypeNames[i] = null;
+          }
+        });
+
+        if (this.id) {
+          var req = {
+            method: 'POST',
+            url: 'server/_update',
+            params: {
+              id: this.id
+            },
+            data: {
+              servers: [this.server]
+            }
+          };
+
+          req.url = configService.getUrl() + req.url;
+
+          $http(req)
+            .success(function () {
+              ref.saved = true;
+              setTimeout(function () {
+                $rootScope.$broadcast('update', {
+                  host: ref.server.host,
+                  port: ref.server.port
+                });
+              }, 1000);
+            })
+            .error(function (response) {
+              angular.forEach(response, function (message) {
+                ref.errorMessage[message.field] = message.message;
+              });
+            });
+        } else {
+          var req = {
+            method: 'POST',
+            url: 'server',
+            data: {
+              servers: [this.server]
+            }
+          };
+
+          req.url = configService.getUrl() + req.url;
+
+          $http(req)
+            .success(function () {
+              setTimeout(function () {
+                $rootScope.$broadcast('update', {
+                  host: ref.server.host,
+                  port: ref.server.port
+                });
+              }, 1000);
+            })
+            .error(function (response) {
+              angular.forEach(response, function (message) {
+                ref.errorMessage[message.field] = message.message;
+              });
+            });
+        }
+      }
+    };
+
+    this.showErrorMessage = function (key) {
+      return key in this.errorMessage;
     };
   };
 
-  factory.showErrorMessage = function (key) {
-    return key in factory.errorMessage;
-  };
-
-  return factory;
-
+  return Server;
 });

@@ -2,20 +2,30 @@
 
 var app = angular.module('jmxtransGui');
 
-app.service('writerService', function ($http) {
+app.service('writerService', function ($http, $q, configService) {
 
   this.get = function () {
-    $http.get('settings')
-      .success(function (data) {
-        var writer = data;
-        if (!writer.settings) {
-          writer.settings = {};
+    var req = {
+      method: 'GET',
+      url: 'settings'
+    };
+
+    req.url = configService.getUrl() + req.url;
+
+    var writer = $q.defer();
+
+    $http(req)
+      .success(function (response) {
+        if (!response.settings) {
+          response.settings = {};
         }
-        return writer;
+        writer.resolve(response);
       })
       .error(function () {
-        
+        writer.reject();
       });
+
+    return writer.promise;
   };
 
   this.set = function (writer) {
@@ -24,6 +34,8 @@ app.service('writerService', function ($http) {
       url: 'settings',
       data: writer.writer
     };
+
+    req.url = configService.getUrl() + req.url;
 
     $http(req)
       .success(function () {

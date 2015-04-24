@@ -9,9 +9,9 @@
 	<div class="panel-body">
 
 		<form novalidate>
-			
+
 			<div class="form-horizontal">
-				
+
 				<div class="form-group" ng-class="{'has-error': server.showErrorMessage('servers[0].host')}">
 					<label class="col-sm-2 control-label">Host</label>
 					<div class="col-sm-10">
@@ -19,7 +19,7 @@
 						<p class="text-danger" ng-show="server.showErrorMessage('servers[0].host')">The submitted value is incorrect.</p>
 					</div>
 				</div>
-				
+
 				<div class="form-group" ng-class="{'has-error': server.showErrorMessage('servers[0].port')}">
 					<label class="col-sm-2 control-label">Port</label>
 					<div class="col-sm-10">
@@ -46,13 +46,13 @@
 
 			<hr>
 
-			<accordion close-others="true">
+			<accordion close-others="false">
 
 				<accordion-group ng-repeat="query in server.server.queries">
 					<query server="server" query="query" index="$index"></query>
 				</accordion-group>
 
-				<accordion-group  ng-show="server.blankQuery" is-open="server.blankQuery != null">
+				<accordion-group  ng-show="server.blankQuery" is-open="true">
 					<query server="server" query="server.blankQuery" index="server.server.queries.length"></query>
 				</accordion-group>
 

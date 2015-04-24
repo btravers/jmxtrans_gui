@@ -12,7 +12,7 @@ app.directive('query', function () {
       server: '=server',
       queryIndex: '=index'
     },
-    controller: function ($scope, $http) {
+    controller: function ($scope, $http, configService) {
 
       $scope.suggestName = function () {
         if (!$scope.nameSuggestions) {
@@ -24,6 +24,8 @@ app.directive('query', function () {
               port: $scope.server.server.port
             }
           };
+
+          req.url = configService.getUrl() + req.url;
 
           $http(req)
             .success(function (response) {
@@ -45,6 +47,8 @@ app.directive('query', function () {
               name: $scope.query.obj
             }
           };
+
+          req.url = configService.getUrl() + req.url;
 
           $http(req)
             .success(function (response) {
