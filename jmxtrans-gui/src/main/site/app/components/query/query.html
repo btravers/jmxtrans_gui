@@ -9,7 +9,7 @@
 		<div class="form-group" ng-class="{'has-error': server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')}">
 			<label class="col-sm-2 control-label">Object</label>
 			<div class="col-sm-10">
-				<input type="text" class="form-control" ng-model="query.obj" ng-change="server.saved = false; suggestName();" typeahead="name for name in nameSuggestions | filter:$viewValue | limitTo:10">
+				<input type="text" class="form-control" ng-model="query.obj" ng-change="server.saved = false; suggestName(); nbTypeNames();" typeahead="name for name in nameSuggestions | filter:$viewValue | limitTo:10">
 				<p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')">The submitted value is incorrect.</p>
 			</div>
 		</div>
@@ -21,29 +21,14 @@
 			</div>
 		</div>
 
-		<hr>
+		<hr ng-hide="!query.typeNames || query.typeNames.length == 0">
 
 		<div ng-repeat="(i, typeName) in query.typeNames track by $index" class="form-group">
 			<label class="col-sm-2 control-label">Type name {{ $index + 1 }}</label>
 			<div class="col-sm-8">
 				<input type="text" class="form-control" ng-model="query.typeNames[i]" ng-change="server.saved = false">
 			</div>
-			<div class="col-sm-2">
-				<button type="button" class="btn btn-danger" ng-click="removeTypeName($index)"><span class="glyphicon glyphicon-remove"></span> Remove</button>
-			</div>
 		</div>
-
-		<div ng-show="server.blankTypeNames[queryIndex]" class="form-group">
-			<label class="col-sm-2 control-label">Type name {{ query.typeNames.length + 1 }}</label>
-			<div class="col-sm-8">
-				<input type="text" class="form-control" ng-model="server.blankTypeNames[queryIndex].value" ng-change="server.saved = false">
-			</div>
-			<div class="col-sm-2">
-				<button type="button" class="btn btn-danger" ng-click="removeBlankTypeName()"><span class="glyphicon glyphicon-remove"></span> Remove</button>
-			</div>
-		</div>
-
-		<button type="button" class="btn btn-lg btn-block btn-default" ng-click="addBlankTypeName()">Add a type name</button>
 
 		<hr>
 

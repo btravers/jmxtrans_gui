@@ -29,9 +29,7 @@
       $scope.addBlankAttr = addBlankAttr;
       $scope.removeAttr = removeAttr;
       $scope.removeBlankAttr = removeBlankAttr;
-      $scope.addBlankTypeName = addBlankTypeName;
-      $scope.removeTypeName = removeTypeName;
-      $scope.removeBlankTypeName = removeBlankTypeName;
+      $scope.nbTypeNames = nbTypeNames;
 
       function suggestName() {
         if (!$scope.nameSuggestions) {
@@ -48,10 +46,10 @@
 
           $http(req)
             .success(function (response) {
-              $scope.nameSuggestions = response;
+              $scope.nameSuggestions = response || [];
             })
             .error(function () {
-
+              $scope.nameSuggestions = []
             });
         }
 
@@ -74,10 +72,10 @@
 
           $http(req)
             .success(function (response) {
-              $scope.attrSuggestions = response;
+              $scope.attrSuggestions = response || [];
             })
             .error(function () {
-
+              $scope.attrSuggestions = []
             });
         }
       }
@@ -106,27 +104,27 @@
         $scope.server.blankAttr[$scope.queryIndex] = null;
       }
 
-      function addBlankTypeName() {
-        if ($scope.server.blankTypeNames[$scope.queryIndex] && $scope.server.blankTypeNames[$scope.queryIndex].value) {
-          if (!$scope.query.typeNames) {
-            $scope.query.typeNames = [];
-          }
-          $scope.query.typeNames.push($scope.server.blankTypeNames[$scope.queryIndex].value);
+      function nbTypeNames() {
+        var count = ($scope.query.obj.match(/\*/g) || []).length;
+
+        if (!$scope.query.typeNames) {
+          $scope.query.typeNames = [];
         }
 
-        $scope.server.blankTypeNames[$scope.queryIndex] = {
-          value: null
-        };
+        if ($scope.query.typeNames.length != count) {
+          var tmp = $scope.query.typeNames;
+          $scope.query.typeNames = [];
+
+          for (var i=0; i<count; i++) {
+            if (i<tmp.length) {
+              $scope.query.typeNames.push(tmp[i]);
+            } else {
+              $scope.query.typeNames.push('');
+            }
+          }
+        }
       }
 
-      function removeTypeName(index) {
-        $scope.query.typeNames.splice(index, 1);
-        $scope.server.saved = false;
-      }
-
-      function removeBlankTypeName() {
-        $scope.server.blankTypeNames[$scope.queryIndex] = null;
-      }
     }
   }
 })();
