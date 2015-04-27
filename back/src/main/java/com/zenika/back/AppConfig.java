@@ -46,6 +46,9 @@ public class AppConfig {
     @Value("${java.io.tmpdir}")
     private String tmpdir;
 
+    @Value("${elasticsearch.cluster.name:elasticsearch}")
+    private String clusterName;
+
     @Bean
     public static PropertyPlaceholderConfigurer configurer() {
         PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
@@ -75,6 +78,7 @@ public class AppConfig {
             }
             Node node = NodeBuilder
                     .nodeBuilder()
+                    .clusterName(this.clusterName)
                     .settings(
                             ImmutableSettings
                                     .settingsBuilder()
