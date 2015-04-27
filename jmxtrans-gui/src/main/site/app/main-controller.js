@@ -5,7 +5,7 @@
     .module('jmxtransGui')
     .controller('Main', Main);
 
-  function Main($rootScope, $scope, $http, $q, $modal, FileUploader, serverFactory, writerService, configService, ngToast) {
+  function Main($rootScope, $scope, $http, $q, $modal, FileUploader, serverFactory, writerService, configService, ngToast, SweetAlert) {
 
     $scope.server = null;
     $scope.blankServer = null;
@@ -18,6 +18,8 @@
     $scope.download = download;
     $scope.duplicate = duplicate;
     $scope.delete = deleteServer;
+    $scope.unSavedChanges = unSavedChanges;
+    $scope.deleteConfirmation = deleteConfirmation;
     $scope.openWriter = openWriter;
     $scope.openUploader = openUploader;
 
@@ -204,6 +206,63 @@
         });
     }
 
+    function unSavedChanges(performAction) {
+      var args = arguments;
+      if ($scope.blankServer || ($scope.server && !$scope.server.saved)) {
+        SweetAlert.swal({
+            title: 'Some changes have not been saved!',
+            text: 'Changes will be lost if you continue.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "Continue"
+          },
+          function (isConfirm) {
+            if (isConfirm) {
+              performAction.apply(this, Array.prototype.slice.call(args, 1));
+            }
+          });
+      } else {
+        performAction.apply(this, Array.prototype.slice.call(args, 1));
+      }
+    }
+
+    function deleteConfirmation(host, port) {
+      var close = true;
+      if ($scope.server && !$scope.server.saved) {
+        close = false;
+      }
+      SweetAlert.swal({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover the server conf document after deleting.',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        closeOnConfirm: close
+      }, function (isConfirm) {
+        if (isConfirm) {
+          unSavedChangesBeforeDelete(host, port);
+        }
+      });
+    }
+
+    function unSavedChangesBeforeDelete(host, port) {
+      if ($scope.server && !$scope.server.saved) {
+        SweetAlert.swal({
+            title: 'Some changes have not been saved!',
+            text: 'Changes will be lost if you continue.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: "Continue"
+          },
+          function (isConfirm) {
+            if (isConfirm) {
+              $scope.delete(host, port);
+            }
+          });
+      } else {
+        $scope.delete(host, port);
+      }
+    }
 
     /**
      * Writer modal
@@ -302,4 +361,5 @@
       });
     }
   }
-})();
+})
+();

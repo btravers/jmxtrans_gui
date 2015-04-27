@@ -36,18 +36,18 @@
     <div class="col-xs-3">
 
       <button ng-hide="blankServer" type="button" class="btn btn-primary btn-lg btn-block"
-              ng-click="addBlankServer()">Create new server
+              ng-click="unSavedChanges(addBlankServer)">Create new server
       </button>
       <button ng-show="blankServer" type="button" class="btn btn-default btn-lg btn-block"
-              ng-click="cancelBlankServer()">Cancel
+              ng-click="unSavedChanges(cancelBlankServer)">Cancel
       </button>
       <button type="button" class="btn btn-default btn-lg btn-block"
               ng-click="updateServersList()"><span class="glyphicon glyphicon-refresh"></span> Reload servers list
       </button>
-      <button type="button" class="btn btn-default btn-lg btn-block" ng-click="openUploader()">
+      <button type="button" class="btn btn-default btn-lg btn-block" ng-click="unSavedChanges(openUploader)">
         <span class="glyphicon glyphicon-upload"></span> Load JSON files
       </button>
-      <button type="button" class="btn btn-default btn-lg btn-block" ng-click="openWriter()">
+      <button type="button" class="btn btn-default btn-lg btn-block" ng-click="unSavedChanges(openWriter)">
         <span class="glyphicon glyphicon-cog"></span> Settings
       </button>
 
@@ -58,7 +58,7 @@
           <li class="server-item" ng-repeat="item in list" role="presentation">
             <div class="row">
               <div class="col-sm-7">
-                <button class="btn btn-link" ng-click="display(item.host, item.port)">
+                <button class="btn btn-link" ng-click="unSavedChanges(display, item.host, item.port)">
                   {{ item.host }}:{{ item.port }}
                 </button>
               </div>
@@ -67,11 +67,11 @@
                    ng-click="download(item.host, item.port)" style="display: inline-block;">
                   <span class="glyphicon glyphicon-download-alt"></span>
                 </button>
-                <button class="btn btn-link" ng-click="duplicate(item.host, item.port)"
+                <button class="btn btn-link" ng-click="unSavedChanges(duplicate, item.host, item.port)"
                    style="display: inline-block;">
                   <span class="glyphicon glyphicon-copy"></span>
                 </button>
-                <button class="btn btn-link" ng-click="delete(item.host, item.port)"
+                <button class="btn btn-link" ng-click="deleteConfirmation(item.host, item.port)"
                    style="display: inline-block;">
                   <span class="glyphicon glyphicon-trash"></span>
                 </button>
