@@ -27,12 +27,15 @@
     $rootScope.$on('update', function (event, data) {
       setTimeout(function () {
         $scope.updateServersList();
-        $scope.display(data.host, data.port);
+        if (data.host && data.port) {
+          $scope.display(data.host, data.port);
+        }
       }, 1000);
     });
 
     function init() {
-      setTimeout($scope.updateServersList(), configService.getReloadInterval());
+      $scope.updateServersList();
+      setInterval($scope.updateServersList, configService.getReloadInterval());
 
       writerService.get().then(function (writer) {
         $scope.writer = writer;

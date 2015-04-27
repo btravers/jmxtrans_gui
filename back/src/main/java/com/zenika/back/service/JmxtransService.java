@@ -14,7 +14,7 @@ import com.zenika.back.model.Response;
 
 public interface JmxtransService {
 
-    Collection<Map<String, String>> findHosts() throws JsonProcessingException, IOException;
+    Collection<Map<String, String>> findHosts();
 
     Response findServersByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,

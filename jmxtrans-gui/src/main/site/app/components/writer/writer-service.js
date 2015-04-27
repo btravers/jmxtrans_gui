@@ -42,7 +42,7 @@
       var req = {
         method: 'POST',
         url: 'settings',
-        data: writer.writer
+        data: writer
       };
 
       req.url = configService.getUrl() + req.url;

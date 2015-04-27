@@ -52,349 +52,350 @@ import com.zenika.back.model.Server;
 public class ServerRepositoryCustomImpl implements ServerRepositoryCustom {
 
     private static final Logger logger = LoggerFactory
-	    .getLogger(ServerRepositoryCustomImpl.class);
+            .getLogger(ServerRepositoryCustomImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
 
     @Autowired
     public void setClient(Client client) {
-	this.client = client;
+        this.client = client;
     }
 
     @Autowired
     public void setMapper(ObjectMapper mapper) {
-	this.mapper = mapper;
+        this.mapper = mapper;
     }
 
     @Override
     public void deleteOne(String id) {
-	this.client.prepareDelete(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
-		.execute().actionGet();
+        this.client.prepareDelete(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
+                .execute().actionGet();
     }
 
     @Override
     public void delete(String host, int port) {
-	this.client
-		.prepareDeleteByQuery(AppConfig.INDEX)
-		.setTypes(AppConfig.CONF_TYPE)
-		.setQuery(
-			QueryBuilders
-				.boolQuery()
-				.must(QueryBuilders.termQuery("servers.host",
-					host))
-				.must(QueryBuilders.termQuery("servers.port",
-					port))).execute().actionGet();
+        this.client
+                .prepareDeleteByQuery(AppConfig.INDEX)
+                .setTypes(AppConfig.CONF_TYPE)
+                .setQuery(
+                        QueryBuilders
+                                .boolQuery()
+                                .must(QueryBuilders.termQuery("servers.host",
+                                        host))
+                                .must(QueryBuilders.termQuery("servers.port",
+                                        port))).execute().actionGet();
 
-	this.client.prepareDeleteByQuery(AppConfig.INDEX)
-		.setTypes(AppConfig.OBJECTNAME_TYPE)
-		.setQuery(QueryBuilders.termQuery("host", host)).execute()
-		.actionGet();
+        this.client.prepareDeleteByQuery(AppConfig.INDEX)
+                .setTypes(AppConfig.OBJECTNAME_TYPE)
+                .setQuery(QueryBuilders.termQuery("host", host)).execute()
+                .actionGet();
     }
 
     @Override
-    public Collection<Map<String, String>> findAllHost()
-	    throws JsonParseException, JsonMappingException, IOException {
-	SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
-		.setTypes(AppConfig.CONF_TYPE)
-		//.addFields("host", "port")
-		.setQuery(QueryBuilders.matchAllQuery())
-		.setSize(Integer.MAX_VALUE).execute().actionGet();
+    public Collection<Map<String, String>> findAllHost() {
+        SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
+                .setTypes(AppConfig.CONF_TYPE)
+                .setQuery(QueryBuilders.matchAllQuery())
+                .addAggregation(
+                        AggregationBuilders.terms("hosts").field("host").order(Terms.Order.term(true)).size(0)
+                                .subAggregation(AggregationBuilders.terms("ports").field("port").order(Terms.Order.term(true)).size(0)))
+                .execute().actionGet();
 
-	List<Map<String, String>> hosts = new ArrayList<Map<String, String>>();
-	for (SearchHit hit : response.getHits().getHits()) {
-	    Document doc = mapper.readValue(hit.getSourceAsString(),
-		    Document.class);
+        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
 
-	    // Actually, there is only one server per document
-	    for (Server server : doc.getServers()) {
-		Map<String, String> res = new HashMap<String, String>();
-		res.put("host", server.getHost());
-		res.put("port", String.valueOf(server.getPort()));
-		hosts.add(res);
-	    }
-	}
+        Terms hosts = response.getAggregations().get("hosts");
+        for (Bucket hostBucket : hosts.getBuckets()) {
+            String host = hostBucket.getKey();
+            Terms ports = hostBucket.getAggregations().get("ports");
+            for (Bucket portBucket : ports.getBuckets()) {
+                Map<String, String> res = new HashMap<String, String>();
+                res.put("host", host);
+                res.put("port", portBucket.getKey());
+                result.add(res);
+            }
+        }
 
-	return hosts;
+        return result;
     }
 
     @Override
     public Response getByHost(String host, int port) throws JsonParseException,
-	    JsonMappingException, IOException, InterruptedException,
-	    ExecutionException {
-	SearchResponse searchResponse = this.client
-		.prepareSearch(AppConfig.INDEX)
-		.setTypes(AppConfig.CONF_TYPE)
-		.setQuery(QueryBuilders.matchAllQuery())
-		.setPostFilter(
-			FilterBuilders
-				.boolFilter()
-				.must(FilterBuilders.termFilter("servers.host",
-					host))
-				.must(FilterBuilders.termFilter("servers.port",
-					port))).execute().actionGet();
+            JsonMappingException, IOException, InterruptedException,
+            ExecutionException {
+        SearchResponse searchResponse = this.client
+                .prepareSearch(AppConfig.INDEX)
+                .setTypes(AppConfig.CONF_TYPE)
+                .setQuery(QueryBuilders.matchAllQuery())
+                .setPostFilter(
+                        FilterBuilders
+                                .boolFilter()
+                                .must(FilterBuilders.termFilter("servers.host",
+                                        host))
+                                .must(FilterBuilders.termFilter("servers.port",
+                                        port))).execute().actionGet();
 
-	// When the method is called, the number of hits is always equal to 1.
-	if (searchResponse.getHits().getHits().length > 0) {
-	    Response response = new Response();
-	    Document document = null;
-	    List<String> toDelete = new ArrayList<String>();
+        // When the method is called, the number of hits is always equal to 1.
+        if (searchResponse.getHits().getHits().length > 0) {
+            Response response = new Response();
+            Document document = null;
+            List<String> toDelete = new ArrayList<String>();
 
-	    for (SearchHit hit : searchResponse.getHits().getHits()) {
-		if (document == null) {
-		    response.setId(hit.getId());
-		    document = mapper.readValue(hit.getSourceAsString(),
-			    Document.class);
-		} else {
-		    Document doc = mapper.readValue(hit.getSourceAsString(),
-			    Document.class);
+            for (SearchHit hit : searchResponse.getHits().getHits()) {
+                if (document == null) {
+                    response.setId(hit.getId());
+                    document = mapper.readValue(hit.getSourceAsString(),
+                            Document.class);
+                } else {
+                    Document doc = mapper.readValue(hit.getSourceAsString(),
+                            Document.class);
 
-		    document.getServers()
-			    .iterator()
-			    .next()
-			    .getQueries()
-			    .addAll(doc.getServers().iterator().next()
-				    .getQueries());
+                    document.getServers()
+                            .iterator()
+                            .next()
+                            .getQueries()
+                            .addAll(doc.getServers().iterator().next()
+                                    .getQueries());
 
-		    toDelete.add(hit.getId());
-		}
+                    toDelete.add(hit.getId());
+                }
 
-	    }
+            }
 
-	    this.updateOne(response.getId(), document);
+            this.updateOne(response.getId(), document);
 
-	    for (String id : toDelete) {
-		this.deleteOne(id);
-	    }
+            for (String id : toDelete) {
+                this.deleteOne(id);
+            }
 
-	    response.setSource(document);
-	    return response;
+            response.setSource(document);
+            return response;
 
-	    // No document for the given server
-	} else {
-	    return new Response();
-	}
+            // No document for the given server
+        } else {
+            return new Response();
+        }
     }
 
     @Override
     public void save(Document server) throws InterruptedException,
-	    ExecutionException, IOException {
+            ExecutionException, IOException {
 
-	Server s = server.getServers().iterator().next();
-	Response response = this.getByHost(s.getHost(), s.getPort());
+        Server s = server.getServers().iterator().next();
+        Response response = this.getByHost(s.getHost(), s.getPort());
 
-	if (response.getSource() != null) {
-	    response.getSource().getServers().iterator().next().getQueries()
-		    .addAll(server.getServers().iterator().next().getQueries());
+        if (response.getSource() != null) {
+            response.getSource().getServers().iterator().next().getQueries()
+                    .addAll(server.getServers().iterator().next().getQueries());
 
-	    this.updateOne(response.getId(), response.getSource());
-	} else {
-	    String json = mapper.writeValueAsString(server);
+            this.updateOne(response.getId(), response.getSource());
+        } else {
+            String json = mapper.writeValueAsString(server);
 
-	    IndexRequest indexRequest = new IndexRequest();
-	    indexRequest.index(AppConfig.INDEX);
-	    indexRequest.type(AppConfig.CONF_TYPE);
-	    indexRequest.source(json);
+            IndexRequest indexRequest = new IndexRequest();
+            indexRequest.index(AppConfig.INDEX);
+            indexRequest.type(AppConfig.CONF_TYPE);
+            indexRequest.source(json);
 
-	    this.client.index(indexRequest).get();
-	}
+            this.client.index(indexRequest).get();
+        }
     }
 
     @Override
     public void updateOne(String id, Document server)
-	    throws JsonProcessingException, InterruptedException,
-	    ExecutionException {
-	String json = mapper.writeValueAsString(server);
+            throws JsonProcessingException, InterruptedException,
+            ExecutionException {
+        String json = mapper.writeValueAsString(server);
 
-	this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
-		.setDoc(json).execute().actionGet();
+        this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
+                .setDoc(json).execute().actionGet();
     }
 
     @Override
     public OutputWriter settings() throws JsonParseException,
-	    JsonMappingException, IOException {
-	GetResponse getResponse = this.client
-		.prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
-			AppConfig.SETTINGS_ID).execute().actionGet();
+            JsonMappingException, IOException {
+        GetResponse getResponse = this.client
+                .prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
+                        AppConfig.SETTINGS_ID).execute().actionGet();
 
-	if (getResponse.isExists()) {
-	    return mapper.readValue(getResponse.getSourceAsString(),
-		    OutputWriter.class);
-	} else {
-	    OutputWriter settings = new OutputWriter();
+        if (getResponse.isExists()) {
+            return mapper.readValue(getResponse.getSourceAsString(),
+                    OutputWriter.class);
+        } else {
+            OutputWriter settings = new OutputWriter();
 
-	    this.client
-		    .prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
-			    AppConfig.SETTINGS_ID).setSource(mapper.writeValueAsString(settings))
-		    .execute().actionGet();
+            this.client
+                    .prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
+                            AppConfig.SETTINGS_ID).setSource(mapper.writeValueAsString(settings))
+                    .execute().actionGet();
 
-	    return settings;
-	}
+            return settings;
+        }
     }
 
     @Override
     public void saveSettings(OutputWriter settings) throws IOException {
-	String json = mapper.writeValueAsString(settings);
+        String json = mapper.writeValueAsString(settings);
 
-	UpdateRequest updateRequest = new UpdateRequest();
-	updateRequest.index(AppConfig.INDEX);
-	updateRequest.type(AppConfig.SETTINGS_TYPE);
-	updateRequest.id(AppConfig.SETTINGS_ID);
-	updateRequest.doc(json);
+        UpdateRequest updateRequest = new UpdateRequest();
+        updateRequest.index(AppConfig.INDEX);
+        updateRequest.type(AppConfig.SETTINGS_TYPE);
+        updateRequest.id(AppConfig.SETTINGS_ID);
+        updateRequest.doc(json);
 
-	this.client.update(updateRequest);
+        this.client.update(updateRequest);
 
-	SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
-		.setTypes(AppConfig.CONF_TYPE)
-		.setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
+        SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
+                .setTypes(AppConfig.CONF_TYPE)
+                .setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
 
-	for (SearchHit hit : response.getHits().getHits()) {
-	    Document doc = mapper.readValue(hit.getSourceAsString(),
-		    Document.class);
+        for (SearchHit hit : response.getHits().getHits()) {
+            Document doc = mapper.readValue(hit.getSourceAsString(),
+                    Document.class);
 
-	    for (Server server : doc.getServers()) {
-		for (Query query : server.getQueries()) {
-		    query.getOutputWriters().clear();
-		    query.getOutputWriters().add(settings);
-		}
-	    }
+            for (Server server : doc.getServers()) {
+                for (Query query : server.getQueries()) {
+                    query.getOutputWriters().clear();
+                    query.getOutputWriters().add(settings);
+                }
+            }
 
-	    String updatedServer = mapper.writeValueAsString(doc);
+            String updatedServer = mapper.writeValueAsString(doc);
 
-	    UpdateRequest request = new UpdateRequest();
-	    request.index(AppConfig.INDEX);
-	    request.type(AppConfig.CONF_TYPE);
-	    request.id(hit.getId());
-	    request.doc(updatedServer);
+            UpdateRequest request = new UpdateRequest();
+            request.index(AppConfig.INDEX);
+            request.type(AppConfig.CONF_TYPE);
+            request.id(hit.getId());
+            request.doc(updatedServer);
 
-	    this.client.update(request);
-	}
+            this.client.update(request);
+        }
 
     }
 
     @Override
     public void refresh(String host, int port) throws JsonProcessingException,
-	    InterruptedException, ExecutionException {
-	client.prepareDeleteByQuery(AppConfig.INDEX)
-		.setTypes(AppConfig.OBJECTNAME_TYPE)
-		.setQuery(QueryBuilders.termQuery("host", host)).execute()
-		.actionGet();
+            InterruptedException, ExecutionException {
+        client.prepareDeleteByQuery(AppConfig.INDEX)
+                .setTypes(AppConfig.OBJECTNAME_TYPE)
+                .setQuery(QueryBuilders.termQuery("host", host)).execute()
+                .actionGet();
 
-	List<ObjectNameRepresentation> objectnames = this.objectNames(host,
-		port);
+        List<ObjectNameRepresentation> objectnames = this.objectNames(host,
+                port);
 
-	for (ObjectNameRepresentation obj : objectnames) {
-	    String json = mapper.writeValueAsString(obj);
+        for (ObjectNameRepresentation obj : objectnames) {
+            String json = mapper.writeValueAsString(obj);
 
-	    this.client
-		    .prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
-		    .setSource(json).execute().actionGet();
-	}
+            this.client
+                    .prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
+                    .setSource(json).execute().actionGet();
+        }
 
     }
 
     private List<ObjectNameRepresentation> objectNames(String host, int port) {
-	String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port
-		+ "/jmxrmi";
-	JMXServiceURL serviceURL = null;
-	JMXConnector jmxConnector = null;
+        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port
+                + "/jmxrmi";
+        JMXServiceURL serviceURL = null;
+        JMXConnector jmxConnector = null;
 
-	try {
-	    serviceURL = new JMXServiceURL(url);
-	    jmxConnector = JMXConnectorFactory.connect(serviceURL);
-	    MBeanServerConnection mbeanConn = jmxConnector
-		    .getMBeanServerConnection();
+        try {
+            serviceURL = new JMXServiceURL(url);
+            jmxConnector = JMXConnectorFactory.connect(serviceURL);
+            MBeanServerConnection mbeanConn = jmxConnector
+                    .getMBeanServerConnection();
 
-	    List<ObjectNameRepresentation> result = new ArrayList<ObjectNameRepresentation>();
+            List<ObjectNameRepresentation> result = new ArrayList<ObjectNameRepresentation>();
 
-	    Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
-	    for (ObjectName name : beanSet) {
-		ObjectNameRepresentation tmp = new ObjectNameRepresentation();
-		tmp.setHost(host);
-		tmp.setPort(port);
-		tmp.setName(name.toString());
+            Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
+            for (ObjectName name : beanSet) {
+                ObjectNameRepresentation tmp = new ObjectNameRepresentation();
+                tmp.setHost(host);
+                tmp.setPort(port);
+                tmp.setName(name.toString());
 
-		List<String> attributes = new ArrayList<String>();
-		for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name)
-			.getAttributes()) {
-		    attributes.add(attr.getName());
-		}
-		tmp.setAttributes(attributes);
-		result.add(tmp);
-	    }
+                List<String> attributes = new ArrayList<String>();
+                for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name)
+                        .getAttributes()) {
+                    attributes.add(attr.getName());
+                }
+                tmp.setAttributes(attributes);
+                result.add(tmp);
+            }
 
-	    return result;
-	} catch (MalformedURLException e) {
-	    logger.error(e.getMessage());
-	} catch (IOException e) {
-	    logger.error(e.getMessage());
-	} catch (InstanceNotFoundException e) {
-	    logger.error(e.getMessage());
-	} catch (IntrospectionException e) {
-	    logger.error(e.getMessage());
-	} catch (ReflectionException e) {
-	    logger.error(e.getMessage());
-	} finally {
-	    if (jmxConnector != null) {
-		try {
-		    jmxConnector.close();
-		} catch (IOException e) {
-		    logger.error(e.getMessage());
-		}
-	    }
-	}
+            return result;
+        } catch (MalformedURLException e) {
+            logger.error(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        } catch (InstanceNotFoundException e) {
+            logger.error(e.getMessage());
+        } catch (IntrospectionException e) {
+            logger.error(e.getMessage());
+        } catch (ReflectionException e) {
+            logger.error(e.getMessage());
+        } finally {
+            if (jmxConnector != null) {
+                try {
+                    jmxConnector.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
 
-	return new ArrayList<ObjectNameRepresentation>();
+        return new ArrayList<ObjectNameRepresentation>();
     }
 
     @Override
     public Collection<String> prefixNameSuggestion(String host, int port) {
-	SearchResponse response = this.client
-		.prepareSearch(AppConfig.INDEX)
-		.setTypes(AppConfig.OBJECTNAME_TYPE)
-		.setQuery(
-			QueryBuilders.boolQuery()
-				.must(QueryBuilders.termQuery("host", host))
-				.must(QueryBuilders.termQuery("port", port)))
-		.addAggregation(
-			AggregationBuilders.terms("names").field("name")
-				.order(Terms.Order.term(true)).size(0))
-		.execute().actionGet();
+        SearchResponse response = this.client
+                .prepareSearch(AppConfig.INDEX)
+                .setTypes(AppConfig.OBJECTNAME_TYPE)
+                .setQuery(
+                        QueryBuilders.boolQuery()
+                                .must(QueryBuilders.termQuery("host", host))
+                                .must(QueryBuilders.termQuery("port", port)))
+                .addAggregation(
+                        AggregationBuilders.terms("names").field("name")
+                                .order(Terms.Order.term(true)).size(0))
+                .execute().actionGet();
 
-	Collection<String> result = new ArrayList<String>();
+        Collection<String> result = new ArrayList<String>();
 
-	Terms agg = response.getAggregations().get("names");
-	for (Bucket bucket : agg.getBuckets()) {
-	    result.add(bucket.getKey());
-	}
+        Terms agg = response.getAggregations().get("names");
+        for (Bucket bucket : agg.getBuckets()) {
+            result.add(bucket.getKey());
+        }
 
-	return result;
+        return result;
     }
 
     @Override
     public Collection<String> prefixAttrSuggestion(String host, int port,
-	    String name) {
-	SearchResponse response = this.client
-		.prepareSearch(AppConfig.INDEX)
-		.setTypes(AppConfig.OBJECTNAME_TYPE)
-		.addFields("attributes")
-		.setQuery(
-			QueryBuilders.boolQuery()
-				.must(QueryBuilders.termQuery("host", host))
-				.must(QueryBuilders.termQuery("port", port))
-				.must(QueryBuilders.termQuery("name", name)))
-		.execute().actionGet();
+                                                   String name) {
+        SearchResponse response = this.client
+                .prepareSearch(AppConfig.INDEX)
+                .setTypes(AppConfig.OBJECTNAME_TYPE)
+                .addFields("attributes")
+                .setQuery(
+                        QueryBuilders.boolQuery()
+                                .must(QueryBuilders.termQuery("host", host))
+                                .must(QueryBuilders.termQuery("port", port))
+                                .must(QueryBuilders.termQuery("name", name)))
+                .execute().actionGet();
 
-	Collection<String> result = new ArrayList<String>();
+        Collection<String> result = new ArrayList<String>();
 
-	for (SearchHit hit : response.getHits().getHits()) {
-	    if (hit.field("attributes") != null
-		    && hit.field("attributes").getValues() != null) {
-		for (Object value : hit.field("attributes").getValues())
-		    result.add(value.toString());
-	    }
-	}
+        for (SearchHit hit : response.getHits().getHits()) {
+            if (hit.field("attributes") != null
+                    && hit.field("attributes").getValues() != null) {
+                for (Object value : hit.field("attributes").getValues())
+                    result.add(value.toString());
+            }
+        }
 
-	return result;
+        return result;
     }
 }

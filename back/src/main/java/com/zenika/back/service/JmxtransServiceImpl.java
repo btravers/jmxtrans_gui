@@ -28,7 +28,7 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public Collection<Map<String, String>> findHosts() throws JsonProcessingException, IOException {
+    public Collection<Map<String, String>> findHosts(){
 	return this.serverRepositoryCustom.findAllHost();
     }
 

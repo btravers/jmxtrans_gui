@@ -13,7 +13,7 @@ import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Response;
 
 public interface ServerRepositoryCustom {
-    Collection<Map<String, String>> findAllHost() throws JsonProcessingException, IOException;
+    Collection<Map<String, String>> findAllHost();
 
     Response getByHost(String host, int port) throws JsonParseException,
 	    JsonMappingException, IOException, InterruptedException,
