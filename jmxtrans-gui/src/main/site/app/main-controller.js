@@ -314,7 +314,6 @@
       });
 
       modal.result.then(function (writer) {
-        $scope.writer = writer;
         writerService.set(writer);
       }, function () {
 

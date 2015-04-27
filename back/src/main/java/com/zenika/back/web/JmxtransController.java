@@ -42,251 +42,237 @@ import com.zenika.back.service.JmxtransService;
 public class JmxtransController {
 
     private static final Logger logger = LoggerFactory
-	    .getLogger(JmxtransController.class);
+            .getLogger(JmxtransController.class);
 
     private JmxtransService jmxtransService;
     private ObjectMapper mapper;
 
     @Autowired
     public void setJmxtransService(JmxtransService jmxtransService) {
-	this.jmxtransService = jmxtransService;
+        this.jmxtransService = jmxtransService;
     }
 
     @Autowired
     public void setMapper(ObjectMapper mapper) {
-	this.mapper = mapper;
+        this.mapper = mapper;
     }
 
-	@RequestMapping("/")
-	public String index() {
-		return "index.html";
-	}
+    @RequestMapping("/")
+    public String index() {
+        return "index.html";
+    }
 
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Map<String, String>> listHosts() throws JmxtransException {
-	    return this.jmxtransService.findHosts();
+        return this.jmxtransService.findHosts();
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.GET)
     @ResponseBody
     public Response showServer(
-	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port)
-	    throws JmxtransException {
-	try {
-	    return this.jmxtransService.findServersByHost(host, port);
-	} catch (JsonParseException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (JsonMappingException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (IOException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (InterruptedException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (ExecutionException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	}
+            @RequestParam(value = "host", required = true) String host,
+            @RequestParam(value = "port", required = true) int port)
+            throws JmxtransException {
+        try {
+            return this.jmxtransService.findServersByHost(host, port);
+        } catch (JsonParseException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (JsonMappingException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/server/_download", method = RequestMethod.GET)
     public ResponseEntity<InputStreamResource> downloadServer(
-	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port)
-	    throws JmxtransException {
+            @RequestParam(value = "host", required = true) String host,
+            @RequestParam(value = "port", required = true) int port)
+            throws JmxtransException {
 
-	try {
-	    Response response = this.jmxtransService.findServersByHost(host,
-		    port);
+        try {
+            Response response = this.jmxtransService.findServersByHost(host,
+                    port);
 
-	    byte[] content = this.mapper
-		    .writeValueAsBytes(response.getSource());
+            byte[] content = this.mapper
+                    .writeValueAsBytes(response.getSource());
 
-	    HttpHeaders respHeaders = new HttpHeaders();
-	    respHeaders.setContentType(MediaType.APPLICATION_JSON);
-	    respHeaders.setContentLength(content.length);
-	    respHeaders.setContentDispositionFormData("attachment", "server_"
-		    + host + ":" + port + ".json");
+            HttpHeaders respHeaders = new HttpHeaders();
+            respHeaders.setContentType(MediaType.APPLICATION_JSON);
+            respHeaders.setContentLength(content.length);
+            respHeaders.setContentDispositionFormData("attachment", "server_"
+                    + host + ":" + port + ".json");
 
-	    return new ResponseEntity<InputStreamResource>(
-		    new InputStreamResource(new ByteArrayInputStream(content)),
-		    respHeaders, HttpStatus.OK);
-	} catch (JsonParseException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (JsonMappingException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (IOException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (InterruptedException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (ExecutionException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	}
+            return new ResponseEntity<InputStreamResource>(
+                    new InputStreamResource(new ByteArrayInputStream(content)),
+                    respHeaders, HttpStatus.OK);
+        } catch (JsonParseException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (JsonMappingException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteServer(
-	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port) {
-	this.jmxtransService.deleteServer(host, port);
+            @RequestParam(value = "host", required = true) String host,
+            @RequestParam(value = "port", required = true) int port) {
+        this.jmxtransService.deleteServer(host, port);
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
     @ResponseBody
     public void addServer(@Valid @RequestBody Document server) throws JmxtransException {
-	try {
-	    this.jmxtransService.addServer(server);
-	} catch (JsonProcessingException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (InterruptedException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (ExecutionException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (IOException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	}
+        try {
+            this.jmxtransService.addServer(server);
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/server/_update", method = RequestMethod.POST)
     @ResponseBody
     public void updateServer(
-	    @RequestParam(value = "id", required = true) String id,
-	    @Valid @RequestBody Document server) throws JmxtransException {
-	try {
-	    this.jmxtransService.updateServer(id, server);
-	} catch (JsonProcessingException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (InterruptedException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (ExecutionException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	}
+            @RequestParam(value = "id", required = true) String id,
+            @Valid @RequestBody Document server) throws JmxtransException {
+        try {
+            this.jmxtransService.updateServer(id, server);
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.POST)
     @ResponseBody
     public void updateSettings(@Valid @RequestBody OutputWriter settings) throws JmxtransException {
-	try {
-	    this.jmxtransService.updateSettings(settings);
-	} catch (IOException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	}
+        try {
+            this.jmxtransService.updateSettings(settings);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/settings", method = RequestMethod.GET)
     @ResponseBody
     public OutputWriter getSettings() throws JmxtransException {
-	try {
-	    return this.jmxtransService.getSettings();
-	} catch (JsonParseException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (JsonMappingException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (IOException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	}
+        try {
+            return this.jmxtransService.getSettings();
+        } catch (JsonParseException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (JsonMappingException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
     public void upload(@RequestParam("file") MultipartFile file) throws JmxtransException {
-	if (!file.isEmpty()) {
-	    try {
-		byte[] bytes = file.getBytes();
-		String confFile = new String(bytes);
+        if (!file.isEmpty()) {
+            try {
+                byte[] bytes = file.getBytes();
+                String confFile = new String(bytes);
 
-		ObjectMapper mapper = new ObjectMapper();
-		Document doc = mapper.readValue(confFile, Document.class);
+                Document doc = mapper.readValue(confFile, Document.class);
 
-		OutputWriter writer = this.jmxtransService.getSettings();
-		if (writer.writer == null) {
-		    writer = doc.getServers().iterator().next().getQueries().iterator().next().getOutputWriters().iterator().next();
-		    this.jmxtransService.updateSettings(writer);
-		}
-
-		for (Server server : doc.getServers()) {
-		    // Use the default output writer.
-		    for (Query query : server.getQueries()) {
-			query.getOutputWriters().clear();
-			query.getOutputWriters().add(writer);
-		    }
-
-		    Document d = new Document();
-		    List<Server> servers = new ArrayList<Server>();
-		    servers.add(server);
-		    d.setServers(servers);
-
-		    this.jmxtransService.addServer(d);
-		}
-	    } catch (IOException e) {
-		logger.error(e.getMessage());
-		throw new JmxtransException(e.getMessage());
-	    } catch (InterruptedException e) {
-		logger.error(e.getMessage());
-		throw new JmxtransException(e.getMessage());
-	    } catch (ExecutionException e) {
-		logger.error(e.getMessage());
-		throw new JmxtransException(e.getMessage());
-	    }
-	}
+                this.jmxtransService.upload(doc);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                throw new JmxtransException(e.getMessage());
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+                throw new JmxtransException(e.getMessage());
+            } catch (ExecutionException e) {
+                logger.error(e.getMessage());
+                throw new JmxtransException(e.getMessage());
+            }
+        }
     }
 
     @RequestMapping(value = "/refresh", method = RequestMethod.GET)
     @ResponseBody
     public void refresh(
-	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port) throws JmxtransException {
-	try {
-	    this.jmxtransService.refresh(host, port);
-	} catch (JsonProcessingException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (InterruptedException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	} catch (ExecutionException e) {
-	    logger.error(e.getMessage());
-	    throw new JmxtransException(e.getMessage());
-	}
+            @RequestParam(value = "host", required = true) String host,
+            @RequestParam(value = "port", required = true) int port) throws JmxtransException {
+        try {
+            this.jmxtransService.refresh(host, port);
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
     @ResponseBody
     public Collection<String> prefixNameSuggestion(
-	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port) {
-	return this.jmxtransService.prefixNameSuggestion(host, port);
+            @RequestParam(value = "host", required = true) String host,
+            @RequestParam(value = "port", required = true) int port) {
+        return this.jmxtransService.prefixNameSuggestion(host, port);
     }
 
     @RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
     @ResponseBody
     public Collection<String> prefixAttrSuggestion(
-	    @RequestParam(value = "host", required = true) String host,
-	    @RequestParam(value = "port", required = true) int port,
-	    @RequestParam(value = "name", required = true) String name) {
-	return this.jmxtransService.prefixAttrSuggestion(host, port, name);
+            @RequestParam(value = "host", required = true) String host,
+            @RequestParam(value = "port", required = true) int port,
+            @RequestParam(value = "name", required = true) String name) {
+        return this.jmxtransService.prefixAttrSuggestion(host, port, name);
     }
 
 }

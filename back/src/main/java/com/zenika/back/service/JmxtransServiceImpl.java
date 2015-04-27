@@ -1,87 +1,133 @@
 package com.zenika.back.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.zenika.back.AppConfig;
+import com.zenika.back.model.*;
+import com.zenika.back.repository.ObjectNameRepository;
+import com.zenika.back.repository.SettingsRepository;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.zenika.back.model.Document;
-import com.zenika.back.model.OutputWriter;
-import com.zenika.back.model.Response;
-import com.zenika.back.repository.ServerRepositoryCustom;
+import com.zenika.back.repository.ConfRepository;
 
 @Service
 public class JmxtransServiceImpl implements JmxtransService {
 
-    private ServerRepositoryCustom serverRepositoryCustom;
+    private ConfRepository confRepository;
+    private SettingsRepository settingsRepository;
+    private ObjectNameRepository objectNameRepository;
 
     @Autowired
-    public void setElasticsearchOperations(
-	    ServerRepositoryCustom serverRepositoryCustom) {
-	this.serverRepositoryCustom = serverRepositoryCustom;
+    public void setConfRepository(ConfRepository confRepository) {
+        this.confRepository = confRepository;
+    }
+
+    @Autowired
+    public void setSettingsRepository(SettingsRepository settingsRepository) {
+        this.settingsRepository = settingsRepository;
+    }
+
+    @Autowired
+    public void setObjectNameRepository(ObjectNameRepository objectNameRepository) {
+        this.objectNameRepository = objectNameRepository;
     }
 
     @Override
-    public Collection<Map<String, String>> findHosts(){
-	return this.serverRepositoryCustom.findAllHost();
+    public Collection<Map<String, String>> findHosts() {
+        return this.confRepository.findAllHost();
     }
 
     @Override
-    public Response findServersByHost(String host, int port) throws JsonParseException,
-	    JsonMappingException, IOException, InterruptedException,
-	    ExecutionException {
-	return this.serverRepositoryCustom.getByHost(host, port);
+    public Response findServersByHost(String host, int port) throws IOException, InterruptedException, ExecutionException {
+        return this.confRepository.get(host, port);
     }
 
     @Override
     public void deleteServer(String host, int port) {
-	this.serverRepositoryCustom.delete(host, port);
+        this.confRepository.delete(host, port);
+        this.objectNameRepository.delete(host, port);
     }
 
     @Override
     public void addServer(Document server) throws InterruptedException,
-	    ExecutionException, IOException {
-	this.serverRepositoryCustom.save(server);
+            ExecutionException, IOException {
+        this.confRepository.save(server);
     }
 
     @Override
-    public void updateServer(String id, Document server)
-	    throws JsonProcessingException, InterruptedException,
-	    ExecutionException {
-	this.serverRepositoryCustom.updateOne(id, server);
+    public void updateServer(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException {
+        this.confRepository.updateOne(id, server);
     }
 
     @Override
-    public OutputWriter getSettings() throws JsonParseException,
-	    JsonMappingException, IOException {
-	return this.serverRepositoryCustom.settings();
+    public void upload(Document document) throws IOException, ExecutionException, InterruptedException {
+        OutputWriter writer = this.getSettings();
+        if (writer.writer == null) {
+            writer = document.getServers().iterator().next().getQueries().iterator().next().getOutputWriters().iterator().next();
+            this.updateSettings(writer);
+        }
+
+        for (Server server : document.getServers()) {
+            // Use the default output writer.
+            for (Query query : server.getQueries()) {
+                query.getOutputWriters().clear();
+                query.getOutputWriters().add(writer);
+            }
+
+            Document d = new Document();
+            List<Server> servers = new ArrayList();
+            servers.add(server);
+            d.setServers(servers);
+
+            this.addServer(d);
+        }
     }
 
     @Override
-    public void updateSettings(OutputWriter settings) throws IOException {
-	this.serverRepositoryCustom.saveSettings(settings);
+    public OutputWriter getSettings() throws IOException {
+        return this.settingsRepository.settings();
     }
 
     @Override
-    public void refresh(String host, int port) throws JsonProcessingException,
-	    InterruptedException, ExecutionException {
-	this.serverRepositoryCustom.refresh(host, port);
+    public void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException {
+        this.settingsRepository.save(settings);
+        Map<String, Document> documents = this.confRepository.getAll();
+
+        for (Map.Entry<String, Document> doc : documents.entrySet()) {
+            // The number of server should be 1
+            for (Server server : doc.getValue().getServers()) {
+                for (Query query : server.getQueries()) {
+                    query.getOutputWriters().clear();
+                    query.getOutputWriters().add(settings);
+                }
+            }
+            this.updateServer(doc.getKey(), doc.getValue());
+        }
+    }
+
+    @Override
+    public void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
+        this.objectNameRepository.refresh(host, port);
     }
 
     @Override
     public Collection<String> prefixNameSuggestion(String host, int port) {
-	return this.serverRepositoryCustom.prefixNameSuggestion(host, port);
+        return this.objectNameRepository.prefixNameSuggestion(host, port);
     }
 
     @Override
     public Collection<String> prefixAttrSuggestion(String host, int port, String name) {
-	return this.serverRepositoryCustom.prefixAttrSuggestion(host, port, name);
+        return this.objectNameRepository.prefixAttrSuggestion(host, port, name);
     }
 
 }

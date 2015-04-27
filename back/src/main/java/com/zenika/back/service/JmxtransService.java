@@ -16,26 +16,21 @@ public interface JmxtransService {
 
     Collection<Map<String, String>> findHosts();
 
-    Response findServersByHost(String host, int port) throws JsonParseException,
-	    JsonMappingException, IOException, InterruptedException,
-	    ExecutionException;
+    Response findServersByHost(String host, int port) throws IOException, InterruptedException, ExecutionException;
 
-    void addServer(Document server) throws JsonProcessingException,
-	    InterruptedException, ExecutionException, IOException;
+    void addServer(Document server) throws InterruptedException, ExecutionException, IOException;
 
-    void updateServer(String id, Document server)
-	    throws JsonProcessingException, InterruptedException,
-	    ExecutionException;
+    void updateServer(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException;
 
-    OutputWriter getSettings() throws JsonParseException, JsonMappingException,
-	    IOException;
+    OutputWriter getSettings() throws IOException;
 
     void deleteServer(String host, int port);
 
-    void refresh(String host, int port) throws JsonProcessingException,
-	    InterruptedException, ExecutionException;
+    void upload(Document document) throws IOException, ExecutionException, InterruptedException;
 
-    void updateSettings(OutputWriter settings) throws IOException;
+    void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+
+    void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException;
 
     Collection<String> prefixAttrSuggestion(String host, int port, String name);
 
