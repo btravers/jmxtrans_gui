@@ -42,13 +42,13 @@
               ng-click="unSavedChanges(cancelBlankServer)">Cancel
       </button>
       <button type="button" class="btn btn-default btn-lg btn-block"
-              ng-click="updateServersList()"><span class="glyphicon glyphicon-refresh"></span> Reload servers list
+              ng-click="updateServersList()"><span class="fa fa-refresh"></span> Reload servers list
       </button>
       <button type="button" class="btn btn-default btn-lg btn-block" ng-click="unSavedChanges(openUploader)">
-        <span class="glyphicon glyphicon-upload"></span> Load JSON files
+        <span class="fa fa-upload"></span> Load JSON files
       </button>
       <button type="button" class="btn btn-default btn-lg btn-block" ng-click="unSavedChanges(openWriter)">
-        <span class="glyphicon glyphicon-cog"></span> Settings
+        <span class="fa fa-cog"></span> Settings
       </button>
 
       <br>
@@ -65,15 +65,15 @@
               <div class="col-sm-5">
                 <button class="btn btn-link"
                    ng-click="download(item.host, item.port)" style="display: inline-block;">
-                  <span class="glyphicon glyphicon-download-alt"></span>
+                  <span class="fa fa-download-alt"></span>
                 </button>
                 <button class="btn btn-link" ng-click="unSavedChanges(duplicate, item.host, item.port)"
                    style="display: inline-block;">
-                  <span class="glyphicon glyphicon-copy"></span>
+                  <span class="fa fa-copy"></span>
                 </button>
                 <button class="btn btn-link" ng-click="deleteConfirmation(item.host, item.port)"
                    style="display: inline-block;">
-                  <span class="glyphicon glyphicon-trash"></span>
+                  <span class="fa fa-trash"></span>
                 </button>
               </div>
             </div>
