@@ -14,21 +14,21 @@ import com.zenika.back.model.Response;
 
 public interface JmxtransService {
 
-    Collection<Map<String, String>> findHosts();
+    Collection<Map<String, String>> findAllHostsAndPorts();
 
-    Response findServersByHost(String host, int port) throws IOException, InterruptedException, ExecutionException;
+    Response findDocumentByHostAndPort(String host, int port) throws IOException, InterruptedException, ExecutionException;
 
-    void addServer(Document server) throws InterruptedException, ExecutionException, IOException;
+    void addDocument(Document document) throws InterruptedException, ExecutionException, IOException;
 
-    void updateServer(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void updateDocument(String id, Document document) throws JsonProcessingException, InterruptedException, ExecutionException;
 
     OutputWriter getSettings() throws IOException;
 
-    void deleteServer(String host, int port);
+    void deleteDocument(String host, int port);
 
     void upload(Document document) throws IOException, ExecutionException, InterruptedException;
 
-    void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void refreshObjectNames(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
 
     void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException;
 

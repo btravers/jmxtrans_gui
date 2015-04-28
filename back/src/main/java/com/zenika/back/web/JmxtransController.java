@@ -2,9 +2,7 @@ package com.zenika.back.web;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -33,9 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zenika.back.exception.JmxtransException;
 import com.zenika.back.model.Document;
 import com.zenika.back.model.OutputWriter;
-import com.zenika.back.model.Query;
 import com.zenika.back.model.Response;
-import com.zenika.back.model.Server;
 import com.zenika.back.service.JmxtransService;
 
 @Controller
@@ -65,7 +61,7 @@ public class JmxtransController {
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Map<String, String>> listHosts() throws JmxtransException {
-        return this.jmxtransService.findHosts();
+        return this.jmxtransService.findAllHostsAndPorts();
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.GET)
@@ -75,7 +71,7 @@ public class JmxtransController {
             @RequestParam(value = "port", required = true) int port)
             throws JmxtransException {
         try {
-            return this.jmxtransService.findServersByHost(host, port);
+            return this.jmxtransService.findDocumentByHostAndPort(host, port);
         } catch (JsonParseException e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());
@@ -101,7 +97,7 @@ public class JmxtransController {
             throws JmxtransException {
 
         try {
-            Response response = this.jmxtransService.findServersByHost(host,
+            Response response = this.jmxtransService.findDocumentByHostAndPort(host,
                     port);
 
             byte[] content = this.mapper
@@ -139,14 +135,14 @@ public class JmxtransController {
     public void deleteServer(
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port) {
-        this.jmxtransService.deleteServer(host, port);
+        this.jmxtransService.deleteDocument(host, port);
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
     @ResponseBody
     public void addServer(@Valid @RequestBody Document server) throws JmxtransException {
         try {
-            this.jmxtransService.addServer(server);
+            this.jmxtransService.addDocument(server);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());
@@ -168,7 +164,7 @@ public class JmxtransController {
             @RequestParam(value = "id", required = true) String id,
             @Valid @RequestBody Document server) throws JmxtransException {
         try {
-            this.jmxtransService.updateServer(id, server);
+            this.jmxtransService.updateDocument(id, server);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());
@@ -245,7 +241,7 @@ public class JmxtransController {
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port) throws JmxtransException {
         try {
-            this.jmxtransService.refresh(host, port);
+            this.jmxtransService.refreshObjectNames(host, port);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());

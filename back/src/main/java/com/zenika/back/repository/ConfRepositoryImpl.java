@@ -51,8 +51,6 @@ import com.zenika.back.model.Server;
 @Repository
 public class ConfRepositoryImpl implements ConfRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfRepositoryImpl.class);
-
     private Client client;
     private ObjectMapper mapper;
 
@@ -74,8 +72,7 @@ public class ConfRepositoryImpl implements ConfRepository {
 
     @Override
     public void delete(String host, int port) {
-        this.client
-                .prepareDeleteByQuery(AppConfig.INDEX)
+        this.client.prepareDeleteByQuery(AppConfig.INDEX)
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(
                         QueryBuilders
@@ -87,13 +84,13 @@ public class ConfRepositoryImpl implements ConfRepository {
     }
 
     @Override
-    public Collection<Map<String, String>> findAllHost() {
+    public Collection<Map<String, String>> findAllHostsAndPorts() {
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(
-                        AggregationBuilders.terms("hosts").field("host").order(Terms.Order.term(true)).size(0)
-                                .subAggregation(AggregationBuilders.terms("ports").field("port").order(Terms.Order.term(true)).size(0)))
+                        AggregationBuilders.terms("hosts").field("servers.host").order(Terms.Order.term(true)).size(0)
+                                .subAggregation(AggregationBuilders.terms("ports").field("servers.port").order(Terms.Order.term(true)).size(0)))
                 .execute().actionGet();
 
         List<Map<String, String>> result = new ArrayList<>();
@@ -113,20 +110,18 @@ public class ConfRepositoryImpl implements ConfRepository {
         return result;
     }
 
-    // TODO change return type
+
     @Override
     public Response get(String host, int port) throws IOException, InterruptedException, ExecutionException {
-        SearchResponse searchResponse = this.client
-                .prepareSearch(AppConfig.INDEX)
+        SearchResponse searchResponse = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(QueryBuilders.matchAllQuery())
                 .setPostFilter(
                         FilterBuilders
                                 .boolFilter()
-                                .must(FilterBuilders.termFilter("servers.host",
-                                        host))
-                                .must(FilterBuilders.termFilter("servers.port",
-                                        port))).execute().actionGet();
+                                .must(FilterBuilders.termFilter("servers.host", host))
+                                .must(FilterBuilders.termFilter("servers.port", port)))
+                .execute().actionGet();
 
         // When the method is called, the number of hits is always equal to 1.
         if (searchResponse.getHits().getHits().length > 0) {
@@ -170,32 +165,18 @@ public class ConfRepositoryImpl implements ConfRepository {
         }
     }
 
-
     @Override
     public void save(Document document) throws InterruptedException, ExecutionException, IOException {
-        Server server = document.getServers().iterator().next();
-        Response response = this.get(server.getHost(), server.getPort());
-
-        if (response.getSource() != null) {
-            response.getSource().getServers().iterator().next().getQueries()
-                    .addAll(document.getServers().iterator().next().getQueries());
-
-            this.updateOne(response.getId(), response.getSource());
-        } else {
             String json = mapper.writeValueAsString(document);
 
-            IndexRequest indexRequest = new IndexRequest();
-            indexRequest.index(AppConfig.INDEX);
-            indexRequest.type(AppConfig.CONF_TYPE);
-            indexRequest.source(json);
-
-            this.client.index(indexRequest).get();
-        }
+            this.client.prepareIndex(AppConfig.INDEX, AppConfig.CONF_TYPE)
+                    .setSource(json).execute()
+                    .actionGet();
     }
 
     @Override
-    public void updateOne(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException {
-        String json = mapper.writeValueAsString(server);
+    public void updateOne(String id, Document document) throws JsonProcessingException, InterruptedException, ExecutionException {
+        String json = mapper.writeValueAsString(document);
 
         this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
                 .setDoc(json)

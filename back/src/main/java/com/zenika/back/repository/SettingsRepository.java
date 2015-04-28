@@ -1,13 +1,15 @@
 package com.zenika.back.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.zenika.back.model.OutputWriter;
 
 import java.io.IOException;
 
 public interface SettingsRepository {
 
-    OutputWriter settings() throws IOException;
+    OutputWriter get() throws IOException;
 
     void save(OutputWriter settings) throws IOException;
 
+    void update(OutputWriter settings) throws JsonProcessingException;
 }

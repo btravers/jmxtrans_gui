@@ -1,0 +1,7 @@
+{
+  "@class": "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+  "settings": {
+    "port": 19000,
+    "host": "localhost"
+  }
+}

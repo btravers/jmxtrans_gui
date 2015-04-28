@@ -11,13 +11,11 @@ import com.zenika.back.AppConfig;
 import com.zenika.back.model.*;
 import com.zenika.back.repository.ObjectNameRepository;
 import com.zenika.back.repository.SettingsRepository;
-import org.elasticsearch.action.update.UpdateRequest;
+import com.zenika.back.utils.JmxUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.zenika.back.repository.ConfRepository;
 
 @Service
@@ -43,30 +41,36 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public Collection<Map<String, String>> findHosts() {
-        return this.confRepository.findAllHost();
+    public Collection<Map<String, String>> findAllHostsAndPorts() {
+        return this.confRepository.findAllHostsAndPorts();
     }
 
     @Override
-    public Response findServersByHost(String host, int port) throws IOException, InterruptedException, ExecutionException {
+    public Response findDocumentByHostAndPort(String host, int port) throws IOException, InterruptedException, ExecutionException {
         return this.confRepository.get(host, port);
     }
 
     @Override
-    public void deleteServer(String host, int port) {
+    public void deleteDocument(String host, int port) {
         this.confRepository.delete(host, port);
         this.objectNameRepository.delete(host, port);
     }
 
     @Override
-    public void addServer(Document server) throws InterruptedException,
-            ExecutionException, IOException {
-        this.confRepository.save(server);
+    public void addDocument(Document document) throws InterruptedException, ExecutionException, IOException {
+        Server server = document.getServers().iterator().next();
+        Response response = this.confRepository.get(server.getHost(), server.getPort());
+
+        if (response.getId() != null) {
+            this.updateDocument(response.getId(), document);
+        } else {
+            this.confRepository.save(document);
+        }
     }
 
     @Override
-    public void updateServer(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException {
-        this.confRepository.updateOne(id, server);
+    public void updateDocument(String id, Document document) throws JsonProcessingException, InterruptedException, ExecutionException {
+        this.confRepository.updateOne(id, document);
     }
 
     @Override
@@ -85,22 +89,29 @@ public class JmxtransServiceImpl implements JmxtransService {
             }
 
             Document d = new Document();
-            List<Server> servers = new ArrayList();
+            List<Server> servers = new ArrayList<>();
             servers.add(server);
             d.setServers(servers);
 
-            this.addServer(d);
+            this.addDocument(d);
         }
     }
 
     @Override
     public OutputWriter getSettings() throws IOException {
-        return this.settingsRepository.settings();
+        OutputWriter writer = this.settingsRepository.get();
+
+        if (writer == null) {
+            writer = new OutputWriter();
+            this.settingsRepository.save(writer);
+        }
+
+        return writer;
     }
 
     @Override
     public void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException {
-        this.settingsRepository.save(settings);
+        this.settingsRepository.update(settings);
         Map<String, Document> documents = this.confRepository.getAll();
 
         for (Map.Entry<String, Document> doc : documents.entrySet()) {
@@ -111,13 +122,19 @@ public class JmxtransServiceImpl implements JmxtransService {
                     query.getOutputWriters().add(settings);
                 }
             }
-            this.updateServer(doc.getKey(), doc.getValue());
+            this.updateDocument(doc.getKey(), doc.getValue());
         }
     }
 
     @Override
-    public void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
-        this.objectNameRepository.refresh(host, port);
+    public void refreshObjectNames(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
+        this.objectNameRepository.delete(host, port);
+
+        List<ObjectNameRepresentation> objectnames = JmxUtils.objectNames(host, port);
+
+        for (ObjectNameRepresentation obj : objectnames) {
+            this.objectNameRepository.save(obj);
+        }
     }
 
     @Override

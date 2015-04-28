@@ -9,6 +9,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.node.Node;
@@ -20,21 +21,21 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
-@ComponentScan({"com.zenika.back.service",
-        "com.zenika.back.repository"})
+@ComponentScan({"com.zenika.back.service", "com.zenika.back.repository"})
 public class AppConfig {
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
 
     public static final String INDEX = ".jmxtrans";
     public static final String CONF_TYPE = "conf";
     public static final String OBJECTNAME_TYPE = "objectname";
-    public static final String SETTINGS_TYPE = "settings";
+    public static final String SETTINGS_TYPE = "get";
     public static final String SETTINGS_ID = "writer";
 
     @Value("${elasticsearch.host:}")
@@ -68,9 +69,10 @@ public class AppConfig {
         return new StandardServletMultipartResolver();
     }
 
-    @Bean
-    public Client client() {
-
+    @Bean(name = "client")
+    @Profile("prod")
+    public Client clientForProd() {
+        logger.info("Elasticsearch client instantiation for prod");
         Client client = null;
         if (this.host.isEmpty()) {
             if (this.path.isEmpty()) {
@@ -104,12 +106,9 @@ public class AppConfig {
             client.admin().indices().create(new CreateIndexRequest(INDEX))
                     .actionGet();
 
-            InputStream confMapping = getClass().getResourceAsStream(
-                    "/conf_mapping.json");
-            InputStream objectnameMapping = getClass().getResourceAsStream(
-                    "/objectname_mapping.json");
-            InputStream settingsMapping = getClass().getResourceAsStream(
-                    "/settings_mapping.json");
+            InputStream confMapping = getClass().getResourceAsStream("/conf_mapping.json");
+            InputStream objectnameMapping = getClass().getResourceAsStream("/objectname_mapping.json");
+            InputStream settingsMapping = getClass().getResourceAsStream("/settings_mapping.json");
 
             ObjectMapper mapper = this.objectMapper();
 
@@ -130,6 +129,49 @@ public class AppConfig {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+        return client;
+    }
+
+    @Bean(name = "client")
+    @Profile("test")
+    public Client clientForTest() {
+        logger.info("Elasticsearch client instantiation for testing");
+
+        ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
+                .put("http.enabled", "false")
+                .put("path.data", "target/elasticsearch-data");
+
+        Node node = NodeBuilder.nodeBuilder().local(true).settings(elasticsearchSettings).node();
+        Client client = node.client();
+
+        try {
+            client.admin().indices().create(new CreateIndexRequest(INDEX))
+                    .actionGet();
+
+            InputStream confMapping = getClass().getResourceAsStream("/conf_mapping.json");
+            InputStream objectnameMapping = getClass().getResourceAsStream("/objectname_mapping.json");
+            InputStream settingsMapping = getClass().getResourceAsStream("/settings_mapping.json");
+
+            ObjectMapper mapper = this.objectMapper();
+
+            client.admin().indices().preparePutMapping(INDEX)
+                    .setType(CONF_TYPE)
+                    .setSource(mapper.readValue(confMapping, Map.class))
+                    .execute().actionGet();
+            client.admin().indices().preparePutMapping(INDEX)
+                    .setType(OBJECTNAME_TYPE)
+                    .setSource(mapper.readValue(objectnameMapping, Map.class))
+                    .execute().actionGet();
+            client.admin().indices().preparePutMapping(INDEX)
+                    .setType(SETTINGS_TYPE)
+                    .setSource(mapper.readValue(settingsMapping, Map.class))
+                    .execute().actionGet();
+        } catch (ElasticsearchException e) {
+            logger.info(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+
         return client;
     }
 }

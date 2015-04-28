@@ -10,28 +10,14 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.management.*;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 @Repository
 public class ObjectNameRepositoryImpl implements ObjectNameRepository {
-
-    private static final Logger logger = LoggerFactory
-            .getLogger(ObjectNameRepositoryImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
@@ -47,83 +33,15 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
     }
 
     @Override
-    public void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
-        client.prepareDeleteByQuery(AppConfig.INDEX)
-                .setTypes(AppConfig.OBJECTNAME_TYPE)
-                .setQuery(QueryBuilders.termQuery("host", host)).execute()
-                .actionGet();
-
-        List<ObjectNameRepresentation> objectnames = this.objectNames(host,
-                port);
-
-        for (ObjectNameRepresentation obj : objectnames) {
-            String json = mapper.writeValueAsString(obj);
-
-            this.client.prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
-                    .setSource(json)
-                    .execute().actionGet();
-        }
-
-    }
-
-    private List<ObjectNameRepresentation> objectNames(String host, int port) {
-        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port
-                + "/jmxrmi";
-        JMXServiceURL serviceURL = null;
-        JMXConnector jmxConnector = null;
-
-        try {
-            serviceURL = new JMXServiceURL(url);
-            jmxConnector = JMXConnectorFactory.connect(serviceURL);
-            MBeanServerConnection mbeanConn = jmxConnector
-                    .getMBeanServerConnection();
-
-            List<ObjectNameRepresentation> result = new ArrayList();
-
-            Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
-            for (ObjectName name : beanSet) {
-                ObjectNameRepresentation tmp = new ObjectNameRepresentation();
-                tmp.setHost(host);
-                tmp.setPort(port);
-                tmp.setName(name.toString());
-
-                List<String> attributes = new ArrayList();
-                for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name)
-                        .getAttributes()) {
-                    attributes.add(attr.getName());
-                }
-                tmp.setAttributes(attributes);
-                result.add(tmp);
-            }
-
-            return result;
-        } catch (MalformedURLException e) {
-            logger.error(e.getMessage());
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        } catch (InstanceNotFoundException e) {
-            logger.error(e.getMessage());
-        } catch (IntrospectionException e) {
-            logger.error(e.getMessage());
-        } catch (ReflectionException e) {
-            logger.error(e.getMessage());
-        } finally {
-            if (jmxConnector != null) {
-                try {
-                    jmxConnector.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-        }
-
-        return new ArrayList<>();
+    public void save(ObjectNameRepresentation objectName) throws JsonProcessingException {
+        this.client.prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
+                .setSource(mapper.writeValueAsString(objectName))
+                .execute().actionGet();
     }
 
     @Override
     public Collection<String> prefixNameSuggestion(String host, int port) {
-        SearchResponse response = this.client
-                .prepareSearch(AppConfig.INDEX)
+        SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
                 .setQuery(
                         QueryBuilders.boolQuery()
@@ -134,7 +52,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
                                 .order(Terms.Order.term(true)).size(0))
                 .execute().actionGet();
 
-        Collection<String> result = new ArrayList<String>();
+        Collection<String> result = new ArrayList<>();
 
         Terms agg = response.getAggregations().get("names");
         for (Terms.Bucket bucket : agg.getBuckets()) {
@@ -145,10 +63,8 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
     }
 
     @Override
-    public Collection<String> prefixAttrSuggestion(String host, int port,
-                                                   String name) {
-        SearchResponse response = this.client
-                .prepareSearch(AppConfig.INDEX)
+    public Collection<String> prefixAttrSuggestion(String host, int port, String name) {
+        SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
                 .addFields("attributes")
                 .setQuery(
@@ -158,7 +74,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
                                 .must(QueryBuilders.termQuery("name", name)))
                 .execute().actionGet();
 
-        Collection<String> result = new ArrayList<String>();
+        Collection<String> result = new ArrayList<>();
 
         for (SearchHit hit : response.getHits().getHits()) {
             if (hit.field("attributes") != null

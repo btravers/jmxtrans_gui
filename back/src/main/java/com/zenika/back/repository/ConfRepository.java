@@ -13,18 +13,17 @@ import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Response;
 
 public interface ConfRepository {
-    Collection<Map<String, String>> findAllHost();
+    Collection<Map<String, String>> findAllHostsAndPorts();
 
     Response get(String host, int port) throws IOException, InterruptedException, ExecutionException;
 
     Map<String, Document> getAll() throws IOException;
 
-    void save(Document server) throws InterruptedException, ExecutionException, IOException;
+    void save(Document document) throws InterruptedException, ExecutionException, IOException;
 
     void deleteOne(String id);
 
-    void updateOne(String id, Document server) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void updateOne(String id, Document document) throws JsonProcessingException, InterruptedException, ExecutionException;
 
     void delete(String host, int port);
-
 }

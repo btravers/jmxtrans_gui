@@ -1,5 +1,6 @@
 package com.zenika.back.repository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zenika.back.AppConfig;
 import com.zenika.back.model.OutputWriter;
@@ -16,9 +17,6 @@ import java.io.IOException;
 @Repository
 public class SettingsRepositoryImpl implements SettingsRepository {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(SettingsRepository.class);
-
     private Client client;
     private ObjectMapper mapper;
 
@@ -33,23 +31,15 @@ public class SettingsRepositoryImpl implements SettingsRepository {
     }
 
     @Override
-    public OutputWriter settings() throws IOException {
-        GetResponse getResponse = this.client
-                .prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
-                        AppConfig.SETTINGS_ID).execute().actionGet();
+    public OutputWriter get() throws IOException {
+        GetResponse getResponse = this.client.prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
+                .execute().actionGet();
 
         if (getResponse.isExists()) {
             return mapper.readValue(getResponse.getSourceAsString(),
                     OutputWriter.class);
         } else {
-            OutputWriter settings = new OutputWriter();
-
-            this.client
-                    .prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE,
-                            AppConfig.SETTINGS_ID).setSource(mapper.writeValueAsString(settings))
-                    .execute().actionGet();
-
-            return settings;
+            return null;
         }
     }
 
@@ -57,12 +47,17 @@ public class SettingsRepositoryImpl implements SettingsRepository {
     public void save(OutputWriter settings) throws IOException {
         String json = mapper.writeValueAsString(settings);
 
-        UpdateRequest updateRequest = new UpdateRequest();
-        updateRequest.index(AppConfig.INDEX);
-        updateRequest.type(AppConfig.SETTINGS_TYPE);
-        updateRequest.id(AppConfig.SETTINGS_ID);
-        updateRequest.doc(json);
+        this.client.prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
+                .setSource(json)
+                .execute().actionGet();
+    }
 
-        this.client.update(updateRequest);
+    @Override
+    public void update(OutputWriter settings) throws JsonProcessingException {
+        String json = mapper.writeValueAsString(settings);
+
+        this.client.prepareUpdate(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
+                .setDoc(json)
+                .execute().actionGet();
     }
 }

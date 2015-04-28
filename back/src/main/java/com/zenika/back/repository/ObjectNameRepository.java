@@ -1,13 +1,14 @@
 package com.zenika.back.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.zenika.back.model.ObjectNameRepresentation;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
 public interface ObjectNameRepository {
 
-    void refresh(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+    void save(ObjectNameRepresentation objectName) throws JsonProcessingException;
 
     Collection<String> prefixAttrSuggestion(String host, int port, String name);
 
