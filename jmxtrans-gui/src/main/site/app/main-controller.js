@@ -5,7 +5,7 @@
     .module('jmxtransGui')
     .controller('Main', Main);
 
-  function Main($rootScope, $scope, $http, $q, $modal, FileUploader, serverFactory, writerService, configService, ngToast, SweetAlert) {
+  function Main($rootScope, $scope, $http, $modal, FileUploader, serverService, serverFactory, writerService, configService, ngToast, SweetAlert) {
 
     $scope.server = null;
     $scope.blankServer = null;
@@ -54,23 +54,9 @@
     }
 
     function updateServersList() {
-      var req = {
-        method: 'GET',
-        url: 'server/all'
-      };
-
-      req.url = configService.getUrl() + req.url;
-
-      $http(req)
-        .success(function (response) {
-          $scope.list = response;
-        })
-        .error(function () {
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred when loading servers list'
-          });
-        });
+      serverService.findAllHostsAndPorts().then(function(list) {
+        $scope.list = list;
+      });
     }
 
     function addBlankServer() {
@@ -82,40 +68,8 @@
       $scope.blankServer = null;
     }
 
-    function getServer(host, port) {
-      var req = {
-        method: 'GET',
-        url: 'server',
-        params: {
-          host: host,
-          port: port
-        }
-      };
-
-      req.url = configService.getUrl() + req.url;
-
-      var server = $q.defer();
-
-      $http(req)
-        .success(function (response) {
-          server.resolve({
-            id: response.id,
-            server: response.source.servers[0]
-          });
-        })
-        .error(function () {
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred when loading server conf document'
-          });
-        }
-      );
-
-      return server.promise;
-    }
-
     function display(host, port) {
-      getServer(host, port).then(function (server) {
+      serverService.getServer(host, port).then(function (server) {
         $scope.server = new serverFactory();
         $scope.server.server = server.server;
         $scope.server.id = server.id;
@@ -127,8 +81,6 @@
     }
 
     function download(host, port) {
-      //return configService.getUrl() + 'server/_download?host=' + host + '&port=' + port;
-
       var req = {
         url: configService.getUrl() + 'server/_download',
         method: 'GET',
@@ -163,7 +115,7 @@
 
 
     function duplicate(host, port) {
-      getServer(host, port).then(function (server) {
+      serverService.getServer(host, port).then(function (server) {
         $scope.blankServer = new serverFactory();
         $scope.blankServer.server = server.server;
         $scope.blankServer.server.host = null;
@@ -174,36 +126,13 @@
     }
 
     function deleteServer(host, port) {
-      var req = {
-        method: 'DELETE',
-        url: 'server',
-        params: {
-          host: host,
-          port: port
-        }
-      };
-
-      req.url = configService.getUrl() + req.url;
-
-      $http(req)
-        .success(function () {
-          // TODO
-          $scope.server = null;
-          ngToast.create({
-            className: 'success',
-            content: "Delete server conf document successfully"
-          });
-
-          setTimeout(function () {
-            $scope.updateServersList();
-          }, 1000);
-        })
-        .error(function () {
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred during the deletion of the server conf document'
-          });
-        });
+      serverService.deleteServer().then(function() {
+        // TODO
+        $scope.server = null;
+        setTimeout(function () {
+          $scope.updateServersList();
+        }, 1000);
+      });
     }
 
     function unSavedChanges(performAction) {
