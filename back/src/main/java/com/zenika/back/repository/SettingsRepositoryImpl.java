@@ -60,4 +60,10 @@ public class SettingsRepositoryImpl implements SettingsRepository {
                 .setDoc(json)
                 .execute().actionGet();
     }
+
+    @Override
+    public void delete() {
+        this.client.prepareDelete(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
+                .execute().actionGet();
+    }
 }

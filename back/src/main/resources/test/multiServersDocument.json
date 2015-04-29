@@ -1,0 +1,108 @@
+{
+  "servers": [
+    {
+      "port": "9991",
+      "host": "192.168.0.2",
+      "queries": [
+        {
+          "obj": "java.lang:type=Memory",
+          "attr": [
+            "HeapMemoryUsage",
+            "NonHeapMemoryUsage"
+          ],
+          "outputWriters": [
+            {
+              "@class": "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              "settings": {
+                "port": 19000,
+                "host": "localhost"
+              }
+            }
+          ]
+        },
+        {
+          "obj": "java.lang:type=Threading",
+          "attr": ["ThreadCount"],
+          "outputWriters": [
+            {
+              "@class": "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              "settings": {
+                "port": 19000,
+                "host": "localhost"
+              }
+            }
+          ]
+        },
+        {
+          "obj": "Catalina:type=ThreadPool,name=\"http-bio-8501\"",
+          "resultAlias": "connectors",
+          "attr": [
+            "maxThreads",
+            "currentThreadsBusy"
+          ],
+          "outputWriters": [
+            {
+              "@class": "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              "settings": {
+                "port": 19000,
+                "host": "localhost"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "port": "9991",
+      "host": "192.168.0.3",
+      "queries": [
+        {
+          "obj": "java.lang:type=Memory",
+          "attr": [
+            "HeapMemoryUsage",
+            "NonHeapMemoryUsage"
+          ],
+          "outputWriters": [
+            {
+              "@class": "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              "settings": {
+                "port": 19000,
+                "host": "localhost"
+              }
+            }
+          ]
+        },
+        {
+          "obj": "java.lang:type=Threading",
+          "attr": ["ThreadCount"],
+          "outputWriters": [
+            {
+              "@class": "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              "settings": {
+                "port": 19000,
+                "host": "localhost"
+              }
+            }
+          ]
+        },
+        {
+          "obj": "Catalina:type=ThreadPool,name=\"http-bio-8501\"",
+          "resultAlias": "connectors",
+          "attr": [
+            "maxThreads",
+            "currentThreadsBusy"
+          ],
+          "outputWriters": [
+            {
+              "@class": "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              "settings": {
+                "port": 19000,
+                "host": "localhost"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

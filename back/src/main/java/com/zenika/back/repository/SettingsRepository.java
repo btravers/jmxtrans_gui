@@ -12,4 +12,6 @@ public interface SettingsRepository {
     void save(OutputWriter settings) throws IOException;
 
     void update(OutputWriter settings) throws JsonProcessingException;
+
+    void delete();
 }

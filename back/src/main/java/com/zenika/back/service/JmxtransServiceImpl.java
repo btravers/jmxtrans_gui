@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.zenika.back.AppConfig;
 import com.zenika.back.model.*;
 import com.zenika.back.repository.ObjectNameRepository;
 import com.zenika.back.repository.SettingsRepository;
@@ -103,7 +102,6 @@ public class JmxtransServiceImpl implements JmxtransService {
 
         if (writer == null) {
             writer = new OutputWriter();
-            this.settingsRepository.save(writer);
         }
 
         return writer;
@@ -111,7 +109,8 @@ public class JmxtransServiceImpl implements JmxtransService {
 
     @Override
     public void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException {
-        this.settingsRepository.update(settings);
+        this.settingsRepository.delete();
+        this.settingsRepository.save(settings);
         Map<String, Document> documents = this.confRepository.getAll();
 
         for (Map.Entry<String, Document> doc : documents.entrySet()) {
