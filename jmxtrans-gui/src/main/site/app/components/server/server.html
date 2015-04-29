@@ -1,72 +1,75 @@
 <div class="panel panel-primary">
 
-	<div class="panel-heading">
-		<h3 class="panel-title">
-			Server <span ng-show="server.server.host">- {{ server.server.host }}<span ng-show="server.server.port">:{{ server.server.port }}</span></span>
-		</h3>
-	</div>
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      Server <span ng-show="server.server.host">- {{ server.server.host }}<span ng-show="server.server.port">:{{ server.server.port }}</span></span>
+    </h3>
+  </div>
 
-	<div class="panel-body">
+  <div class="panel-body">
 
-		<form novalidate>
+    <form novalidate>
 
-			<div class="form-horizontal">
+      <div class="row server-basic-info">
 
-				<div class="form-group" ng-class="{'has-error': server.showErrorMessage('servers[0].host')}">
-					<label class="col-sm-2 control-label">Host</label>
-					<div class="col-sm-10">
-						<input type="text" class="form-control" ng-model="server.server.host" ng-change="server.saved = false; server.loadJMXTree();">
-						<p class="text-danger" ng-show="server.showErrorMessage('servers[0].host')">The submitted value is incorrect.</p>
-					</div>
-				</div>
+        <div class="form-group col-sm-8" ng-class="{'has-error': server.showErrorMessage('servers[0].host')}">
+          <label class="control-label">Host</label>
+          <input type="text" class="form-control" ng-model="server.server.host"
+                 ng-change="server.saved = false; server.loadJMXTree();">
 
-				<div class="form-group" ng-class="{'has-error': server.showErrorMessage('servers[0].port')}">
-					<label class="col-sm-2 control-label">Port</label>
-					<div class="col-sm-10">
-						<input type="text" class="form-control" ng-model="server.server.port" ng-change="server.saved = false; server.loadJMXTree();">
-						<p class="text-danger" ng-show="server.showErrorMessage('servers[0].port')">The submitted value is incorrect.</p>
-					</div>
-				</div>
+          <p class="text-danger" ng-show="server.showErrorMessage('servers[0].host')">The submitted value is
+            incorrect.</p>
+        </div>
 
-				<div class="form-group">
-					<label class="col-sm-2 control-label">Username</label>
-					<div class="col-sm-10">
-						<input type="text" class="form-control" ng-model="server.server.username" ng-change="server.saved = false">
-					</div>
-				</div>
+        <div class="form-group col-sm-4" ng-class="{'has-error': server.showErrorMessage('servers[0].port')}">
+          <label class="control-label">Port</label>
+          <input type="text" class="form-control" ng-model="server.server.port"
+                 ng-change="server.saved = false; server.loadJMXTree();">
 
-				<div class="form-group">
-					<label class="col-sm-2 control-label">Password</label>
-					<div class="col-sm-10">
-						<input type="password" class="form-control" ng-model="server.server.password" ng-change="server.saved = false">
-					</div>
-				</div>
+          <p class="text-danger" ng-show="server.showErrorMessage('servers[0].port')">The submitted value is
+            incorrect.</p>
+        </div>
 
-			</div>
+        <div class="form-group col-sm-6">
+          <label class="control-label">Username</label>
+          <input type="text" class="form-control" ng-model="server.server.username" ng-change="server.saved = false">
+        </div>
 
-			<hr>
+        <div class="form-group col-sm-6">
+          <label class="control-label">Password</label>
+          <input type="password" class="form-control" ng-model="server.server.password"
+                 ng-change="server.saved = false">
+        </div>
 
-			<accordion close-others="false">
+      </div>
 
-				<accordion-group ng-repeat="query in server.server.queries">
-					<query server="server" query="query" index="$index"></query>
-				</accordion-group>
+      <hr>
 
-				<accordion-group  ng-show="server.blankQuery" is-open="true">
-					<query server="server" query="server.blankQuery" index="server.server.queries.length"></query>
-				</accordion-group>
+      <accordion close-others="false">
 
-			</accordion>
+        <accordion-group ng-repeat="query in server.server.queries">
+          <query server="server" query="query" index="$index"></query>
+        </accordion-group>
 
-			<p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries')">At least one query must be supplied.</p>
+        <accordion-group ng-show="server.blankQuery" is-open="true">
+          <query server="server" query="server.blankQuery" index="server.server.queries.length"></query>
+        </accordion-group>
 
-			<button type="button" class="btn btn-lg btn-block btn-info" ng-click="server.addBlankQuery()">Add a new query</button>
+      </accordion>
 
-			<button type="button" class="btn btn-lg btn-block btn-success" ng-click="server.save()" ng-hide="server.saved">Save changes</button>
+      <p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries')">At least one query must be
+        supplied.</p>
 
-		</form>
+      <button type="button" class="btn btn-block btn-info" ng-click="server.addBlankQuery()">Add a new query
+      </button>
 
-	</div>
+      <button type="button" class="btn btn-block btn-success" ng-click="server.save()" ng-hide="server.saved">
+        Save changes
+      </button>
+
+    </form>
+
+  </div>
 
 </div>
 
