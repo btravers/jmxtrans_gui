@@ -31,7 +31,7 @@
 
 
       function removeQuery(index) {
-        if (index = vm.server.queries.length) {
+        if (index == vm.server.queries.length) {
           vm.blankQuery = null;
         } else {
           vm.server.queries.splice(index, 1);

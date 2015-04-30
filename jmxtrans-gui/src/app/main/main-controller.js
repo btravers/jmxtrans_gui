@@ -11,6 +11,7 @@
     $scope.blankServer = null;
     $scope.list = [];
 
+    $scope.printServer = printServer;
     $scope.updateServersList = updateServersList;
     $scope.addBlankServer = addBlankServer;
     $scope.cancelBlankServer = cancelBlankServer;
@@ -49,6 +50,22 @@
       }, function () {
 
       });
+    }
+
+    function printServer(host, port) {
+      if (host.length < 16) {
+        return host + ':' + port;
+      } else {
+        var res = '';
+
+        for (var i=0; i<13; i++) {
+          res += host[i];
+        }
+
+        res += '...:' + port;
+
+        return res;
+      }
     }
 
     function updateServersList() {

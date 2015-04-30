@@ -59,7 +59,7 @@
             <div class="row">
               <div class="col-sm-7">
                 <button class="btn btn-link" ng-click="unSavedChanges(display, item.host, item.port)" popover="{{ item.host }}:{{ item.port }}" popover-trigger="mouseenter">
-                  {{ item.host }}:{{ item.port }}
+                  {{ printServer(item.host, item.port) }}
                 </button>
               </div>
               <div class="col-sm-5">
