@@ -27,12 +27,10 @@
     init();
 
     $rootScope.$on('update', function (event, data) {
-      setTimeout(function () {
-        $scope.updateServersList();
-        if (data.host && data.port) {
-          $scope.display(data.host, data.port);
-        }
-      }, 1000);
+      $scope.updateServersList();
+      if (data.host && data.port) {
+        $scope.display(data.host, data.port);
+      }
     });
 
     function init() {
@@ -54,7 +52,7 @@
     }
 
     function updateServersList() {
-      serverService.findAllHostsAndPorts().then(function(list) {
+      serverService.findAllHostsAndPorts().then(function (list) {
         $scope.list = list;
       });
     }
@@ -126,12 +124,9 @@
     }
 
     function deleteServer(host, port) {
-      serverService.deleteServer().then(function() {
-        // TODO
+      serverService.deleteServer(host, port).then(function () {
         $scope.server = null;
-        setTimeout(function () {
-          $scope.updateServersList();
-        }, 1000);
+        $scope.updateServersList();
       });
     }
 
@@ -265,10 +260,8 @@
           });
 
           $scope.uploader.onCompleteAll = function () {
-            setTimeout(function () {
-              writerService.get();
-              updateServersList();
-            }, 1000);
+            writerService.get();
+            updateServersList();
           };
 
           $scope.cancel = function () {

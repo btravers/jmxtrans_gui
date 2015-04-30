@@ -66,7 +66,7 @@
       return server.promise;
     }
 
-    function deleteServer() {
+    function deleteServer(host, port) {
       var req = {
         method: 'DELETE',
         url: 'server',

@@ -48,6 +48,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         String json = mapper.writeValueAsString(settings);
 
         this.client.prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
+                .setRefresh(true)
                 .setSource(json)
                 .execute().actionGet();
     }
@@ -57,6 +58,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         String json = mapper.writeValueAsString(settings);
 
         this.client.prepareUpdate(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
+                .setRefresh(true)
                 .setDoc(json)
                 .execute().actionGet();
     }

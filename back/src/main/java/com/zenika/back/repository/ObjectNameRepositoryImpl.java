@@ -35,6 +35,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
     @Override
     public void save(ObjectNameRepresentation objectName) throws JsonProcessingException {
         this.client.prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
+                .setRefresh(true)
                 .setSource(mapper.writeValueAsString(objectName))
                 .execute().actionGet();
     }

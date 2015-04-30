@@ -170,6 +170,7 @@ public class ConfRepositoryImpl implements ConfRepository {
             String json = mapper.writeValueAsString(document);
 
             this.client.prepareIndex(AppConfig.INDEX, AppConfig.CONF_TYPE)
+                    .setRefresh(true)
                     .setSource(json).execute()
                     .actionGet();
     }
@@ -179,6 +180,7 @@ public class ConfRepositoryImpl implements ConfRepository {
         String json = mapper.writeValueAsString(document);
 
         this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
+                .setRefresh(true)
                 .setDoc(json)
                 .execute().actionGet();
     }

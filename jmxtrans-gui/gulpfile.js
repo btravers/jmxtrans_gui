@@ -6,6 +6,7 @@ var wrench = require('wrench');
 
 var options = {
   src: 'src/',
+  test: 'test/',
   dist: 'target/classes/META-INF/site',
   tmp: '.tmp',
   e2e: 'e2e',
