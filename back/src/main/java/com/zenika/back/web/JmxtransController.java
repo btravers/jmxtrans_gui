@@ -3,6 +3,7 @@ package com.zenika.back.web;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -237,11 +238,17 @@ public class JmxtransController {
 
     @RequestMapping(value = "/refresh", method = RequestMethod.GET)
     @ResponseBody
-    public void refresh(
+    public Map<String, Object> refresh(
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port) throws JmxtransException {
         try {
-            this.jmxtransService.refreshObjectNames(host, port);
+            boolean res = this.jmxtransService.refreshObjectNames(host, port);
+            Map<String, Object> response = new HashMap<>();
+            if (res) {
+                response.put("success", true);
+            }
+
+            return response;
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());

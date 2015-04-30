@@ -21,6 +21,7 @@
       vm.blankAttr = [];
       vm.blankTypeNames = [];
       vm.errorMessage = {};
+      vm.validJMXHost = false;
 
       vm.removeQuery = removeQuery;
       vm.addBlankQuery = addBlankQuery;
@@ -30,8 +31,12 @@
 
 
       function removeQuery(index) {
-        vm.server.queries.splice(index, 1);
-        vm.saved = false;
+        if (index = vm.server.queries.length) {
+          vm.blankQuery = null;
+        } else {
+          vm.server.queries.splice(index, 1);
+          vm.saved = false;
+        }
       }
 
       function addBlankQuery() {
@@ -63,7 +68,15 @@
           req.url = configService.getUrl() + req.url;
 
           $http(req)
+            .success(function (response) {
+              if (response.success) {
+                vm.validJMXHost = true;
+              } else {
+                vm.validJMXHost = false;
+              }
+            })
             .error(function () {
+              vm.validJMXHost = false;
               ngToast.create({
                 className: 'danger',
                 content: 'An error occurred when retrieving JMX object names information'
@@ -74,6 +87,8 @@
 
       function save() {
         if (!vm.saved) {
+          vm.errorMessage = {};
+
           if (vm.blankQuery && vm.blankQuery.obj) {
             vm.server.queries.push(vm.blankQuery);
             vm.blankQuery = null;

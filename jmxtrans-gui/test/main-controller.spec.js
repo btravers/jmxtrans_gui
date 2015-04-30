@@ -6,13 +6,7 @@ describe('Main Controller Test', function () {
   var writerServiceMock;
   var serverFactoryMock;
 
-  beforeEach(module('jmxtransGui', function($provide) {
-    serverFactoryMock = function() {
-      loadJMXTree: jasmine.createSpy()
-    };
-
-    $provide.value('serverFactory', serverFactoryMock);
-  }));
+  beforeEach(module('jmxtransGui'));
 
   beforeEach(inject(function ($q) {
     serverServiceMock = {
@@ -87,6 +81,12 @@ describe('Main Controller Test', function () {
       }
     };
 
+    serverFactoryMock = function () {
+      this.loadJMXTree = function () {
+
+      };
+    };
+
   }));
 
   it('should create a blank server', inject(function ($rootScope, $controller) {
@@ -157,39 +157,88 @@ describe('Main Controller Test', function () {
     $rootScope.$apply();
 
     expect($scope.server).not.toBe(null);
-    expect($scope.server).toEqual({
-      id: '1',
-      server: {
-        port: "9991",
-        host: "192.168.0.1",
-        queries: [
-          {
-            obj: "java.lang:type=Memory",
-            attr: [
-              "HeapMemoryUsage",
-              "NonHeapMemoryUsage"
-            ],
-            outputWriters: [
-              {
-                '@class': "com.googlecode.jmxtrans.model.output.BluefloodWriter",
-                settings: {
-                  port: 19000,
-                  host: "localhost"
-                }
+    expect($scope.blankServer).toBe(null);
+    expect($scope.server.server).toEqual({
+      port: "9991",
+      host: "192.168.0.1",
+      queries: [
+        {
+          obj: "java.lang:type=Memory",
+          attr: [
+            "HeapMemoryUsage",
+            "NonHeapMemoryUsage"
+          ],
+          outputWriters: [
+            {
+              '@class': "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              settings: {
+                port: 19000,
+                host: "localhost"
               }
-            ]
-          }
-        ]
-      }
+            }
+          ]
+        }
+      ]
     });
   }));
 
-  //$scope.download = download;
-  //$scope.duplicate = duplicate;
-  //$scope.delete = deleteServer;
-  //$scope.unSavedChanges = unSavedChanges;
-  //$scope.deleteConfirmation = deleteConfirmation;
-  //$scope.openWriter = openWriter;
-  //$scope.openUploader = openUploader;
+  it('should duplicate wanted server', inject(function ($rootScope, $controller) {
+    var $scope = $rootScope.$new();
+
+    $controller('Main', {
+      $scope: $scope,
+      serverService: serverServiceMock,
+      writerService: writerServiceMock,
+      serverFactory: serverFactoryMock
+    });
+
+    $scope.duplicate();
+    $rootScope.$apply();
+
+    expect($scope.blankServer).not.toBe(null);
+    expect($scope.server).toBe(null);
+    expect($scope.blankServer.server).toEqual({
+      port: null,
+      host: null,
+      queries: [
+        {
+          obj: "java.lang:type=Memory",
+          attr: [
+            "HeapMemoryUsage",
+            "NonHeapMemoryUsage"
+          ],
+          outputWriters: [
+            {
+              '@class': "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              settings: {
+                port: 19000,
+                host: "localhost"
+              }
+            }
+          ]
+        }
+      ]
+    });
+  }));
+
+  it('should delete the server', inject(function ($rootScope, $controller) {
+    var $scope = $rootScope.$new();
+
+    $controller('Main', {
+      $scope: $scope,
+      serverService: serverServiceMock,
+      writerService: writerServiceMock,
+      serverFactory: serverFactoryMock
+    });
+
+    spyOn(serverServiceMock, 'deleteServer').and.callThrough();
+    spyOn($scope, 'updateServersList').and.callThrough();
+
+    $scope.delete();
+    $rootScope.$apply();
+
+    expect(serverServiceMock.deleteServer).toHaveBeenCalled();
+    expect($scope.updateServersList).toHaveBeenCalled();
+  }));
 
 });

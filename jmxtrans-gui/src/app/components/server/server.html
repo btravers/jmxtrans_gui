@@ -12,7 +12,7 @@
 
       <div class="row server-basic-info">
 
-        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].host')}">
+        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].host'), 'has-success': server.validJMXHost}">
           <label class="control-label">Host</label>
           <input type="text" class="form-control" ng-model="server.server.host"
                  ng-change="server.saved = false; server.loadJMXTree();">
@@ -21,7 +21,7 @@
             incorrect.</p>
         </div>
 
-        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].port')}">
+        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].port'), 'has-success': server.validJMXHost}">
           <label class="control-label">Port</label>
           <input type="text" class="form-control" ng-model="server.server.port"
                  ng-change="server.saved = false; server.loadJMXTree();">
@@ -60,12 +60,19 @@
       <p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries')">At least one query must be
         supplied.</p>
 
-      <button type="button" class="btn btn-block btn-info" ng-click="server.addBlankQuery()">Add a new query
-      </button>
 
-      <button type="button" class="btn btn-block btn-success" ng-click="server.save()" ng-hide="server.saved">
-        Save changes
-      </button>
+
+      <span class="col-sm-12 text-right">
+
+        <button type="button" class="btn btn-info" ng-click="server.addBlankQuery()"
+                style="display: inline-block;">Add a new query
+        </button>
+
+        <button type="button" class="btn btn-success" ng-click="server.save()" ng-hide="server.saved"
+                style="display: inline-block;">
+          Save changes
+        </button>
+      </span>
 
     </form>
 
