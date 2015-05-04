@@ -15,7 +15,8 @@
     function getUrl() {
       if(!url) {
         if ($location.port() == 3000) {
-          url = $location.host() + ':8080/';
+          url = $location.protocol() + '://' + $location.host() + ':8080/';
+          console.log(url);
         } else {
           url = '';
         }
