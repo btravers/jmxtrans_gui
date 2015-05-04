@@ -1,12 +1,15 @@
 {
   "name": "jmxtransGui",
-  "version": "0.0.0",
-  "dependencies": {},
+  "version": "1.0.0-SNAPSHOT",
+  "dependencies": {
+    "bower": "^1.4.1",
+    "gulp": "^3.8.11"
+  },
   "scripts": {
     "test": "gulp test"
   },
   "devDependencies": {
-    "gulp": "~3.8.10",
+    "gulp": "~3.8.11",
     "gulp-autoprefixer": "~2.1.0",
     "gulp-angular-templatecache": "~1.5.0",
     "del": "~1.1.1",

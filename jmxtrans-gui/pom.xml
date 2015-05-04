@@ -14,47 +14,52 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>0.0.23</version>
+
         <executions>
           <execution>
-            <phase>prepare-package</phase>
+            <id>install node and npm</id>
             <goals>
-              <goal>exec</goal>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>v0.12.2</nodeVersion>
+              <npmVersion>2.7.6</npmVersion>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>install</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>bower install</id>
+            <goals>
+              <goal>bower</goal>
+            </goals>
+            <configuration>
+              <arguments>install</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>gulp build</id>
+            <goals>
+              <goal>gulp</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <executable>${project.basedir}/scripts/build.${script.extension}</executable>
-        </configuration>
+
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>for-windows</id>
-      <activation>
-        <os>
-          <family>Windows</family>
-        </os>
-      </activation>
-      <properties>
-        <script.extension>bat</script.extension>
-      </properties>
-    </profile>
-    <profile>
-      <id>for-unix</id>
-      <activation>
-        <os>
-          <family>Linux</family>
-        </os>
-      </activation>
-      <properties>
-        <script.extension>sh</script.extension>
-      </properties>
-    </profile>
-  </profiles>
 
 </project>
