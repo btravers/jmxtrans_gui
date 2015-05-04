@@ -79,10 +79,10 @@
             })
             .error(function () {
               vm.validJMXHost = false;
-              ngToast.create({
-                className: 'danger',
-                content: 'An error occurred when retrieving JMX object names information'
-              });
+              //ngToast.create({
+              //  className: 'danger',
+              //  content: 'An error occurred when retrieving JMX object names information'
+              //});
             });
         }
       }

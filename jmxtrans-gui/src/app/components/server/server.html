@@ -32,13 +32,13 @@
 
         <div class="form-group col-sm-6">
           <label class="control-label">Username</label>
-          <input type="text" class="form-control" ng-model="server.server.username" ng-change="server.saved = false">
+          <input type="text" class="form-control" ng-model="server.server.username" ng-change="server.saved = false; server.loadJMXTree();">
         </div>
 
         <div class="form-group col-sm-6">
           <label class="control-label">Password</label>
           <input type="password" class="form-control" ng-model="server.server.password"
-                 ng-change="server.saved = false">
+                 ng-change="server.saved = false; server.loadJMXTree();">
         </div>
 
       </div>
