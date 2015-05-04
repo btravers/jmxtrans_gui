@@ -28,7 +28,7 @@ public interface JmxtransService {
 
     void upload(Document document) throws IOException, ExecutionException, InterruptedException;
 
-    boolean refreshObjectNames(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException;
+    boolean refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException;
 
     void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException;
 

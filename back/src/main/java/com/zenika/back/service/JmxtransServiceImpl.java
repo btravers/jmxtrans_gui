@@ -126,10 +126,10 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public boolean refreshObjectNames(String host, int port) throws JsonProcessingException, InterruptedException, ExecutionException {
+    public boolean refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException {
         this.objectNameRepository.delete(host, port);
 
-        List<ObjectNameRepresentation> objectnames = JmxUtils.objectNames(host, port);
+        List<ObjectNameRepresentation> objectnames = JmxUtils.objectNames(host, port, username, password);
 
         if (objectnames.isEmpty()) {
             return false;

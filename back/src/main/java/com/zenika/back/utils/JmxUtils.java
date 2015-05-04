@@ -10,15 +10,13 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class JmxUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JmxUtils.class);
 
-    public static List<ObjectNameRepresentation> objectNames(String host, int port) {
+    public static List<ObjectNameRepresentation> objectNames(String host, int port, String username, String password) {
         String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port
                 + "/jmxrmi";
         JMXServiceURL serviceURL = null;
@@ -26,7 +24,13 @@ public class JmxUtils {
 
         try {
             serviceURL = new JMXServiceURL(url);
-            jmxConnector = JMXConnectorFactory.connect(serviceURL);
+            if (username!=null && password!=null) {
+                Map<String, Object> env = new HashMap<>();
+                env.put(JMXConnector.CREDENTIALS, new String[]{username, password});
+                jmxConnector = JMXConnectorFactory.connect(serviceURL, env);
+            } else {
+                jmxConnector = JMXConnectorFactory.connect(serviceURL);
+            }
             MBeanServerConnection mbeanConn = jmxConnector
                     .getMBeanServerConnection();
 

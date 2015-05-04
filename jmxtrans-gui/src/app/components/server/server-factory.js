@@ -61,7 +61,9 @@
             url: 'refresh',
             params: {
               host: vm.server.host,
-              port: vm.server.port
+              port: vm.server.port,
+              username: vm.server.username,
+              password: vm.server.password
             }
           };
 

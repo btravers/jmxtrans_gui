@@ -240,9 +240,11 @@ public class JmxtransController {
     @ResponseBody
     public Map<String, Object> refresh(
             @RequestParam(value = "host", required = true) String host,
-            @RequestParam(value = "port", required = true) int port) throws JmxtransException {
+            @RequestParam(value = "port", required = true) int port,
+            @RequestParam(value = "username", required = true) String username,
+            @RequestParam(value = "password", required = true) String password) throws JmxtransException {
         try {
-            boolean res = this.jmxtransService.refreshObjectNames(host, port);
+            boolean res = this.jmxtransService.refreshObjectNames(host, port, username, password);
             Map<String, Object> response = new HashMap<>();
             if (res) {
                 response.put("success", true);
