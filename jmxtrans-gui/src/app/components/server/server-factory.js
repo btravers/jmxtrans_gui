@@ -5,7 +5,7 @@
     .module('jmxtransGui')
     .factory('serverFactory', serverFactory);
 
-  function serverFactory($rootScope, $http, writerService, configService, ngToast) {
+  function serverFactory($http, serverService, writerService, configService) {
 
     var Server = function () {
       var vm = this;
@@ -79,10 +79,6 @@
             })
             .error(function () {
               vm.validJMXHost = false;
-              //ngToast.create({
-              //  className: 'danger',
-              //  content: 'An error occurred when retrieving JMX object names information'
-              //});
             });
         }
       }
@@ -117,71 +113,19 @@
           });
 
           if (vm.id) {
-            var req = {
-              method: 'POST',
-              url: 'server/_update',
-              params: {
-                id: vm.id
-              },
-              data: {
-                servers: [vm.server]
-              }
-            };
-
-            req.url = configService.getUrl() + req.url;
-
-            $http(req)
-              .success(function () {
-                vm.saved = true;
-                ngToast.create({
-                  className: 'success',
-                  content: 'Save server conf document successfully'
-                });
-                $rootScope.$emit('update', {
-                  host: vm.server.host,
-                  port: vm.server.port
-                });
-              })
-              .error(function (response) {
-                angular.forEach(response, function (message) {
-                  vm.errorMessage[message.field] = message.message;
-                });
-                ngToast.create({
-                  className: 'danger',
-                  content: 'An error occurred when saving server conf document'
-                });
+            serverService.updateServer(vm.id, vm.server).then(function () {
+            }, function (response) {
+              angular.forEach(response, function (message) {
+                vm.errorMessage[message.field] = message.message;
               });
+            });
           } else {
-            var req = {
-              method: 'POST',
-              url: 'server',
-              data: {
-                servers: [vm.server]
-              }
-            };
-
-            req.url = configService.getUrl() + req.url;
-
-            $http(req)
-              .success(function () {
-                ngToast.create({
-                  className: 'success',
-                  content: 'Save server conf document successfully'
-                });
-                $rootScope.$emit('update', {
-                  host: vm.server.host,
-                  port: vm.server.port
-                });
-              })
-              .error(function (response) {
-                angular.forEach(response, function (message) {
-                  vm.errorMessage[message.field] = message.message;
-                });
-                ngToast.create({
-                  className: 'danger',
-                  content: 'An error occurred when saving server conf document'
-                });
+            serverService.saveServer(vm.server).then(function () {
+            }, function (response) {
+              angular.forEach(response, function (message) {
+                vm.errorMessage[message.field] = message.message;
               });
+            });
           }
         }
       }
