@@ -185,6 +185,11 @@ public abstract class AbsractJmxtransServiceTest {
 
     @Test
     public void shouldUploadDocument() throws IOException, ExecutionException, InterruptedException {
+        InputStream writer = getClass().getResourceAsStream("/test/graphiteWriter.json");
+
+        this.jmxtransService.updateSettings(mapper.readValue(writer, OutputWriter.class));
+        this.flushChanges();
+
         InputStream inputStream = getClass().getResourceAsStream("/test/multiServersDocument.json");
 
         this.jmxtransService.upload(mapper.readValue(inputStream, Document.class));
@@ -195,9 +200,11 @@ public abstract class AbsractJmxtransServiceTest {
 
         Response response = this.jmxtransService.findDocumentByHostAndPort("192.168.0.2", 9991);
         Assertions.assertThat(response.getId()).isNotNull();
+        Assertions.assertThat(response.getSource().getServers().iterator().next().getQueries().iterator().next().getOutputWriters().iterator().next().writer).isEqualTo("com.googlecode.jmxtrans.model.output.GraphiteWriter");
 
         response = this.jmxtransService.findDocumentByHostAndPort("192.168.0.3", 9991);
         Assertions.assertThat(response.getId()).isNotNull();
+        Assertions.assertThat(response.getSource().getServers().iterator().next().getQueries().iterator().next().getOutputWriters().iterator().next().writer).isEqualTo("com.googlecode.jmxtrans.model.output.GraphiteWriter");
     }
 
 }
