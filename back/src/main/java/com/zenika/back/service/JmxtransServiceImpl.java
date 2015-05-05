@@ -40,7 +40,7 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public Collection<Map<String, String>> findAllHostsAndPorts() {
+    public Collection<Map<String, Object>> findAllHostsAndPorts() {
         return this.confRepository.findAllHostsAndPorts();
     }
 

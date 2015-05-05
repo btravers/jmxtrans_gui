@@ -84,7 +84,7 @@ public class ConfRepositoryImpl implements ConfRepository {
     }
 
     @Override
-    public Collection<Map<String, String>> findAllHostsAndPorts() {
+    public Collection<Map<String, Object>> findAllHostsAndPorts() {
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(QueryBuilders.matchAllQuery())
@@ -93,16 +93,16 @@ public class ConfRepositoryImpl implements ConfRepository {
                                 .subAggregation(AggregationBuilders.terms("ports").field("servers.port").order(Terms.Order.term(true)).size(0)))
                 .execute().actionGet();
 
-        List<Map<String, String>> result = new ArrayList<>();
+        List<Map<String, Object>> result = new ArrayList<>();
 
         Terms hosts = response.getAggregations().get("hosts");
         for (Bucket hostBucket : hosts.getBuckets()) {
             String host = hostBucket.getKey();
             Terms ports = hostBucket.getAggregations().get("ports");
             for (Bucket portBucket : ports.getBuckets()) {
-                Map<String, String> res = new HashMap<>();
+                Map<String, Object> res = new HashMap<>();
                 res.put("host", host);
-                res.put("port", portBucket.getKey());
+                res.put("port", Integer.parseInt(portBucket.getKey()));
                 result.add(res);
             }
         }

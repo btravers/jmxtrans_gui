@@ -50,8 +50,22 @@ public abstract class AbsractJmxtransServiceTest {
 
     @Test
     public void shouldFindAllHostsAndPorts() throws InterruptedException, JsonProcessingException {
-        Collection<Map<String, String>> servers = this.jmxtransService.findAllHostsAndPorts();
+        Collection<Map<String, Object>> servers = this.jmxtransService.findAllHostsAndPorts();
         Assertions.assertThat(servers.size()).isEqualTo(2);
+
+        Collection<Map<String, Object>> expectedServers = new ArrayList<>();
+
+        Map<String, Object> expectedServer = new HashMap<>();
+        expectedServer.put("host", "localhost");
+        expectedServer.put("port", 9991);
+        expectedServers.add(expectedServer);
+
+        expectedServer = new HashMap<>();
+        expectedServer.put("host", "192.168.0.1");
+        expectedServer.put("port", 9991);
+        expectedServers.add(expectedServer);
+
+        Assertions.assertThat(servers).containsAll(expectedServers);
     }
 
     @Test
@@ -176,7 +190,7 @@ public abstract class AbsractJmxtransServiceTest {
         this.jmxtransService.upload(mapper.readValue(inputStream, Document.class));
         this.flushChanges();
 
-        Collection<Map<String, String>> servers = this.jmxtransService.findAllHostsAndPorts();
+        Collection<Map<String, Object>> servers = this.jmxtransService.findAllHostsAndPorts();
         Assertions.assertThat(servers.size()).isEqualTo(4);
 
         Response response = this.jmxtransService.findDocumentByHostAndPort("192.168.0.2", 9991);

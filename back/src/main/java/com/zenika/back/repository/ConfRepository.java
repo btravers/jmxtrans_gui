@@ -13,7 +13,7 @@ import com.zenika.back.model.OutputWriter;
 import com.zenika.back.model.Response;
 
 public interface ConfRepository {
-    Collection<Map<String, String>> findAllHostsAndPorts();
+    Collection<Map<String, Object>> findAllHostsAndPorts();
 
     Response get(String host, int port) throws IOException, InterruptedException, ExecutionException;
 

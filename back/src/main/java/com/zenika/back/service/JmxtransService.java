@@ -14,7 +14,7 @@ import com.zenika.back.model.Response;
 
 public interface JmxtransService {
 
-    Collection<Map<String, String>> findAllHostsAndPorts();
+    Collection<Map<String, Object>> findAllHostsAndPorts();
 
     Response findDocumentByHostAndPort(String host, int port) throws IOException, InterruptedException, ExecutionException;
 

@@ -61,7 +61,7 @@ public class JmxtransController {
 
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
     @ResponseBody
-    public Collection<Map<String, String>> listHosts() throws JmxtransException {
+    public Collection<Map<String, Object>> listHosts() throws JmxtransException {
         return this.jmxtransService.findAllHostsAndPorts();
     }
 
