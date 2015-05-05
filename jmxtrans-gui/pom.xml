@@ -56,6 +56,19 @@
               <goal>gulp</goal>
             </goals>
           </execution>
+
+          <execution>
+            <id>gulp test</id>
+            <goals>
+              <goal>gulp</goal>
+            </goals>
+
+            <phase>test</phase>
+
+            <configuration>
+              <arguments>test</arguments>
+            </configuration>
+          </execution>
         </executions>
 
       </plugin>
