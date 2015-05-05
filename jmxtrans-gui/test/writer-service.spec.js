@@ -38,6 +38,7 @@ describe('Writer Service Test', function () {
     });
   }));
 
+  // coucou
   it('Should set the writer', inject(function (writerService) {
     $httpBackend.expect('POST', 'settings');
 
