@@ -35,7 +35,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>back</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 
     <filter>

@@ -114,7 +114,6 @@
 			<artifactId>mockito-all</artifactId>
 			<version>${mockito.version}</version>
 		</dependency>
-
 	</dependencies>
 
 	<dependencyManagement>
