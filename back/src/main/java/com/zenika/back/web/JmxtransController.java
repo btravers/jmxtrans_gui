@@ -236,7 +236,7 @@ public class JmxtransController {
         }
     }
 
-    @RequestMapping(value = "/refresh", method = RequestMethod.GET)
+    @RequestMapping(value = "/autocomplete", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> refresh(
             @RequestParam(value = "host", required = true) String host,
@@ -263,7 +263,7 @@ public class JmxtransController {
         }
     }
 
-    @RequestMapping(value = "/suggest_name", method = RequestMethod.GET)
+    @RequestMapping(value = "/autocomplete/name", method = RequestMethod.GET)
     @ResponseBody
     public Collection<String> prefixNameSuggestion(
             @RequestParam(value = "host", required = true) String host,
@@ -271,7 +271,7 @@ public class JmxtransController {
         return this.jmxtransService.prefixNameSuggestion(host, port);
     }
 
-    @RequestMapping(value = "/suggest_attr", method = RequestMethod.GET)
+    @RequestMapping(value = "/autocomplete/attr", method = RequestMethod.GET)
     @ResponseBody
     public Collection<String> prefixAttrSuggestion(
             @RequestParam(value = "host", required = true) String host,

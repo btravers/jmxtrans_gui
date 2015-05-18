@@ -58,7 +58,7 @@
         if (vm.server.host && vm.server.port) {
           var req = {
             method: 'GET',
-            url: 'refresh',
+            url: 'autocomplete',
             params: {
               host: vm.server.host,
               port: vm.server.port,

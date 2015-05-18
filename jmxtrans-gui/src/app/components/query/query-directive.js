@@ -35,7 +35,7 @@
         if (!$scope.nameSuggestions) {
           var req = {
             method: 'GET',
-            url: 'suggest_name',
+            url: 'autocomplete/name',
             params: {
               host: $scope.server.server.host,
               port: $scope.server.server.port
@@ -60,7 +60,7 @@
         if (!$scope.attrSuggestions) {
           var req = {
             method: 'GET',
-            url: 'suggest_attr',
+            url: 'autocomplete/attr',
             params: {
               host: $scope.server.server.host,
               port: $scope.server.server.port,
