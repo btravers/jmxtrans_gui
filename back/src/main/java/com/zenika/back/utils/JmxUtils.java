@@ -17,8 +17,7 @@ public class JmxUtils {
     private static final Logger logger = LoggerFactory.getLogger(JmxUtils.class);
 
     public static List<ObjectNameRepresentation> objectNames(String host, int port, String username, String password) {
-        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port
-                + "/jmxrmi";
+        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
         JMXServiceURL serviceURL = null;
         JMXConnector jmxConnector = null;
 
