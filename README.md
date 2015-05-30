@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/btravers/Back.svg?branch=master)](https://travis-ci.org/btravers/Back)
 
-# Back
+# JMXTRANS GUI
 
 ## Introduction
 
