@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/btravers/Back.svg?branch=master)](https://travis-ci.org/btravers/Back)
+[![Build Status](https://travis-ci.org/btravers/jmxtrans_gui.svg?branch=master)](https://travis-ci.org/btravers/jmxtrans_gui)
 
 # JMXTRANS GUI
 
