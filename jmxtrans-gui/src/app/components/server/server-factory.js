@@ -48,10 +48,12 @@
           obj: null,
           attr: [],
           typeNames: [],
-          outputWriters: [
-            writerService.get()
-          ]
+          outputWriters: []
         };
+
+        writerService.get().then(function(writer) {
+          vm.blankQuery.outputWriters.push(writer);
+        });
       }
 
       function loadJMXTree() {
