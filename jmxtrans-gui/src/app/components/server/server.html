@@ -8,14 +8,13 @@
 
   <div class="panel-body">
 
-    <form novalidate>
+
 
       <div class="row server-basic-info">
 
         <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].host'), 'has-success': server.validJMXHost}">
           <label class="control-label">Host</label>
-          <input type="text" class="form-control" ng-model="server.server.host"
-                 ng-change="server.saved = false" ng-blur="server.loadJMXTree()">
+          <input type="text" class="form-control" ng-model="server.server.host" ng-blur="server.loadJMXTree()">
 
           <p class="text-danger" ng-show="server.showErrorMessage('servers[0].host')">The submitted value is
             incorrect.</p>
@@ -23,8 +22,7 @@
 
         <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].port'), 'has-success': server.validJMXHost}">
           <label class="control-label">Port</label>
-          <input type="text" class="form-control" ng-model="server.server.port"
-                 ng-change="server.saved = false" ng-blur="server.loadJMXTree()">
+          <input type="text" class="form-control" ng-model="server.server.port" ng-blur="server.loadJMXTree()">
 
           <p class="text-danger" ng-show="server.showErrorMessage('servers[0].port')">The submitted value is
             incorrect.</p>
@@ -32,13 +30,12 @@
 
         <div class="form-group col-sm-6">
           <label class="control-label">Username</label>
-          <input type="text" class="form-control" ng-model="server.server.username" ng-change="server.saved = false" ng-blur="server.loadJMXTree()">
+          <input type="text" class="form-control" ng-model="server.server.username" ng-blur="server.loadJMXTree()">
         </div>
 
         <div class="form-group col-sm-6">
           <label class="control-label">Password</label>
-          <input type="password" class="form-control" ng-model="server.server.password"
-                 ng-change="server.saved = false" ng-blur="server.loadJMXTree()">
+          <input type="password" class="form-control" ng-model="server.server.password" ng-blur="server.loadJMXTree()">
         </div>
 
       </div>
@@ -68,13 +65,10 @@
                 style="display: inline-block;">Add a new query
         </button>
 
-        <button type="button" class="btn btn-success" ng-click="server.save()" ng-hide="server.saved"
-                style="display: inline-block;">
+        <button type="button" class="btn btn-success" ng-click="server.save()" style="display: inline-block;">
           Save changes
         </button>
       </span>
-
-    </form>
 
   </div>
 

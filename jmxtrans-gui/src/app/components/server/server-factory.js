@@ -5,18 +5,18 @@
     .module('jmxtransGui')
     .factory('serverFactory', serverFactory);
 
-  function serverFactory($http, serverService, writerService, configService) {
+  function serverFactory($rootScope, $http, serverService, writerService, configService, ngToast) {
 
     var Server = function () {
       var vm = this;
 
       vm.id = null;
+      vm.currentForm = null;
       vm.server = {
         port: null,
         host: null,
         queries: []
       };
-      vm.saved = false;
       vm.blankQuery = null;
       vm.blankAttr = [];
       vm.blankTypeNames = [];
@@ -26,8 +26,8 @@
       vm.removeQuery = removeQuery;
       vm.addBlankQuery = addBlankQuery;
       vm.loadJMXTree = loadJMXTree;
-      vm.save = save;
       vm.showErrorMessage = showErrorMessage;
+      vm.save = save;
 
 
       function removeQuery(index) {
@@ -35,7 +35,7 @@
           vm.blankQuery = null;
         } else {
           vm.server.queries.splice(index, 1);
-          vm.saved = false;
+          vm.currentForm.$setDirty();
         }
       }
 
@@ -51,7 +51,7 @@
           outputWriters: []
         };
 
-        writerService.get().then(function(writer) {
+        writerService.get().then(function (writer) {
           vm.blankQuery.outputWriters.push(writer);
         });
       }
@@ -86,49 +86,73 @@
       }
 
       function save() {
-        if (!vm.saved) {
-          vm.errorMessage = {};
+        vm.errorMessage = {};
 
-          if (vm.blankQuery && vm.blankQuery.obj) {
-            vm.server.queries.push(vm.blankQuery);
-            vm.blankQuery = null;
-          }
+        if (vm.blankQuery && vm.blankQuery.obj) {
+          vm.server.queries.push(vm.blankQuery);
+          vm.blankQuery = null;
+        }
 
-          angular.forEach(vm.blankAttr, function (attr, i) {
-            if (attr && attr.value) {
-              if (!vm.server.queries[i].attr) {
-                vm.server.queries[i].attr = [];
-              }
-              vm.server.queries[i].attr.push(attr.value);
-              vm.blankAttr[i] = null;
+        angular.forEach(vm.blankAttr, function (attr, i) {
+          if (attr && attr.value) {
+            if (!vm.server.queries[i].attr) {
+              vm.server.queries[i].attr = [];
             }
-          });
-
-          angular.forEach(vm.blankTypeNames, function (typeName, i) {
-            if (typeName && typeName.value) {
-              if (!vm.server.queries[i].typeNames) {
-                vm.server.queries[i].typeNames = [];
-              }
-              vm.server.queries[i].typeNames.push(typeName.value);
-              vm.blankTypeNames[i] = null;
-            }
-          });
-
-          if (vm.id) {
-            serverService.updateServer(vm.id, vm.server).then(function () {
-            }, function (response) {
-              angular.forEach(response, function (message) {
-                vm.errorMessage[message.field] = message.message;
-              });
-            });
-          } else {
-            serverService.saveServer(vm.server).then(function () {
-            }, function (response) {
-              angular.forEach(response, function (message) {
-                vm.errorMessage[message.field] = message.message;
-              });
-            });
+            vm.server.queries[i].attr.push(attr.value);
+            vm.blankAttr[i] = null;
           }
+        });
+
+        angular.forEach(vm.blankTypeNames, function (typeName, i) {
+          if (typeName && typeName.value) {
+            if (!vm.server.queries[i].typeNames) {
+              vm.server.queries[i].typeNames = [];
+            }
+            vm.server.queries[i].typeNames.push(typeName.value);
+            vm.blankTypeNames[i] = null;
+          }
+        });
+
+        if (vm.id) {
+          serverService.updateServer(vm.id, vm.server).then(function () {
+            vm.currentForm.$setPristine();
+            ngToast.create({
+              className: 'success',
+              content: 'Save server conf document successfully'
+            });
+            $rootScope.$emit('update', {
+              host: vm.server.host,
+              port: vm.server.port
+            });
+          }, function (response) {
+            angular.forEach(response, function (message) {
+              vm.errorMessage[message.field] = message.message;
+            });
+            ngToast.create({
+              className: 'danger',
+              content: 'An error occurred when saving server conf document'
+            });
+          });
+        } else {
+          serverService.saveServer(vm.server).then(function () {
+            vm.currentForm.$setPristine();
+            ngToast.create({
+              className: 'success',
+              content: 'Save server conf document successfully'
+            });
+            $rootScope.$emit('update', {
+              host: vm.server.host,
+              port: vm.server.port
+            });
+          }, function (response) {
+            angular.forEach(response, function (message) {
+              vm.errorMessage[message.field] = message.message;
+            });
+            ngToast.create({
+              className: 'danger',
+              content: 'An error occurred when saving server conf document'
+            });
+          });
         }
       }
 

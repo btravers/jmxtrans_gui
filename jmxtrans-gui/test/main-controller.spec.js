@@ -96,22 +96,8 @@ describe('Main Controller Test', function () {
       $scope: $scope
     });
 
-    $scope.addBlankServer();
-    expect($scope.blankServer).not.toBeNull();
-  }));
-
-  it('should remove the blank server after creation', inject(function ($rootScope, $controller) {
-    var $scope = $rootScope.$new();
-
-    $controller('Main', {
-      $scope: $scope
-    });
-
-    $scope.addBlankServer();
-    expect($scope.blankServer).not.toBeNull();
-
-    $scope.cancelBlankServer();
-    expect($scope.blankServer).toBeNull();
+    $scope.createServer();
+    expect($scope.server).not.toBeNull();
   }));
 
   it('should update the list of servers', inject(function ($rootScope, $controller) {
@@ -123,7 +109,7 @@ describe('Main Controller Test', function () {
       writerService: writerServiceMock
     });
 
-    $scope.updateServersList();
+    $scope.updateList();
     $rootScope.$apply();
 
     expect($scope.list.length).not.toEqual(0);
@@ -153,11 +139,10 @@ describe('Main Controller Test', function () {
       serverFactory: serverFactoryMock
     });
 
-    $scope.display();
+    $scope.displayServer();
     $rootScope.$apply();
 
     expect($scope.server).not.toBe(null);
-    expect($scope.blankServer).toBe(null);
     expect($scope.server.server).toEqual({
       port: "9991",
       host: "192.168.0.1",
@@ -192,33 +177,32 @@ describe('Main Controller Test', function () {
       serverFactory: serverFactoryMock
     });
 
-    $scope.duplicate();
+    $scope.duplicateServer();
     $rootScope.$apply();
 
-    expect($scope.blankServer).not.toBe(null);
-    expect($scope.server).toBe(null);
-    expect($scope.blankServer.server).toEqual({
-      port: null,
-      host: null,
-      queries: [
-        {
-          obj: "java.lang:type=Memory",
-          attr: [
-            "HeapMemoryUsage",
-            "NonHeapMemoryUsage"
-          ],
-          outputWriters: [
-            {
-              '@class': "com.googlecode.jmxtrans.model.output.BluefloodWriter",
-              settings: {
-                port: 19000,
-                host: "localhost"
-              }
-            }
-          ]
-        }
-      ]
-    });
+    expect($scope.server).not.toBe(null);
+    //expect($scope.server.server).toEqual({
+    //  port: null,
+    //  host: null,
+    //  queries: [
+    //    {
+    //      obj: "java.lang:type=Memory",
+    //      attr: [
+    //        "HeapMemoryUsage",
+    //        "NonHeapMemoryUsage"
+    //      ],
+    //      outputWriters: [
+    //        {
+    //          '@class': "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+    //          settings: {
+    //            port: 19000,
+    //            host: "localhost"
+    //          }
+    //        }
+    //      ]
+    //    }
+    //  ]
+    //});
   }));
 
   it('should delete the server', inject(function ($rootScope, $controller) {
@@ -232,13 +216,13 @@ describe('Main Controller Test', function () {
     });
 
     spyOn(serverServiceMock, 'deleteServer').and.callThrough();
-    spyOn($scope, 'updateServersList').and.callThrough();
+    spyOn($scope, 'updateList').and.callThrough();
 
-    $scope.delete();
+    $scope.deleteServer();
     $rootScope.$apply();
 
     expect(serverServiceMock.deleteServer).toHaveBeenCalled();
-    expect($scope.updateServersList).toHaveBeenCalled();
+    expect($scope.updateList).toHaveBeenCalled();
   }));
 
 });

@@ -8,35 +8,36 @@
   function Main($rootScope, $scope, $http, $modal, FileUploader, serverService, serverFactory, writerService, configService, ngToast, SweetAlert) {
 
     $scope.server = null;
-    $scope.blankServer = null;
     $scope.list = [];
 
     $scope.printServer = printServer;
-    $scope.updateServersList = updateServersList;
-    $scope.addBlankServer = addBlankServer;
-    $scope.cancelBlankServer = cancelBlankServer;
-    $scope.display = display;
-    $scope.download = download;
-    $scope.duplicate = duplicate;
-    $scope.delete = deleteServer;
+    $scope.updateList = updateList;
+    $scope.createServer = createServer;
+    $scope.displayServer = displayServer;
+    $scope.downloadServer = downloadServer;
+    $scope.duplicateServer = duplicateServer;
+    $scope.deleteServer = deleteServer;
     $scope.unSavedChanges = unSavedChanges;
     $scope.deleteConfirmation = deleteConfirmation;
     $scope.openWriter = openWriter;
     $scope.openUploader = openUploader;
 
-
     init();
 
     $rootScope.$on('update', function (event, data) {
-      $scope.updateServersList();
+      $scope.updateList();
       if (data.host && data.port) {
-        $scope.display(data.host, data.port);
+        $scope.displayServer(data.host, data.port);
       }
     });
 
+    $rootScope.$on('save', function () {
+      $scope.jmxForm.$setPristine();
+    });
+
     function init() {
-      $scope.updateServersList();
-      setInterval($scope.updateServersList, configService.getReloadInterval());
+      $scope.updateList();
+      setInterval($scope.updateList, configService.getReloadInterval());
 
       writerService.get().then(function (writer) {
         $scope.writer = writer;
@@ -68,34 +69,39 @@
       }
     }
 
-    function updateServersList() {
+    function updateList() {
       serverService.findAllHostsAndPorts().then(function (list) {
         $scope.list = list;
+      }, function () {
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred when loading servers list'
+        });
       });
     }
 
-    function addBlankServer() {
-      $scope.blankServer = new serverFactory();
-      $scope.server = null;
+    function createServer() {
+      $scope.server = new serverFactory();
+      $scope.server.currentForm = $scope.jmxForm;
     }
 
-    function cancelBlankServer() {
-      $scope.blankServer = null;
-    }
-
-    function display(host, port) {
+    function displayServer(host, port) {
       serverService.getServer(host, port).then(function (server) {
         $scope.server = new serverFactory();
         $scope.server.server = server.server;
         $scope.server.id = server.id;
         $scope.server.saved = true;
         $scope.server.loadJMXTree();
-
-        $scope.blankServer = null;
+        $scope.server.currentForm = $scope.jmxForm;
+      }, function () {
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred when loading server conf document'
+        });
       });
     }
 
-    function download(host, port) {
+    function downloadServer(host, port) {
       var req = {
         url: configService.getUrl() + 'server/_download',
         method: 'GET',
@@ -128,28 +134,42 @@
         });
     }
 
-
-    function duplicate(host, port) {
+    function duplicateServer(host, port) {
       serverService.getServer(host, port).then(function (server) {
-        $scope.blankServer = new serverFactory();
-        $scope.blankServer.server = server.server;
-        $scope.blankServer.server.host = null;
-        $scope.blankServer.server.port = null;
-
-        $scope.server = null;
+        $scope.server = new serverFactory();
+        $scope.server.server = server.server;
+        $scope.server.server.host = null;
+        $scope.server.server.port = null;
+        $scope.server.server.username = null;
+        $scope.server.server.password = null;
+        $scope.server.currentForm = $scope.jmxForm;
+      }, function () {
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred when loading server conf document'
+        });
       });
     }
 
     function deleteServer(host, port) {
       serverService.deleteServer(host, port).then(function () {
+        ngToast.create({
+          className: 'success',
+          content: "Delete server conf document successfully"
+        });
         $scope.server = null;
-        $scope.updateServersList();
+        $scope.updateList();
+      }, function () {
+        ngToast.create({
+          className: 'danger',
+          content: 'An error occurred during the deletion of the server conf document'
+        });
       });
     }
 
     function unSavedChanges(performAction) {
       var args = arguments;
-      if ($scope.blankServer || ($scope.server && !$scope.server.saved)) {
+      if ($scope.jmxForm.$dirty) {
         SweetAlert.swal({
             title: 'Some changes have not been saved!',
             text: 'Changes will be lost if you continue.',
@@ -160,6 +180,7 @@
           function (isConfirm) {
             if (isConfirm) {
               performAction.apply(this, Array.prototype.slice.call(args, 1));
+              $scope.jmxForm.$setPristine();
             }
           });
       } else {
@@ -169,7 +190,7 @@
 
     function deleteConfirmation(host, port) {
       var close = true;
-      if ($scope.server && !$scope.server.saved) {
+      if ($scope.jmxForm.$dirty) {
         close = false;
       }
       SweetAlert.swal({
@@ -181,28 +202,9 @@
         closeOnConfirm: close
       }, function (isConfirm) {
         if (isConfirm) {
-          unSavedChangesBeforeDelete(host, port);
+          unSavedChanges(deleteServer, host, port);
         }
       });
-    }
-
-    function unSavedChangesBeforeDelete(host, port) {
-      if ($scope.server && !$scope.server.saved) {
-        SweetAlert.swal({
-            title: 'Some changes have not been saved!',
-            text: 'Changes will be lost if you continue.',
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonText: "Continue"
-          },
-          function (isConfirm) {
-            if (isConfirm) {
-              $scope.delete(host, port);
-            }
-          });
-      } else {
-        $scope.delete(host, port);
-      }
     }
 
     /**
@@ -261,14 +263,13 @@
       });
     }
 
-
     /**
      * Uploader modal
      */
     function openUploader() {
       var modal = $modal.open({
         templateUrl: 'app/components/uploader/uploader.html',
-        controller: function ($scope, $modalInstance, writerService, configService, updateServersList) {
+        controller: function ($scope, $modalInstance, writerService, configService, updateList) {
 
           var url = configService.getUrl() + 'upload';
 
@@ -278,7 +279,7 @@
 
           $scope.uploader.onCompleteAll = function () {
             writerService.get();
-            updateServersList();
+            updateList();
           };
 
           $scope.cancel = function () {
@@ -286,8 +287,8 @@
           };
 
         }, resolve: {
-          updateServersList: function () {
-            return $scope.updateServersList;
+          updateList: function () {
+            return $scope.updateList;
           }
         }
       });

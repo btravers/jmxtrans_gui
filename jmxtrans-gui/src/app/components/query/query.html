@@ -10,7 +10,7 @@
          ng-class="{'has-error': server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')}">
       <label class="control-label">Object</label>
       <input type="text" class="form-control" ng-model="query.obj"
-             ng-change="server.saved = false; suggestName(); nbTypeNames();"
+             ng-change="suggestName(); nbTypeNames();"
              typeahead="name for name in nameSuggestions | filter:$viewValue | limitTo:10">
 
       <p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')">The
@@ -19,14 +19,14 @@
 
     <div class="form-group col-sm-4">
       <label class="control-label">Result alias</label>
-      <input type="text" class="form-control" ng-model="query.resultAlias" ng-change="server.saved = false">
+      <input type="text" class="form-control" ng-model="query.resultAlias">
     </div>
 
     <hr ng-hide="!query.typeNames || query.typeNames.length == 0" class="col-sm-12">
 
     <div ng-repeat="(i, typeName) in query.typeNames track by $index" class="form-group col-sm-4">
       <label class="control-label">Type name {{ $index + 1 }}</label>
-      <input type="text" class="form-control" ng-model="query.typeNames[i]" ng-change="server.saved = false">
+      <input type="text" class="form-control" ng-model="query.typeNames[i]">
     </div>
 
     <hr class="col-sm-12">
@@ -36,7 +36,7 @@
 
       <div class="form-inline">
         <input type="text" class="form-control" ng-model="query.attr[i]"
-               ng-change="server.saved = false; suggestAttr();"
+               ng-change="suggestAttr();"
                typeahead="attr for attr in attrSuggestions | filter:$viewValue | limitTo:10">
         <button type="button" class="btn btn-danger" ng-click="removeAttr($index)" popover-placement="right"
                 popover="Remove" popover-trigger="mouseenter">
@@ -50,7 +50,7 @@
 
       <div class="form-inline">
         <input type="text" class="form-control" ng-model="server.blankAttr[queryIndex].value"
-               ng-change="server.saved = false; suggestAttr();"
+               ng-change="suggestAttr();"
                typeahead="attr for attr in attrSuggestions | filter:$viewValue | limitTo:10">
         <button type="button" class="btn btn-danger" ng-click="removeBlankAttr()" popover-placement="right"
                 popover="Remove" popover-trigger="mouseenter"><span

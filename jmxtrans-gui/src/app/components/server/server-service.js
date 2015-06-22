@@ -5,7 +5,7 @@
     .module('jmxtransGui')
     .service('serverService', serverService);
 
-  function serverService($http, $rootScope, $q, configService, ngToast) {
+  function serverService($http, $q, configService) {
     this.findAllHostsAndPorts = findAllHostsAndPorts;
     this.getServer = getServer;
     this.deleteServer = deleteServer;
@@ -28,10 +28,6 @@
         })
         .error(function () {
           list.reject();
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred when loading servers list'
-          });
         });
 
       return list.promise;
@@ -60,10 +56,6 @@
         })
         .error(function () {
           server.reject();
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred when loading server conf document'
-          });
         }
       );
 
@@ -86,18 +78,10 @@
 
       $http(req)
         .success(function () {
-          ngToast.create({
-            className: 'success',
-            content: "Delete server conf document successfully"
-          });
           promise.resolve();
         })
         .error(function () {
           promise.reject();
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred during the deletion of the server conf document'
-          });
         });
 
       return promise.promise;
@@ -122,21 +106,9 @@
       $http(req)
         .success(function () {
           result.resolve();
-          ngToast.create({
-            className: 'success',
-            content: 'Save server conf document successfully'
-          });
-          $rootScope.$emit('update', {
-            host: server.host,
-            port: server.port
-          });
         })
         .error(function (response) {
           result.reject(response);
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred when saving server conf document'
-          });
         });
 
       return result.promise;
@@ -158,24 +130,12 @@
       $http(req)
         .success(function () {
           result.resolve();
-          ngToast.create({
-            className: 'success',
-            content: 'Save server conf document successfully'
-          });
-          $rootScope.$emit('update', {
-            host: server.host,
-            port: server.port
-          });
         })
         .error(function (response) {
           result.reject(response);
-          ngToast.create({
-            className: 'danger',
-            content: 'An error occurred when saving server conf document'
-          });
         });
 
-      result.promise;
+      return result.promise;
     }
   }
 })();

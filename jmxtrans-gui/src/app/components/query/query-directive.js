@@ -97,7 +97,6 @@
 
       function removeAttr(index) {
         $scope.query.attr.splice(index, 1);
-        $scope.server.saved = false;
       }
 
       function removeBlankAttr() {
