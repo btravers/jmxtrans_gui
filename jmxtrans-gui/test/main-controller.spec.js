@@ -181,28 +181,30 @@ describe('Main Controller Test', function () {
     $rootScope.$apply();
 
     expect($scope.server).not.toBe(null);
-    //expect($scope.server.server).toEqual({
-    //  port: null,
-    //  host: null,
-    //  queries: [
-    //    {
-    //      obj: "java.lang:type=Memory",
-    //      attr: [
-    //        "HeapMemoryUsage",
-    //        "NonHeapMemoryUsage"
-    //      ],
-    //      outputWriters: [
-    //        {
-    //          '@class': "com.googlecode.jmxtrans.model.output.BluefloodWriter",
-    //          settings: {
-    //            port: 19000,
-    //            host: "localhost"
-    //          }
-    //        }
-    //      ]
-    //    }
-    //  ]
-    //});
+    expect($scope.server.server).toEqual({
+      port: null,
+      host: null,
+      queries: [
+        {
+          obj: "java.lang:type=Memory",
+          attr: [
+            "HeapMemoryUsage",
+            "NonHeapMemoryUsage"
+          ],
+          outputWriters: [
+            {
+              '@class': "com.googlecode.jmxtrans.model.output.BluefloodWriter",
+              settings: {
+                port: 19000,
+                host: "localhost"
+              }
+            }
+          ]
+        }
+      ],
+      username: null,
+      password: null
+    });
   }));
 
   it('should delete the server', inject(function ($rootScope, $controller) {

@@ -97,6 +97,7 @@
 
       function removeAttr(index) {
         $scope.query.attr.splice(index, 1);
+        $scope.server.currentForm.$setDirty();
       }
 
       function removeBlankAttr() {
