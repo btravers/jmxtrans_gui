@@ -2,7 +2,8 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo -e "Starting to update gh-pages\n"
 
   mkdir $HOME/gh-pages
-  warname=$(ls backend/target/*.war)
+  cd backend/target
+  warname=$(ls *.war)
   cp $warname $HOME/gh-pages
 
   git config --global user.email "travis@travis-ci.org"

@@ -60,6 +60,7 @@ public class JmxtransController {
     @RequestMapping(value = "/server/all", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Map<String, Object>> listHosts() throws JmxtransException {
+        logger.info("GET request: /server/all");
         return this.jmxtransService.findAllHostsAndPorts();
     }
 
@@ -68,6 +69,7 @@ public class JmxtransController {
     public Response showServer(
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port) throws JmxtransException {
+        logger.info("GET request: /server");
         try {
             return this.jmxtransService.findDocumentByHostAndPort(host, port);
         } catch (InterruptedException e) {
@@ -87,7 +89,7 @@ public class JmxtransController {
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port)
             throws JmxtransException {
-
+        logger.info("GET request: /server/_download");
         try {
             Response response = this.jmxtransService.findDocumentByHostAndPort(host,
                     port);
@@ -127,12 +129,14 @@ public class JmxtransController {
     public void deleteServer(
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port) {
+        logger.info("DELETE request: /server");
         this.jmxtransService.deleteDocument(host, port);
     }
 
     @RequestMapping(value = "/server", method = RequestMethod.POST)
     @ResponseBody
     public void addServer(@Valid @RequestBody Document server) throws JmxtransException {
+        logger.info("POST request: /server");
         try {
             this.jmxtransService.addDocument(server);
         } catch (JsonProcessingException e) {
@@ -155,6 +159,7 @@ public class JmxtransController {
     public void updateServer(
             @RequestParam(value = "id", required = true) String id,
             @Valid @RequestBody Document server) throws JmxtransException {
+        logger.info("POST request: /server/_update");
         try {
             this.jmxtransService.updateDocument(id, server);
         } catch (JsonProcessingException e) {
@@ -173,6 +178,7 @@ public class JmxtransController {
     @ResponseBody
     public void updateSettings(@Valid @RequestBody OutputWriter settings) throws JmxtransException {
         try {
+            logger.info("POST request: /settings");
             this.jmxtransService.updateSettings(settings);
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -189,6 +195,7 @@ public class JmxtransController {
     @RequestMapping(value = "/settings", method = RequestMethod.GET)
     @ResponseBody
     public OutputWriter getSettings() throws JmxtransException {
+        logger.info("GET request: /settings");
         try {
             return this.jmxtransService.getSettings();
         } catch (JsonParseException e) {
@@ -206,6 +213,7 @@ public class JmxtransController {
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
     public void upload(@RequestParam("file") MultipartFile file) throws JmxtransException {
+        logger.info("POST request: /upload");
         if (!file.isEmpty()) {
             try {
                 byte[] bytes = file.getBytes();
@@ -234,6 +242,7 @@ public class JmxtransController {
             @RequestParam(value = "port", required = true) int port,
             @RequestParam(value = "username", required = false) String username,
             @RequestParam(value = "password", required = false) String password) throws JmxtransException {
+        logger.info("GET request: /autocomplete/load");
         try {
             this.jmxtransService.refreshObjectNames(host, port, username, password);
         } catch (JsonProcessingException e) {
@@ -253,6 +262,7 @@ public class JmxtransController {
     public Collection<String> prefixNameSuggestion(
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port) {
+        logger.info("GET request: /autocomplete/name");
         return this.jmxtransService.prefixNameSuggestion(host, port);
     }
 
@@ -262,6 +272,7 @@ public class JmxtransController {
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port,
             @RequestParam(value = "name", required = true) String name) {
+        logger.info("GET request: /autocomplete/attr");
         return this.jmxtransService.prefixAttrSuggestion(host, port, name);
     }
 

@@ -6,6 +6,8 @@ import com.zenika.jmxtrans.gui.AppConfig;
 import com.zenika.jmxtrans.gui.model.OutputWriter;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,8 @@ import java.io.IOException;
 
 @Repository
 public class SettingsRepositoryImpl implements SettingsRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(SettingsRepositoryImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
@@ -29,6 +33,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
 
     @Override
     public OutputWriter get() throws IOException {
+        logger.info("Retrieving output writer");
+
         GetResponse getResponse = this.client.prepareGet(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
                 .execute().actionGet();
 
@@ -42,6 +48,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
 
     @Override
     public void save(OutputWriter settings) throws IOException {
+        logger.info("Saving output writer");
+
         String json = mapper.writeValueAsString(settings);
 
         this.client.prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
@@ -52,6 +60,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
 
     @Override
     public void update(OutputWriter settings) throws JsonProcessingException {
+        logger.info("Updating  output writer");
+
         String json = mapper.writeValueAsString(settings);
 
         this.client.prepareUpdate(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
@@ -62,6 +72,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
 
     @Override
     public void delete() {
+        logger.info("Deleting output writer");
+
         this.client.prepareDelete(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
                 .execute().actionGet();
     }

@@ -10,6 +10,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +20,8 @@ import java.util.Collection;
 
 @Repository
 public class ObjectNameRepositoryImpl implements ObjectNameRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(ObjectNameRepositoryImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
@@ -34,6 +38,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
 
     @Override
     public void save(ObjectNameRepresentation objectName) throws JsonProcessingException {
+        logger.info("Saving objectname");
         this.client.prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
                 .setRefresh(true)
                 .setSource(mapper.writeValueAsString(objectName))
@@ -42,6 +47,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
 
     @Override
     public Collection<String> prefixNameSuggestion(String host, int port) {
+        logger.info("Retrieving object names");
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
                 .setQuery(
@@ -65,6 +71,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
 
     @Override
     public Collection<String> prefixAttrSuggestion(String host, int port, String name) {
+        logger.info("Retrieving attribute names");
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
                 .addFields("attributes")
@@ -90,6 +97,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
 
     @Override
     public void delete(String host, int port) {
+        logger.info("Deleting object names");
         this.client.prepareDeleteByQuery(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
                 .setQuery(QueryBuilders.boolQuery()

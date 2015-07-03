@@ -16,6 +16,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -27,6 +29,8 @@ import com.zenika.jmxtrans.gui.model.Response;
 
 @Repository
 public class ConfRepositoryImpl implements ConfRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConfRepositoryImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
@@ -49,6 +53,7 @@ public class ConfRepositoryImpl implements ConfRepository {
 
     @Override
     public void delete(String host, int port) {
+        logger.info("Deleting host " + host + ":" + port);
         this.client.prepareDeleteByQuery(AppConfig.INDEX)
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(
@@ -62,6 +67,7 @@ public class ConfRepositoryImpl implements ConfRepository {
 
     @Override
     public Collection<Map<String, Object>> findAllHostsAndPorts() {
+        logger.info("Listing available hosts");
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(QueryBuilders.matchAllQuery())
@@ -90,6 +96,8 @@ public class ConfRepositoryImpl implements ConfRepository {
 
     @Override
     public Response get(String host, int port) throws IOException, InterruptedException, ExecutionException {
+        logger.info("Retrieving host " + host + ":" + port);
+
         SearchResponse searchResponse = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(QueryBuilders.matchAllQuery())
@@ -146,6 +154,7 @@ public class ConfRepositoryImpl implements ConfRepository {
     public void save(Document document) throws InterruptedException, ExecutionException, IOException {
         String json = mapper.writeValueAsString(document);
 
+        logger.info("Saving host");
         this.client.prepareIndex(AppConfig.INDEX, AppConfig.CONF_TYPE)
                 .setRefresh(true)
                 .setSource(json).execute()
@@ -156,6 +165,7 @@ public class ConfRepositoryImpl implements ConfRepository {
     public void updateOne(String id, Document document) throws JsonProcessingException, InterruptedException, ExecutionException {
         String json = mapper.writeValueAsString(document);
 
+        logger.info("Updating host");
         this.client.prepareUpdate(AppConfig.INDEX, AppConfig.CONF_TYPE, id)
                 .setRefresh(true)
                 .setDoc(json)
@@ -168,6 +178,7 @@ public class ConfRepositoryImpl implements ConfRepository {
                 .setTypes(AppConfig.CONF_TYPE)
                 .setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
 
+        logger.info("Retrieving all documents");
         Map<String, Document> documents = new HashMap<>();
         for (SearchHit hit : response.getHits().getHits()) {
             Document doc = mapper.readValue(hit.getSourceAsString(), Document.class);
