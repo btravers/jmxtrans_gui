@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.zenika.monitoring</groupId>
+    <groupId>com.zenika.jmxtrans.gui</groupId>
     <version>1.0.1-SNAPSHOT</version>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
@@ -14,8 +14,8 @@
     </scm>
 
     <modules>
-        <module>back</module>
-        <module>jmxtrans-gui</module>
+        <module>backend</module>
+        <module>frontend</module>
     </modules>
 
     <build>

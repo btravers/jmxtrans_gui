@@ -1,0 +1,64 @@
+<span>
+
+	<accordion-heading>
+    Query {{ queryIndex + 1 }} <span ng-show="query.obj">- {{ query.obj }}</span>
+  </accordion-heading>
+
+	<div class="row query-info">
+
+    <div class="form-group col-sm-8"
+         ng-class="{'has-error': server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')}">
+      <label class="control-label">Object</label>
+      <input type="text" class="form-control" ng-model="query.obj"
+             ng-change="nbTypeNames()"
+             ng-blur="suggestAttr()"
+             typeahead="name for name in getObjectNames() | filter:$viewValue | limitTo:10">
+
+      <p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')">The
+        submitted value is incorrect.</p>
+    </div>
+
+    <div class="form-group col-sm-4">
+      <label class="control-label">Result alias</label>
+      <input type="text" class="form-control" ng-model="query.resultAlias">
+    </div>
+
+    <hr ng-hide="!query.typeNames || query.typeNames.length == 0" class="col-sm-12">
+
+    <div ng-repeat="(i, typeName) in query.typeNames track by $index" class="form-group col-sm-4">
+      <label class="control-label">Type name {{ $index + 1 }}</label>
+      <input type="text" class="form-control" ng-model="query.typeNames[i]">
+    </div>
+
+    <hr class="col-sm-12">
+
+    <div ng-repeat="(i, attr) in query.attr track by $index" class="form-group col-sm-4">
+      <label class="control-label">Attribute {{ i + 1 }}</label>
+
+      <div class="form-inline">
+        <select class="form-control" ng-model="query.attr[i]">
+          <option ng-repeat="suggestion in attrSuggestions" ng-selected="suggestion.value == query.attr[i]">{{ suggestion.value }}</option>
+        </select>
+        <button type="button" class="btn btn-danger" ng-click="removeAttr(i)" popover-placement="right"
+                popover="Remove" popover-trigger="mouseenter">
+          <span class="fa fa-remove"></span>
+        </button>
+      </div>
+    </div>
+
+    <p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries[' + queryIndex + '].attr')">At least one
+      attribute must be supplied.</p>
+
+    <hr class="col-sm-12"/>
+
+    <span class="col-sm-12 text-right">
+      <button ng-show="attrSuggestions.length" class="btn btn-default" ng-click="addAttr()" style="display: inline-block;">Add an attribute</button>
+
+      <button class="btn btn-danger" ng-click="server.removeQuery(queryIndex)" style="display: inline-block;">Remove
+        query
+      </button>
+    </span>
+
+  </div>
+
+</span>
