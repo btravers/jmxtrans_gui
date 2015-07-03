@@ -8,7 +8,7 @@ This project provides a graphical interface for viewing and editing jmxtrans con
 
 ## Building
 
-Bower and Gulp are required for building this project. Once install, build the war using Maven:
+Once install, build the war using Maven:
 
     mvn clean install
 
