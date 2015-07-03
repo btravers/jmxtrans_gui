@@ -1,15 +1,15 @@
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo -e "Starting to update gh-pages\n"
 
-  cp -R coverage $HOME/coverage
+  cp -R backend/target $HOME/target
 
   cd $HOME
   git config --global user.email "travis@travis-ci.org"
   git config --global user.name "Travis"
-  git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/btravers/jmxtrans_gui.git  gh-pages > /dev/null
+  git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/btravers/btravers.github.io.git  gh-pages > /dev/null
 
   cd gh-pages
-  cp -Rf $HOME/coverage/* .
+  cp -Rf $HOME/target/*.war .
 
   git add -f .
   git commit -m "Travis build $TRAVIS_BUILD_NUMBER pushed to gh-pages"
