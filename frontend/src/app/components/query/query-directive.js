@@ -34,6 +34,7 @@
         $http(req)
           .success(function (response) {
             scope.attrSuggestions = [];
+            response.sort();
             angular.forEach(response, function (suggestion) {
               this.push({
                 value: suggestion
@@ -85,6 +86,7 @@
         $http(req)
           .success(function (response) {
             $scope.attrSuggestions = [];
+            response.sort();
             angular.forEach(response, function (suggestion) {
               this.push({
                 value: suggestion
