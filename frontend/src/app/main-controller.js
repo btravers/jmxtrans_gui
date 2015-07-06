@@ -5,7 +5,7 @@
     .module('jmxtransGui')
     .controller('Main', Main);
 
-  function Main($rootScope, $scope, $http, $modal, FileUploader, serverService, serverFactory, writerService, configService, suggestionService, ngToast, SweetAlert) {
+  function Main($rootScope, $scope, $http, $modal, $location, $anchorScroll, FileUploader, serverService, serverFactory, writerService, configService, suggestionService, ngToast, SweetAlert) {
 
     $scope.server = null;
     $scope.list = [];
@@ -96,6 +96,8 @@
         $scope.server.currentForm = $scope.jmxForm;
 
         suggestionService.setObjectNames(host, port);
+        $location.hash('top');
+        $anchorScroll();
       }, function () {
         ngToast.create({
           className: 'danger',
@@ -148,6 +150,8 @@
         $scope.server.currentForm = $scope.jmxForm;
 
         suggestionService.removeObjectNames();
+        $location.hash('top');
+        $anchorScroll();
       }, function () {
         ngToast.create({
           className: 'danger',

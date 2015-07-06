@@ -16,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class ObjectNameRepositoryImpl implements ObjectNameRepository {
@@ -85,10 +83,10 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
                         QueryBuilders.boolQuery()
                                 .must(QueryBuilders.termQuery("host", host))
                                 .must(QueryBuilders.termQuery("port", port))
-                                .must(QueryBuilders.termQuery("name", name)))
+                                .must(QueryBuilders.wildcardQuery("name", name)))
                 .execute().actionGet();
 
-        Collection<String> result = new ArrayList<>();
+        Set<String> result = new HashSet<>();
 
         for (SearchHit hit : response.getHits().getHits()) {
             if (hit.field("attributes") != null
