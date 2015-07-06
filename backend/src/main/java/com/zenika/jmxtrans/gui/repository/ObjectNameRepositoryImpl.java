@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zenika.jmxtrans.gui.AppConfig;
 import com.zenika.jmxtrans.gui.model.ObjectNameRepresentation;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Repository
 public class ObjectNameRepositoryImpl implements ObjectNameRepository {
@@ -37,12 +39,16 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
     }
 
     @Override
-    public void save(ObjectNameRepresentation objectName) throws JsonProcessingException {
-        logger.info("Saving objectname");
-        this.client.prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
-                .setRefresh(true)
-                .setSource(mapper.writeValueAsString(objectName))
-                .execute().actionGet();
+    public void save(List<ObjectNameRepresentation> objectNames) throws JsonProcessingException {
+        logger.info("Saving objectnames");
+
+        BulkRequestBuilder bulkRequestBuilder = this.client.prepareBulk().setRefresh(true);
+        for (ObjectNameRepresentation objectName : objectNames) {
+            bulkRequestBuilder.add(this.client.prepareIndex(AppConfig.INDEX, AppConfig.OBJECTNAME_TYPE)
+                    .setSource(mapper.writeValueAsString(objectName))
+            );
+        }
+        bulkRequestBuilder.execute().actionGet();
     }
 
     @Override

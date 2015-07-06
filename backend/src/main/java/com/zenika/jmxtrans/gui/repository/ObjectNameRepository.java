@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.zenika.jmxtrans.gui.model.ObjectNameRepresentation;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface ObjectNameRepository {
 
-    void save(ObjectNameRepresentation objectName) throws JsonProcessingException;
+    void save(List<ObjectNameRepresentation> objectNames) throws JsonProcessingException;
 
     Collection<String> prefixAttrSuggestion(String host, int port, String name);
 

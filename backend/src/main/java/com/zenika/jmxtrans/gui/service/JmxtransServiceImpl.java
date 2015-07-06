@@ -161,9 +161,7 @@ public class JmxtransServiceImpl implements JmxtransService {
         }
 
         this.objectNameRepository.delete(host, port);
-        for (ObjectNameRepresentation obj : objectnames) {
-            this.objectNameRepository.save(obj);
-        }
+        this.objectNameRepository.save(objectnames);
     }
 
     @Override
