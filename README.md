@@ -8,7 +8,7 @@ This project provides a graphical interface for viewing and editing jmxtrans con
 
 ## Building
 
-Once install, build the war using Maven:
+Build the war using Maven:
 
     mvn clean install
 
