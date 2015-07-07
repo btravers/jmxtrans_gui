@@ -108,7 +108,7 @@ public class ConfRepositoryImpl implements ConfRepository {
                                 .must(FilterBuilders.termFilter("servers.port", port)))
                 .execute().actionGet();
 
-        // When the method is called, the number of hits is always equal to 1.
+        // When the method is called, the number of hits should be equal to 1.
         if (searchResponse.getHits().getHits().length > 0) {
             Response response = new Response();
             Document document = null;
@@ -135,17 +135,17 @@ public class ConfRepositoryImpl implements ConfRepository {
 
             }
 
-            this.updateOne(response.getId(), document);
+            if (!toDelete.isEmpty()) {
+                this.updateOne(response.getId(), document);
 
-            for (String id : toDelete) {
-                this.deleteOne(id);
+                for (String id : toDelete) {
+                    this.deleteOne(id);
+                }
             }
 
             response.setSource(document);
             return response;
-
-            // No document for the given server
-        } else {
+        } else { // No document for the given server
             return new Response();
         }
     }
