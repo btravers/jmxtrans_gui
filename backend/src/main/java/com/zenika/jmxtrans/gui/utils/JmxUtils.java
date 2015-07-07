@@ -34,6 +34,7 @@ public class JmxUtils {
 
             List<ObjectNameRepresentation> result = new ArrayList();
 
+            logger.info("Retrieving MBeans using  " + url);
             Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
             for (ObjectName name : beanSet) {
                 ObjectNameRepresentation tmp = new ObjectNameRepresentation();
@@ -42,9 +43,19 @@ public class JmxUtils {
                 tmp.setName(name.toString());
 
                 List<String> attributes = new ArrayList();
-                for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name)
-                        .getAttributes()) {
-                    attributes.add(attr.getName());
+                logger.info("Retrieving attributes for MBeans " + name.toString());
+                try {
+                    for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name).getAttributes()) {
+                        attributes.add(attr.getName());
+                    }
+                } catch (InstanceNotFoundException e) {
+                    logger.error(e.getMessage());
+                } catch (IntrospectionException e) {
+                    logger.error(e.getMessage());
+                } catch (ReflectionException e) {
+                    logger.error(e.getMessage());
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
                 }
                 tmp.setAttributes(attributes);
                 result.add(tmp);
@@ -54,12 +65,6 @@ public class JmxUtils {
         } catch (MalformedURLException e) {
             logger.error(e.getMessage());
         } catch (IOException e) {
-            logger.error(e.getMessage());
-        } catch (InstanceNotFoundException e) {
-            logger.error(e.getMessage());
-        } catch (IntrospectionException e) {
-            logger.error(e.getMessage());
-        } catch (ReflectionException e) {
             logger.error(e.getMessage());
         } finally {
             if (jmxConnector != null) {
