@@ -72,7 +72,7 @@ public class AppConfig {
     @Profile("prod")
     public Client clientForProd() {
         logger.info("Elasticsearch client instantiation for prod");
-        Client client = null;
+        Client client;
         if (this.host.isEmpty()) {
             if (this.path.isEmpty()) {
                 this.path = this.tmpdir;

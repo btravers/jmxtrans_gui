@@ -18,7 +18,7 @@ public class JmxUtils {
 
     public static List<ObjectNameRepresentation> objectNames(String host, int port, String username, String password) {
         String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
-        JMXServiceURL serviceURL = null;
+        JMXServiceURL serviceURL;
         JMXConnector jmxConnector = null;
 
         try {
@@ -32,7 +32,7 @@ public class JmxUtils {
             }
             MBeanServerConnection mbeanConn = jmxConnector.getMBeanServerConnection();
 
-            List<ObjectNameRepresentation> result = new ArrayList();
+            List<ObjectNameRepresentation> result = new ArrayList<>();
 
             logger.info("Retrieving MBeans using  " + url);
             Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
@@ -42,7 +42,7 @@ public class JmxUtils {
                 tmp.setPort(port);
                 tmp.setName(name.toString());
 
-                List<String> attributes = new ArrayList();
+                List<String> attributes = new ArrayList<>();
                 logger.info("Retrieving attributes for MBeans " + name.toString());
                 try {
                     for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name).getAttributes()) {
