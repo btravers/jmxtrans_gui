@@ -1,14 +1,11 @@
 package com.zenika.jmxtrans.gui.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import com.zenika.jmxtrans.gui.model.*;
-import com.zenika.jmxtrans.gui.repository.ObjectNameRepository;
+import com.zenika.jmxtrans.gui.repository.MBeanInformation;
 import com.zenika.jmxtrans.gui.repository.SettingsRepository;
 import com.zenika.jmxtrans.gui.utils.JmxUtils;
 import com.zenika.jmxtrans.gui.repository.ConfRepository;
@@ -19,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import javax.management.MalformedObjectNameException;
+
 @Service
 public class JmxtransServiceImpl implements JmxtransService {
 
@@ -26,7 +25,7 @@ public class JmxtransServiceImpl implements JmxtransService {
 
     private ConfRepository confRepository;
     private SettingsRepository settingsRepository;
-    private ObjectNameRepository objectNameRepository;
+    private MBeanInformation MBeanInformation;
 
     @Autowired
     public void setConfRepository(ConfRepository confRepository) {
@@ -39,8 +38,8 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Autowired
-    public void setObjectNameRepository(ObjectNameRepository objectNameRepository) {
-        this.objectNameRepository = objectNameRepository;
+    public void setMBeanInformation(MBeanInformation MBeanInformation) {
+        this.MBeanInformation = MBeanInformation;
     }
 
     @Override
@@ -67,7 +66,7 @@ public class JmxtransServiceImpl implements JmxtransService {
     @Override
     public void deleteDocument(String host, int port) {
         this.confRepository.delete(host, port);
-        this.objectNameRepository.delete(host, port);
+        this.MBeanInformation.delete(host, port);
     }
 
     @Override
@@ -160,18 +159,24 @@ public class JmxtransServiceImpl implements JmxtransService {
             return;
         }
 
-        this.objectNameRepository.delete(host, port);
-        this.objectNameRepository.save(objectnames);
+        this.MBeanInformation.delete(host, port);
+        this.MBeanInformation.save(objectnames);
     }
 
     @Override
-    public Collection<String> prefixNameSuggestion(String host, int port) {
-        return this.objectNameRepository.prefixNameSuggestion(host, port);
+    public Collection<String> objectNames(String host, int port) {
+        return this.MBeanInformation.getObjectNames(host, port);
     }
 
     @Override
-    public Collection<String> prefixAttrSuggestion(String host, int port, String name) {
-        return this.objectNameRepository.prefixAttrSuggestion(host, port, name);
+    public Collection<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException {
+        Collection<String> objectnames = this.MBeanInformation.getObjectName(objectname);
+
+        Set<String> attributes = new HashSet<>();
+        for (String obj : objectnames) {
+            attributes.addAll(JmxUtils.attributes(host, port, username, password, obj));
+        }
+        return attributes;
     }
 
 }

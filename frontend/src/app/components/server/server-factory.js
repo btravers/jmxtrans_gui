@@ -15,6 +15,8 @@
       vm.server = {
         port: null,
         host: null,
+        username: null,
+        password: null,
         queries: []
       };
       vm.validJMXHost = false;

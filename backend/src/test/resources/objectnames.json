@@ -1,0 +1,17 @@
+[
+  {
+    "host": "localhost",
+    "port": 9991,
+    "name": "java.lang:type=Memory"
+  },
+  {
+    "host": "localhost",
+    "port": 9991,
+    "name": "java.lang:type=Threadingy"
+  },
+  {
+    "host": "localhost",
+    "port": 9991,
+    "name": "Catalina:type=ThreadPool,name=\"http-bio-8501\""
+  }
+]

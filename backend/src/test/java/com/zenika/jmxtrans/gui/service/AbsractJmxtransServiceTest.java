@@ -112,7 +112,7 @@ public abstract class AbsractJmxtransServiceTest {
 //        response = this.jmxtransService.findDocumentByHostAndPort("localhost", 9991);
 //        Assertions.assertThat(response.getId()).isNullOrEmpty();
 //
-//        Collection<String> objectnames = this.jmxtransService.prefixNameSuggestion("localhost", 9991);
+//        Collection<String> objectnames = this.jmxtransService.getObjectNames("localhost", 9991);
 //        Assertions.assertThat(objectnames).isEmpty();
 //    }
 
@@ -159,28 +159,13 @@ public abstract class AbsractJmxtransServiceTest {
         names.add("java.lang:type=Threadingy");
         names.add("Catalina:type=ThreadPool,name=\"http-bio-8501\"");
 
-        Collection<String> objectnames = this.jmxtransService.prefixNameSuggestion("localhost", 9991);
+        Collection<String> objectnames = this.jmxtransService.objectNames("localhost", 9991);
 
         Assertions.assertThat(objectnames).isNotEmpty();
         Assertions.assertThat(objectnames).containsAll(names);
 
-        objectnames = this.jmxtransService.prefixNameSuggestion("192.168.0.1", 9991);
+        objectnames = this.jmxtransService.objectNames("192.168.0.1", 9991);
         Assertions.assertThat(objectnames).isEmpty();
-    }
-
-    @Test
-    public void  shouldFindAttrSuggestion() {
-        List<String> attributes = new ArrayList<>();
-        attributes.add("HeapMemoryUsage");
-        attributes.add("NonHeapMemoryUsage");
-
-        Collection<String> attr = this.jmxtransService.prefixAttrSuggestion("localhost", 9991, "java.lang:type=Memory");
-
-        Assertions.assertThat(attr).isNotEmpty();
-        Assertions.assertThat(attr).containsAll(attributes);
-
-        attr = this.jmxtransService.prefixAttrSuggestion("localhost", 9991, "yolo");
-        Assertions.assertThat(attr).isEmpty();
     }
 
 //    @Test

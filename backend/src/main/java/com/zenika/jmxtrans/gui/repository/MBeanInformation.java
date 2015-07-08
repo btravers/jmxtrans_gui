@@ -6,13 +6,13 @@ import com.zenika.jmxtrans.gui.model.ObjectNameRepresentation;
 import java.util.Collection;
 import java.util.List;
 
-public interface ObjectNameRepository {
+public interface MBeanInformation {
 
     void save(List<ObjectNameRepresentation> objectNames) throws JsonProcessingException;
 
-    Collection<String> prefixAttrSuggestion(String host, int port, String name);
+    Collection<String> getObjectNames(String host, int port);
 
-    Collection<String> prefixNameSuggestion(String host, int port);
+    Collection<String> getObjectName(String name);
 
     void delete(String host, int port);
 

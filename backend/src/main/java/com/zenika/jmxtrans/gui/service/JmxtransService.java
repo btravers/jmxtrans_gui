@@ -10,6 +10,8 @@ import com.zenika.jmxtrans.gui.model.Document;
 import com.zenika.jmxtrans.gui.model.OutputWriter;
 import com.zenika.jmxtrans.gui.model.Response;
 
+import javax.management.MalformedObjectNameException;
+
 public interface JmxtransService {
 
     Collection<Map<String, Object>> findAllHostsAndPorts();
@@ -28,9 +30,9 @@ public interface JmxtransService {
 
     void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException;
 
-    Collection<String> prefixAttrSuggestion(String host, int port, String name);
-
-    Collection<String> prefixNameSuggestion(String host, int port);
+    Collection<String> objectNames(String host, int port);
 
     void refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException;
+
+    Collection<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException;
 }

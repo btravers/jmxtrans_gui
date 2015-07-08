@@ -37,7 +37,7 @@ public class JmxtransServiceElasticsearchTest extends AbsractJmxtransServiceTest
 
     @Override
     public void setUp() {
-        InputStream writer = getClass().getResourceAsStream("/test/bluefloodWriter.json");
+        InputStream writer = getClass().getResourceAsStream("/bluefloodWriter.json");
         try {
             this.client.prepareIndex(AppConfig.INDEX, AppConfig.SETTINGS_TYPE, AppConfig.SETTINGS_ID)
                     .setSource(IOUtils.toString(writer))
@@ -46,7 +46,7 @@ public class JmxtransServiceElasticsearchTest extends AbsractJmxtransServiceTest
             e.printStackTrace();
         }
 
-        InputStream server1 = getClass().getResourceAsStream("/test/document1.json");
+        InputStream server1 = getClass().getResourceAsStream("/document1.json");
         try {
             this.client.prepareIndex(AppConfig.INDEX, AppConfig.CONF_TYPE)
                     .setSource(IOUtils.toString(server1))
@@ -55,7 +55,7 @@ public class JmxtransServiceElasticsearchTest extends AbsractJmxtransServiceTest
             e.printStackTrace();
         }
 
-        InputStream server2 = getClass().getResourceAsStream("/test/document2.json");
+        InputStream server2 = getClass().getResourceAsStream("/document2.json");
         try {
             this.client.prepareIndex(AppConfig.INDEX, AppConfig.CONF_TYPE)
                     .setSource(IOUtils.toString(server2))
@@ -66,7 +66,7 @@ public class JmxtransServiceElasticsearchTest extends AbsractJmxtransServiceTest
 
         ObjectNameRepresentation[] objectnames = new ObjectNameRepresentation[0];
         try {
-            objectnames = this.mapper.readValue(getClass().getResourceAsStream("/test/objectnames.json"), ObjectNameRepresentation[].class);
+            objectnames = this.mapper.readValue(getClass().getResourceAsStream("/objectnames.json"), ObjectNameRepresentation[].class);
         } catch (IOException e) {
             e.printStackTrace();
         }

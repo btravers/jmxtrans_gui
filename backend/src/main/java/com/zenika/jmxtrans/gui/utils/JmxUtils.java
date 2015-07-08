@@ -42,22 +42,6 @@ public class JmxUtils {
                 tmp.setPort(port);
                 tmp.setName(name.toString());
 
-                List<String> attributes = new ArrayList<>();
-                logger.info("Retrieving attributes for MBeans " + name.toString());
-                try {
-                    for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name).getAttributes()) {
-                        attributes.add(attr.getName());
-                    }
-                } catch (InstanceNotFoundException e) {
-                    logger.error(e.getMessage());
-                } catch (IntrospectionException e) {
-                    logger.error(e.getMessage());
-                } catch (ReflectionException e) {
-                    logger.error(e.getMessage());
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-                tmp.setAttributes(attributes);
                 result.add(tmp);
             }
 
@@ -77,5 +61,49 @@ public class JmxUtils {
         }
 
         return new ArrayList<>();
+    }
+
+    public static List<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException {
+        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
+        JMXServiceURL serviceURL;
+        JMXConnector jmxConnector;
+
+        ObjectName name = new ObjectName(objectname);
+
+        try {
+            serviceURL = new JMXServiceURL(url);
+
+            if (username != null && password != null) {
+                Map<String, Object> env = new HashMap<>();
+                env.put(JMXConnector.CREDENTIALS, new String[]{username, password});
+                jmxConnector = JMXConnectorFactory.connect(serviceURL, env);
+            } else {
+                jmxConnector = JMXConnectorFactory.connect(serviceURL);
+            }
+            MBeanServerConnection mbeanConn = jmxConnector.getMBeanServerConnection();
+
+            List<String> attributes = new ArrayList<>();
+            logger.info("Retrieving attributes for MBeans " + name.toString());
+            try {
+                if (mbeanConn.isRegistered(name)) {
+                    for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name).getAttributes()) {
+                        attributes.add(attr.getName());
+                    }
+                }
+            } catch (InstanceNotFoundException e) {
+                logger.error(e.getMessage());
+            } catch (IntrospectionException e) {
+                logger.error(e.getMessage());
+            } catch (ReflectionException e) {
+                logger.error(e.getMessage());
+            }
+            return attributes;
+        } catch (MalformedURLException e) {
+            logger.error(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+
+        return Collections.emptyList();
     }
 }

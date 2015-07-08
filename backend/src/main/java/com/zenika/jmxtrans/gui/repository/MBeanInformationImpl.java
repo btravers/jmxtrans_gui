@@ -19,9 +19,9 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-public class ObjectNameRepositoryImpl implements ObjectNameRepository {
+public class MBeanInformationImpl implements MBeanInformation {
 
-    private static final Logger logger = LoggerFactory.getLogger(ObjectNameRepositoryImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(MBeanInformationImpl.class);
 
     private Client client;
     private ObjectMapper mapper;
@@ -50,7 +50,7 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
     }
 
     @Override
-    public Collection<String> prefixNameSuggestion(String host, int port) {
+    public Collection<String> getObjectNames(String host, int port) {
         logger.info("Retrieving object names");
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
@@ -74,26 +74,23 @@ public class ObjectNameRepositoryImpl implements ObjectNameRepository {
     }
 
     @Override
-    public Collection<String> prefixAttrSuggestion(String host, int port, String name) {
-        logger.info("Retrieving attribute names");
+    public Collection<String> getObjectName(String name) {
+        logger.info("Replacing *");
+
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
-                .addFields("attributes")
                 .setQuery(
-                        QueryBuilders.boolQuery()
-                                .must(QueryBuilders.termQuery("host", host))
-                                .must(QueryBuilders.termQuery("port", port))
-                                .must(QueryBuilders.wildcardQuery("name", name)))
+                        QueryBuilders.wildcardQuery("name", name)
+                )
+                .addAggregation(
+                        AggregationBuilders.terms("names").field("name").size(0)
+                )
                 .execute().actionGet();
 
-        Set<String> result = new HashSet<>();
-
-        for (SearchHit hit : response.getHits().getHits()) {
-            if (hit.field("attributes") != null
-                    && hit.field("attributes").getValues() != null) {
-                for (Object value : hit.field("attributes").getValues())
-                    result.add(value.toString());
-            }
+        Collection<String> result = new ArrayList<>();
+        Terms agg = response.getAggregations().get("names");
+        for (Terms.Bucket bucket : agg.getBuckets()) {
+            result.add(bucket.getKey());
         }
 
         return result;

@@ -25,7 +25,9 @@
           params: {
             host: scope.server.server.host,
             port: scope.server.server.port,
-            name: scope.query.obj
+            username: scope.server.server.username,
+            password: scope.server.server.password,
+            objectname: scope.query.obj
           }
         };
 
@@ -75,7 +77,9 @@
           params: {
             host: $scope.server.server.host,
             port: $scope.server.server.port,
-            name: $scope.query.obj
+            username: $scope.server.server.username,
+            password: $scope.server.server.password,
+            objectname: $scope.query.obj
           }
         };
 

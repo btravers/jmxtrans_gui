@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import javax.management.MalformedObjectNameException;
 import javax.validation.Valid;
 
 import com.zenika.jmxtrans.gui.exception.JmxtransException;
@@ -263,7 +264,7 @@ public class JmxtransController {
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port) {
         logger.info("GET request: /autocomplete/name");
-        return this.jmxtransService.prefixNameSuggestion(host, port);
+        return this.jmxtransService.objectNames(host, port);
     }
 
     @RequestMapping(value = "/autocomplete/attr", method = RequestMethod.GET)
@@ -271,9 +272,17 @@ public class JmxtransController {
     public Collection<String> prefixAttrSuggestion(
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port,
-            @RequestParam(value = "name", required = true) String name) {
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "password", required = false) String password,
+            @RequestParam(value = "objectname", required = true) String objectname) throws JmxtransException {
         logger.info("GET request: /autocomplete/attr");
-        return this.jmxtransService.prefixAttrSuggestion(host, port, name);
+        try {
+            logger.info("GET request: /autocomplete/attr");
+            return this.jmxtransService.attributes(host, port, username, password, objectname);
+        } catch (MalformedObjectNameException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        }
     }
 
 }

@@ -9,24 +9,24 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 public class ObjectNameRepresentation {
 
-    @NotNull @NotEmpty
-    private String host;
-    @NotNull @NotEmpty
-    private Integer port;
-    @NotNull @NotEmpty
-    private String name;
+    @NotNull
     @NotEmpty
-    @Valid
-    private Collection<String> attributes;
+    private String host;
+    @NotNull
+    @NotEmpty
+    private Integer port;
+    @NotNull
+    @NotEmpty
+    private String name;
 
     public String getHost() {
-	return host;
+        return host;
     }
 
     public void setHost(String host) {
-	this.host = host;
+        this.host = host;
     }
-    
+
     public Integer getPort() {
         return port;
     }
@@ -36,19 +36,11 @@ public class ObjectNameRepresentation {
     }
 
     public String getName() {
-	return name;
+        return name;
     }
 
     public void setName(String name) {
-	this.name = name;
-    }
-
-    public Collection<String> getAttributes() {
-	return attributes;
-    }
-
-    public void setAttributes(Collection<String> attributes) {
-	this.attributes = attributes;
+        this.name = name;
     }
 
 }
