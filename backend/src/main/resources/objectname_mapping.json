@@ -1,9 +1,5 @@
 {
     "properties": {
-       "attributes": {
-          "type": "string",
-          "index": "not_analyzed"
-       },
        "host": {
           "type": "string",
           "index": "not_analyzed"

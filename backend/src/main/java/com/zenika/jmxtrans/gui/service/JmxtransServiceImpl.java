@@ -152,20 +152,22 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public void refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException {
+    public boolean refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException {
         List<ObjectNameRepresentation> objectnames = JmxUtils.objectNames(host, port, username, password);
 
-        if (objectnames.isEmpty()) {
-            return;
+        if (objectnames == null) {
+            return false;
         }
 
         this.MBeanInformation.delete(host, port);
         this.MBeanInformation.save(objectnames);
+
+        return true;
     }
 
     @Override
-    public Collection<String> objectNames(String host, int port) {
-        return this.MBeanInformation.getObjectNames(host, port);
+    public Collection<String> objectNames(String host, int port, String obj) {
+        return this.MBeanInformation.getObjectNames(host, port, obj);
     }
 
     @Override
@@ -179,4 +181,8 @@ public class JmxtransServiceImpl implements JmxtransService {
         return attributes;
     }
 
+    @Override
+    public boolean existJMXAgent(String host, int port, String username, String password) {
+        return JmxUtils.existJMXAgent(host, port, username, password);
+    }
 }

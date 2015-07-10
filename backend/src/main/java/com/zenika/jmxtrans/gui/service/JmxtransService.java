@@ -30,9 +30,11 @@ public interface JmxtransService {
 
     void updateSettings(OutputWriter settings) throws IOException, ExecutionException, InterruptedException;
 
-    Collection<String> objectNames(String host, int port);
+    Collection<String> objectNames(String host, int port, String obj);
 
-    void refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException;
+    boolean refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException;
 
     Collection<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException;
+
+    boolean existJMXAgent(String host, int port, String username, String password);
 }

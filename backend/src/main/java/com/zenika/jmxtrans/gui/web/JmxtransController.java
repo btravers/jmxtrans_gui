@@ -238,14 +238,14 @@ public class JmxtransController {
 
     @RequestMapping(value = "/autocomplete/load", method = RequestMethod.GET)
     @ResponseBody
-    public void loadObjectNames(
+    public boolean loadObjectNames(
             @RequestParam(value = "host", required = true) String host,
             @RequestParam(value = "port", required = true) int port,
             @RequestParam(value = "username", required = false) String username,
             @RequestParam(value = "password", required = false) String password) throws JmxtransException {
         logger.info("GET request: /autocomplete/load");
         try {
-            this.jmxtransService.refreshObjectNames(host, port, username, password);
+            return this.jmxtransService.refreshObjectNames(host, port, username, password);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());
@@ -262,9 +262,10 @@ public class JmxtransController {
     @ResponseBody
     public Collection<String> prefixNameSuggestion(
             @RequestParam(value = "host", required = true) String host,
-            @RequestParam(value = "port", required = true) int port) {
+            @RequestParam(value = "port", required = true) int port,
+            @RequestParam(value = "obj", required = true) String obj) {
         logger.info("GET request: /autocomplete/name");
-        return this.jmxtransService.objectNames(host, port);
+        return this.jmxtransService.objectNames(host, port, obj);
     }
 
     @RequestMapping(value = "/autocomplete/attr", method = RequestMethod.GET)
@@ -285,4 +286,13 @@ public class JmxtransController {
         }
     }
 
+    @RequestMapping(value = "/server/exist", method = RequestMethod.GET)
+    @ResponseBody
+    public boolean existJMXAgent(
+            @RequestParam(value = "host", required = true) String host,
+            @RequestParam(value = "port", required = true) int port,
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "password", required = false) String password) {
+        return this.jmxtransService.existJMXAgent(host, port, username, password);
+    }
 }

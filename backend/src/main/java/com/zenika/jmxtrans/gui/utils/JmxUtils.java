@@ -16,6 +16,42 @@ public class JmxUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JmxUtils.class);
 
+    public static boolean existJMXAgent(String host, int port, String username, String password) {
+        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
+        JMXServiceURL serviceURL;
+        JMXConnector jmxConnector = null;
+        try {
+            serviceURL = new JMXServiceURL(url);
+            if (username != null && password != null) {
+                Map<String, Object> env = new HashMap<>();
+                env.put(JMXConnector.CREDENTIALS, new String[]{username, password});
+                jmxConnector = JMXConnectorFactory.connect(serviceURL, env);
+            } else {
+                jmxConnector = JMXConnectorFactory.connect(serviceURL);
+            }
+
+            if (jmxConnector.getConnectionId() != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (jmxConnector != null) {
+                try {
+                    jmxConnector.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+
+        return false;
+    }
+
     public static List<ObjectNameRepresentation> objectNames(String host, int port, String username, String password) {
         String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
         JMXServiceURL serviceURL;
@@ -60,7 +96,7 @@ public class JmxUtils {
             }
         }
 
-        return new ArrayList<>();
+        return null;
     }
 
     public static List<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException {

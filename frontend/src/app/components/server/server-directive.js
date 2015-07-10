@@ -17,17 +17,41 @@
       templateUrl: 'app/components/server/server.html'
     };
 
-    function controller($scope, $http, suggestionService, configService) {
-      $scope.validJMXHost = validJMXHost;
+    function controller($scope, $http, configService) {
+      $scope.valid = false;
+
       $scope.loadObjectnames = loadObjectnames;
 
-      function validJMXHost() {
-        return suggestionService.getObjectNames() && suggestionService.getObjectNames().length != 0;
-      }
+      $scope.$watch(function($scope) {
+        return $scope.server;
+      }, function(server) {
+        if (!server || !server.server.host || !server.server.port) {
+          return;
+        }
+
+        var req = {
+          method: 'GET',
+          url: 'server/exist',
+          params: {
+            host:server.server.host,
+            port: server.server.port,
+            username: server.server.username,
+            password: server.server.password
+          }
+        };
+
+        req.url = configService.getUrl() + req.url;
+
+        $http(req)
+          .success(function (response) {
+            $scope.valid = response
+          })
+          .error(function () {
+            $scope.valid = false;
+          });
+      });
 
       function loadObjectnames() {
-        console.log('loadObjectnames');
-
         if (!$scope.server.server.host || !$scope.server.server.port) {
           return;
         }
@@ -46,11 +70,11 @@
         req.url = configService.getUrl() + req.url;
 
         $http(req)
-          .success(function () {
-            suggestionService.setObjectNames($scope.server.server.host, $scope.server.server.port);
+          .success(function (response) {
+            $scope.valid = response;
           })
           .error(function () {
-
+            $scope.valid = false;
           });
       }
 

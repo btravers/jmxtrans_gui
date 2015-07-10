@@ -5,7 +5,7 @@
     .module('jmxtransGui')
     .controller('Main', Main);
 
-  function Main($rootScope, $scope, $http, $modal, $location, $anchorScroll, FileUploader, serverService, serverFactory, writerService, configService, suggestionService, ngToast, SweetAlert) {
+  function Main($rootScope, $scope, $http, $modal, $location, $anchorScroll, FileUploader, serverService, serverFactory, writerService, configService, ngToast, SweetAlert) {
 
     $scope.server = null;
     $scope.list = [];
@@ -83,8 +83,6 @@
     function createServer() {
       $scope.server = new serverFactory();
       $scope.server.currentForm = $scope.jmxForm;
-
-      suggestionService.removeObjectNames();
     }
 
     function displayServer(host, port) {
@@ -95,7 +93,6 @@
         $scope.server.saved = true;
         $scope.server.currentForm = $scope.jmxForm;
 
-        suggestionService.setObjectNames(host, port);
         $location.hash('top');
         $anchorScroll();
       }, function () {
@@ -149,7 +146,6 @@
         $scope.server.server.password = null;
         $scope.server.currentForm = $scope.jmxForm;
 
-        suggestionService.removeObjectNames();
         $location.hash('top');
         $anchorScroll();
       }, function () {

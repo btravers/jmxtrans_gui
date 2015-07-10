@@ -10,9 +10,9 @@
          ng-class="{'has-error': server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')}">
       <label class="control-label">Object</label>
       <input type="text" class="form-control" ng-model="query.obj"
-             ng-change="nbTypeNames()"
+             ng-change="nbTypeNames(); getObjectNames()"
              ng-blur="suggestAttr()"
-             typeahead="name for name in getObjectNames() | filter:$viewValue | limitTo:10">
+             typeahead="name for name in names | filter:$viewValue | limitTo:10">
 
       <p class="text-danger" ng-show="server.showErrorMessage('servers[0].queries[' + queryIndex + '].obj')">The
         submitted value is incorrect.</p>
@@ -52,7 +52,7 @@
     <hr class="col-sm-12"/>
 
     <span class="col-sm-12 text-right">
-      <button ng-show="attrSuggestions.length" class="btn btn-default" ng-click="addAttr()" style="display: inline-block;">Add an attribute</button>
+      <button class="btn btn-default" ng-click="addAttr()" style="display: inline-block;">Add an attribute</button>
 
       <button class="btn btn-danger" ng-click="server.removeQuery(queryIndex)" style="display: inline-block;">Remove
         query

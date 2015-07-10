@@ -152,21 +152,21 @@ public abstract class AbsractJmxtransServiceTest {
 //        Assertions.assertThat(outputWriter.getSettings().get("port")).isEqualTo(2003);
 //    }
 
-    @Test
-    public void shouldFindNameSuggestion() {
-        List<String> names = new ArrayList<>();
-        names.add("java.lang:type=Memory");
-        names.add("java.lang:type=Threadingy");
-        names.add("Catalina:type=ThreadPool,name=\"http-bio-8501\"");
-
-        Collection<String> objectnames = this.jmxtransService.objectNames("localhost", 9991);
-
-        Assertions.assertThat(objectnames).isNotEmpty();
-        Assertions.assertThat(objectnames).containsAll(names);
-
-        objectnames = this.jmxtransService.objectNames("192.168.0.1", 9991);
-        Assertions.assertThat(objectnames).isEmpty();
-    }
+//    @Test
+//    public void shouldFindNameSuggestion() {
+//        List<String> names = new ArrayList<>();
+//        names.add("java.lang:type=Memory");
+//        names.add("java.lang:type=Threadingy");
+//        names.add("Catalina:type=ThreadPool,name=\"http-bio-8501\"");
+//
+//        Collection<String> objectnames = this.jmxtransService.objectNames("localhost", 9991);
+//
+//        Assertions.assertThat(objectnames).isNotEmpty();
+//        Assertions.assertThat(objectnames).containsAll(names);
+//
+//        objectnames = this.jmxtransService.objectNames("192.168.0.1", 9991);
+//        Assertions.assertThat(objectnames).isEmpty();
+//    }
 
 //    @Test
 //    public void shouldUploadDocument() throws IOException, ExecutionException, InterruptedException {

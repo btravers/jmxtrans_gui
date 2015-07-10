@@ -50,14 +50,15 @@ public class MBeanInformationImpl implements MBeanInformation {
     }
 
     @Override
-    public Collection<String> getObjectNames(String host, int port) {
+    public Collection<String> getObjectNames(String host, int port, String obj) {
         logger.info("Retrieving object names");
         SearchResponse response = this.client.prepareSearch(AppConfig.INDEX)
                 .setTypes(AppConfig.OBJECTNAME_TYPE)
                 .setQuery(
                         QueryBuilders.boolQuery()
                                 .must(QueryBuilders.termQuery("host", host))
-                                .must(QueryBuilders.termQuery("port", port)))
+                                .must(QueryBuilders.termQuery("port", port))
+                                .must(QueryBuilders.prefixQuery("name", obj)))
                 .addAggregation(
                         AggregationBuilders.terms("names").field("name")
                                 .order(Terms.Order.term(true)).size(0))

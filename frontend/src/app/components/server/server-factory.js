@@ -5,7 +5,7 @@
     .module('jmxtransGui')
     .factory('serverFactory', serverFactory);
 
-  function serverFactory($rootScope, $http, serverService, writerService, configService, formErrorHandler, ngToast) {
+  function serverFactory($rootScope, serverService, writerService, formErrorHandler, ngToast) {
 
     var Server = function () {
       var vm = this;
@@ -19,7 +19,6 @@
         password: null,
         queries: []
       };
-      vm.validJMXHost = false;
 
       vm.removeQuery = removeQuery;
       vm.addQuery = addQuery;

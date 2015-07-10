@@ -10,7 +10,7 @@ public interface MBeanInformation {
 
     void save(List<ObjectNameRepresentation> objectNames) throws JsonProcessingException;
 
-    Collection<String> getObjectNames(String host, int port);
+    Collection<String> getObjectNames(String host, int port, String obj);
 
     Collection<String> getObjectName(String name);
 

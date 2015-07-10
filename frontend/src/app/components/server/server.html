@@ -10,7 +10,7 @@
 
       <div class="row server-basic-info">
 
-        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].host'), 'has-success': validJMXHost()}">
+        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].host'), 'has-success': valid}">
           <label class="control-label">Host</label>
           <input type="text" class="form-control" ng-model="server.server.host" ng-blur="loadObjectnames()">
 
@@ -18,7 +18,7 @@
             incorrect.</p>
         </div>
 
-        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].port'), 'has-success': validJMXHost()}">
+        <div class="form-group col-sm-6" ng-class="{'has-error': server.showErrorMessage('servers[0].port'), 'has-success': valid}">
           <label class="control-label">Port</label>
           <input type="text" class="form-control" ng-model="server.server.port" ng-blur="loadObjectnames()">
 

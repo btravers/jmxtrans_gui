@@ -15,7 +15,7 @@
         queryIndex: '=index'
       },
       link: function (scope) {
-        if (!scope.server.server.host || !scope.server.server.port) {
+        if (!scope.server.server.host || !scope.server.server.port || !scope.query.obj) {
           return;
         }
 
@@ -44,16 +44,18 @@
             }, scope.attrSuggestions);
           })
           .error(function () {
-            scope.attrSuggestions = []
+            scope.attrSuggestions = [];
           });
       },
       controller: controller,
       templateUrl: 'app/components/query/query.html'
     };
 
-    function controller($scope, $http, configService, suggestionService) {
+    function controller($scope, $http, configService, ngToast) {
 
       $scope.attrSuggestions = [];
+
+      $scope.names = [];
 
       $scope.getObjectNames = getObjectNames;
       $scope.suggestAttr = suggestAttr;
@@ -63,7 +65,33 @@
       $scope.nbTypeNames = nbTypeNames;
 
       function getObjectNames() {
-        return suggestionService.getObjectNames();
+        if (!$scope.query.obj) {
+          $scope.names = [];
+        }
+
+        var req = {
+          method: 'GET',
+          url: 'autocomplete/name',
+          params: {
+            host: $scope.server.server.host,
+            port: $scope.server.server.port,
+            obj: $scope.query.obj
+          }
+        };
+
+        req.url = configService.getUrl() + req.url;
+
+        $http(req)
+          .success(function (response) {
+            $scope.names = response || [];
+          })
+          .error(function () {
+            ngToast.create({
+              className: 'danger',
+              content: 'An error occurred when suggestion obj'
+            });
+            $scope.names = [];
+          });
       }
 
       function suggestAttr() {
