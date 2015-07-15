@@ -67,6 +67,7 @@
       function getObjectNames() {
         if (!$scope.query.obj) {
           $scope.names = [];
+          return;
         }
 
         var req = {

@@ -1,6 +1,7 @@
 package com.zenika.jmxtrans.gui.utils;
 
 import com.zenika.jmxtrans.gui.model.ObjectNameRepresentation;
+import com.zenika.jmxtrans.gui.model.Suggest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +78,10 @@ public class JmxUtils {
                 tmp.setHost(host);
                 tmp.setPort(port);
                 tmp.setName(name.toString());
+                Suggest suggest = new Suggest();
+                suggest.setInput(Arrays.asList(name.toString()));
+                suggest.setOutput(name.toString());
+                tmp.setSuggest(name.toString());
 
                 result.add(tmp);
             }

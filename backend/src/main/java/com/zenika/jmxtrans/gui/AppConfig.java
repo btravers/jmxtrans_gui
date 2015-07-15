@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -34,7 +36,7 @@ public class AppConfig {
     public static final String INDEX = ".jmxtrans";
     public static final String CONF_TYPE = "conf";
     public static final String OBJECTNAME_TYPE = "objectname";
-    public static final String SETTINGS_TYPE = "get";
+    public static final String SETTINGS_TYPE = "writer";
     public static final String SETTINGS_ID = "writer";
 
     @Value("${elasticsearch.host:}")
@@ -74,7 +76,9 @@ public class AppConfig {
         logger.info("Elasticsearch client instantiation for prod");
         Client client;
         if (this.host.isEmpty()) {
+            logger.info("Starting a new ElasticSearch instance");
             if (this.path.isEmpty()) {
+                logger.info("ElasticSearch path: " + this.tmpdir);
                 this.path = this.tmpdir;
             }
             Node node = NodeBuilder
@@ -94,6 +98,7 @@ public class AppConfig {
                                     .build()).node();
             client = node.client();
         } else {
+            logger.info("Connecting to ElasticSearch cluster: " + this.host);
             client = new TransportClient();
             String[] host = this.host.split(":");
             TransportAddress address = new InetSocketTransportAddress(host[0],
@@ -102,8 +107,7 @@ public class AppConfig {
         }
 
         try {
-            client.admin().indices().create(new CreateIndexRequest(INDEX))
-                    .actionGet();
+            InputStream settings = getClass().getResourceAsStream("/settings.json");
 
             InputStream confMapping = getClass().getResourceAsStream("/conf_mapping.json");
             InputStream objectnameMapping = getClass().getResourceAsStream("/objectname_mapping.json");
@@ -111,20 +115,15 @@ public class AppConfig {
 
             ObjectMapper mapper = this.objectMapper();
 
-            client.admin().indices().preparePutMapping(INDEX)
-                    .setType(CONF_TYPE)
-                    .setSource(mapper.readValue(confMapping, Map.class))
+            client.admin().indices().prepareCreate(INDEX)
+                    .setSettings(mapper.readValue(settings, Map.class))
+                    .addMapping(CONF_TYPE, mapper.readValue(confMapping, Map.class))
+                    .addMapping(OBJECTNAME_TYPE, mapper.readValue(objectnameMapping, Map.class))
+                    .addMapping(SETTINGS_TYPE, mapper.readValue(settingsMapping, Map.class))
                     .execute().actionGet();
-            client.admin().indices().preparePutMapping(INDEX)
-                    .setType(OBJECTNAME_TYPE)
-                    .setSource(mapper.readValue(objectnameMapping, Map.class))
-                    .execute().actionGet();
-            client.admin().indices().preparePutMapping(INDEX)
-                    .setType(SETTINGS_TYPE)
-                    .setSource(mapper.readValue(settingsMapping, Map.class))
-                    .execute().actionGet();
+
         } catch (ElasticsearchException e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -144,26 +143,18 @@ public class AppConfig {
         Client client = node.client();
 
         try {
-            client.admin().indices().create(new CreateIndexRequest(INDEX))
-                    .actionGet();
+            InputStream settings = getClass().getResourceAsStream("/settings.json");
 
             InputStream confMapping = getClass().getResourceAsStream("/conf_mapping.json");
             InputStream objectnameMapping = getClass().getResourceAsStream("/objectname_mapping.json");
             InputStream settingsMapping = getClass().getResourceAsStream("/settings_mapping.json");
-
             ObjectMapper mapper = this.objectMapper();
 
-            client.admin().indices().preparePutMapping(INDEX)
-                    .setType(CONF_TYPE)
-                    .setSource(mapper.readValue(confMapping, Map.class))
-                    .execute().actionGet();
-            client.admin().indices().preparePutMapping(INDEX)
-                    .setType(OBJECTNAME_TYPE)
-                    .setSource(mapper.readValue(objectnameMapping, Map.class))
-                    .execute().actionGet();
-            client.admin().indices().preparePutMapping(INDEX)
-                    .setType(SETTINGS_TYPE)
-                    .setSource(mapper.readValue(settingsMapping, Map.class))
+            client.admin().indices().prepareCreate(INDEX)
+                    .setSettings(mapper.readValue(settings, Map.class))
+                    .addMapping(CONF_TYPE, mapper.readValue(confMapping, Map.class))
+                    .addMapping(OBJECTNAME_TYPE, mapper.readValue(objectnameMapping, Map.class))
+                    .addMapping(SETTINGS_TYPE, mapper.readValue(settingsMapping, Map.class))
                     .execute().actionGet();
         } catch (ElasticsearchException e) {
             logger.info(e.getMessage());

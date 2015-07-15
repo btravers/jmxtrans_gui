@@ -54,7 +54,7 @@
           <li class="server-item" ng-repeat="item in list" role="presentation">
             <div class="row">
               <div class="col-sm-7">
-                <button class="btn btn-link" ng-click="unSavedChanges(displayServer, item.host, item.port)"
+                <button name="{{ item.host }}:{{ item.port }}" class="btn btn-link open-document" ng-click="unSavedChanges(displayServer, item.host, item.port)"
                         popover="{{ item.host }}:{{ item.port }}" popover-trigger="mouseenter">
                   {{ printServer(item.host, item.port) }}
                 </button>
@@ -69,7 +69,7 @@
                         style="display: inline-block;" popover="Duplicate" popover-trigger="mouseenter">
                   <span class="fa fa-copy"></span>
                 </button>
-                <button class="btn btn-link" ng-click="deleteConfirmation(item.host, item.port)"
+                <button name="{{ item.host }}:{{ item.port }}" class="btn btn-link delete-document" ng-click="deleteConfirmation(item.host, item.port)"
                         style="display: inline-block;" popover="Delete" popover-trigger="mouseenter">
                   <span class="fa fa-trash"></span>
                 </button>

@@ -13,6 +13,15 @@
         <tag>HEAD</tag>
     </scm>
 
+    <profiles>
+        <profile>
+            <id>serenity</id>
+            <modules>
+                <module>serenity</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <modules>
         <module>backend</module>
         <module>frontend</module>
