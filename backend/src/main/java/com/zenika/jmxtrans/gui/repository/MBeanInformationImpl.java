@@ -76,12 +76,13 @@ public class MBeanInformationImpl implements MBeanInformation {
                                 .must(QueryBuilders.termQuery("host", host))
                                 .must(QueryBuilders.termQuery("port", port))
                 )
+                .setSize(0)
                 .addAggregation(
                         AggregationBuilders
                                 .terms("names")
                                 .field("name")
                                 .order(Terms.Order.term(true))
-                                .size(0))
+                                .size(20))
                 .execute().actionGet();
 
         Collection<String> result = new ArrayList<>();
