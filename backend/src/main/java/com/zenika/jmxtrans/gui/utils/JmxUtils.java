@@ -128,9 +128,7 @@ public class JmxUtils {
             try {
                 if (mbeanConn.isRegistered(name)) {
                     for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name).getAttributes()) {
-                        if (! attr.getName().equals("ObjectName")) {
-                            attributes.add(attr.getName());
-                        }
+                        attributes.add(attr.getName());
                     }
                 }
             } catch (InstanceNotFoundException e) {
