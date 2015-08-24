@@ -32,9 +32,9 @@ public interface JmxtransService {
 
     Collection<String> objectNames(String host, int port, String obj);
 
-    boolean refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException;
+    boolean refreshObjectNames(String host, int port, String username, String password) throws Exception;
 
-    Collection<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException;
+    Collection<String> attributes(String host, int port, String username, String password, String objectname) throws Exception;
 
     boolean existJMXAgent(String host, int port, String username, String password);
 }

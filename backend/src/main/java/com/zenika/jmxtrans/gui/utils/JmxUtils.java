@@ -17,61 +17,15 @@ public class JmxUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JmxUtils.class);
 
-    public static boolean existJMXAgent(String host, int port, String username, String password) {
-        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
-        JMXServiceURL serviceURL;
-        JMXConnector jmxConnector = null;
+    public static List<ObjectNameRepresentation> objectNames(JMXConnector jmxConnector, String host, int port) {
+
+        MBeanServerConnection mbeanConn = null;
         try {
-            serviceURL = new JMXServiceURL(url);
-            if (username != null && password != null) {
-                Map<String, Object> env = new HashMap<>();
-                env.put(JMXConnector.CREDENTIALS, new String[]{username, password});
-                jmxConnector = JMXConnectorFactory.connect(serviceURL, env);
-            } else {
-                jmxConnector = JMXConnectorFactory.connect(serviceURL);
-            }
-
-            if (jmxConnector.getConnectionId() != null) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (jmxConnector != null) {
-                try {
-                    jmxConnector.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public static List<ObjectNameRepresentation> objectNames(String host, int port, String username, String password) {
-        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
-        JMXServiceURL serviceURL;
-        JMXConnector jmxConnector = null;
-
-        try {
-            serviceURL = new JMXServiceURL(url);
-            if (username != null && password != null) {
-                Map<String, Object> env = new HashMap<>();
-                env.put(JMXConnector.CREDENTIALS, new String[]{username, password});
-                jmxConnector = JMXConnectorFactory.connect(serviceURL, env);
-            } else {
-                jmxConnector = JMXConnectorFactory.connect(serviceURL);
-            }
-            MBeanServerConnection mbeanConn = jmxConnector.getMBeanServerConnection();
+            mbeanConn = jmxConnector.getMBeanServerConnection();
 
             List<ObjectNameRepresentation> result = new ArrayList<>();
 
-            logger.info("Retrieving MBeans using  " + url);
+            logger.info("Retrieving MBeans using  " + host + ":" + port);
             Set<ObjectName> beanSet = mbeanConn.queryNames(null, null);
             for (ObjectName name : beanSet) {
                 ObjectNameRepresentation tmp = new ObjectNameRepresentation();
@@ -87,61 +41,36 @@ public class JmxUtils {
             }
 
             return result;
-        } catch (MalformedURLException e) {
-            logger.error(e.getMessage());
         } catch (IOException e) {
             logger.error(e.getMessage());
-        } finally {
-            if (jmxConnector != null) {
-                try {
-                    jmxConnector.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
-                }
-            }
         }
 
         return null;
     }
 
-    public static List<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException {
-        String url = "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
-        JMXServiceURL serviceURL;
-        JMXConnector jmxConnector;
+    public static List<String> attributes(JMXConnector jmxConnector, String host, int port, String objectname) throws MalformedObjectNameException {
 
-        ObjectName name = new ObjectName(objectname);
-
+        MBeanServerConnection mbeanConn = null;
         try {
-            serviceURL = new JMXServiceURL(url);
+            mbeanConn = jmxConnector.getMBeanServerConnection();
 
-            if (username != null && password != null) {
-                Map<String, Object> env = new HashMap<>();
-                env.put(JMXConnector.CREDENTIALS, new String[]{username, password});
-                jmxConnector = JMXConnectorFactory.connect(serviceURL, env);
-            } else {
-                jmxConnector = JMXConnectorFactory.connect(serviceURL);
-            }
-            MBeanServerConnection mbeanConn = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName(objectname);
 
             List<String> attributes = new ArrayList<>();
             logger.info("Retrieving attributes for MBeans " + name.toString());
-            try {
-                if (mbeanConn.isRegistered(name)) {
-                    for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name).getAttributes()) {
-                        attributes.add(attr.getName());
-                    }
+            if (mbeanConn.isRegistered(name)) {
+                for (MBeanAttributeInfo attr : mbeanConn.getMBeanInfo(name).getAttributes()) {
+                    attributes.add(attr.getName());
                 }
-            } catch (InstanceNotFoundException e) {
-                logger.error(e.getMessage());
-            } catch (IntrospectionException e) {
-                logger.error(e.getMessage());
-            } catch (ReflectionException e) {
-                logger.error(e.getMessage());
             }
             return attributes;
-        } catch (MalformedURLException e) {
-            logger.error(e.getMessage());
         } catch (IOException e) {
+            logger.error(e.getMessage());
+        } catch (IntrospectionException e) {
+            logger.error(e.getMessage());
+        } catch (ReflectionException e) {
+            logger.error(e.getMessage());
+        } catch (InstanceNotFoundException e) {
             logger.error(e.getMessage());
         }
 

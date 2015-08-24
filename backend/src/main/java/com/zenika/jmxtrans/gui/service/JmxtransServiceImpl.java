@@ -7,8 +7,10 @@ import java.util.concurrent.ExecutionException;
 import com.zenika.jmxtrans.gui.model.*;
 import com.zenika.jmxtrans.gui.repository.MBeanInformation;
 import com.zenika.jmxtrans.gui.repository.SettingsRepository;
+import com.zenika.jmxtrans.gui.utils.JMXAgent;
 import com.zenika.jmxtrans.gui.utils.JmxUtils;
 import com.zenika.jmxtrans.gui.repository.ConfRepository;
+import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.management.MalformedObjectNameException;
+import javax.management.remote.JMXConnector;
 
 @Service
 public class JmxtransServiceImpl implements JmxtransService {
@@ -26,6 +29,7 @@ public class JmxtransServiceImpl implements JmxtransService {
     private ConfRepository confRepository;
     private SettingsRepository settingsRepository;
     private MBeanInformation MBeanInformation;
+    private GenericKeyedObjectPool<JMXAgent, JMXConnector> genericKeyedObjectPool;
 
     @Autowired
     public void setConfRepository(ConfRepository confRepository) {
@@ -40,6 +44,11 @@ public class JmxtransServiceImpl implements JmxtransService {
     @Autowired
     public void setMBeanInformation(MBeanInformation MBeanInformation) {
         this.MBeanInformation = MBeanInformation;
+    }
+
+    @Autowired
+    public void setGenericKeyedObjectPool(GenericKeyedObjectPool<JMXAgent, JMXConnector> genericKeyedObjectPool) {
+        this.genericKeyedObjectPool = genericKeyedObjectPool;
     }
 
     @Override
@@ -152,8 +161,16 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public boolean refreshObjectNames(String host, int port, String username, String password) throws JsonProcessingException, InterruptedException, ExecutionException {
-        List<ObjectNameRepresentation> objectnames = JmxUtils.objectNames(host, port, username, password);
+    public boolean refreshObjectNames(String host, int port, String username, String password) throws Exception {
+        JMXAgent jmxAgent = new JMXAgent();
+        jmxAgent.setHost(host);
+        jmxAgent.setPort(port);
+        jmxAgent.setUsername(username);
+        jmxAgent.setPassword(password);
+
+        JMXConnector jmxConnector = this.genericKeyedObjectPool.borrowObject(jmxAgent);
+
+        List<ObjectNameRepresentation> objectnames = JmxUtils.objectNames(jmxConnector, host, port);
 
         if (objectnames == null) {
             return false;
@@ -171,18 +188,42 @@ public class JmxtransServiceImpl implements JmxtransService {
     }
 
     @Override
-    public Collection<String> attributes(String host, int port, String username, String password, String objectname) throws MalformedObjectNameException {
+    public Collection<String> attributes(String host, int port, String username, String password, String objectname) throws Exception {
         Collection<String> objectnames = this.MBeanInformation.getObjectName(objectname);
+
+        JMXAgent jmxAgent = new JMXAgent();
+        jmxAgent.setHost(host);
+        jmxAgent.setPort(port);
+        jmxAgent.setUsername(username);
+        jmxAgent.setPassword(password);
+
+        JMXConnector jmxConnector = this.genericKeyedObjectPool.borrowObject(jmxAgent);
 
         Set<String> attributes = new HashSet<>();
         for (String obj : objectnames) {
-            attributes.addAll(JmxUtils.attributes(host, port, username, password, obj));
+            attributes.addAll(JmxUtils.attributes(jmxConnector, host, port, obj));
         }
         return attributes;
     }
 
     @Override
     public boolean existJMXAgent(String host, int port, String username, String password) {
-        return JmxUtils.existJMXAgent(host, port, username, password);
+        JMXAgent jmxAgent = new JMXAgent();
+        jmxAgent.setHost(host);
+        jmxAgent.setPort(port);
+        jmxAgent.setUsername(username);
+        jmxAgent.setPassword(password);
+
+        try {
+            JMXConnector jmxConnector = this.genericKeyedObjectPool.borrowObject(jmxAgent);
+
+            if (jmxConnector != null) {
+                return true;
+            }
+        } catch (Exception e) {
+
+        }
+
+        return false;
     }
 }

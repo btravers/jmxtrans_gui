@@ -255,6 +255,9 @@ public class JmxtransController {
         } catch (ExecutionException e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
         }
     }
 
@@ -281,6 +284,9 @@ public class JmxtransController {
             logger.info("GET request: /autocomplete/attr");
             return this.jmxtransService.attributes(host, port, username, password, objectname);
         } catch (MalformedObjectNameException e) {
+            logger.error(e.getMessage());
+            throw new JmxtransException(e.getMessage());
+        } catch (Exception e) {
             logger.error(e.getMessage());
             throw new JmxtransException(e.getMessage());
         }

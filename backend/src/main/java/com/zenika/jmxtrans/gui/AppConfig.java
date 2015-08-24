@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.zenika.jmxtrans.gui.utils.JMXAgent;
+import com.zenika.jmxtrans.gui.utils.SocketFactory;
+import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -24,6 +27,8 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import javax.management.remote.JMXConnector;
 
 @Configuration
 @ComponentScan({"com.zenika.jmxtrans.gui.service", "com.zenika.jmxtrans.gui.repository"})
@@ -66,6 +71,19 @@ public class AppConfig {
     public MultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
     }
+
+    @Bean
+    public GenericKeyedObjectPool<JMXAgent, JMXConnector>  genericKeyedObjectPool() {
+        GenericKeyedObjectPool<JMXAgent, JMXConnector> pool = new GenericKeyedObjectPool<>(new SocketFactory());
+        pool.setTestOnBorrow(true);
+        pool.setMaxActive(-1);
+        pool.setMaxIdle(-1);
+        pool.setTimeBetweenEvictionRunsMillis(1000 * 60 * 5);
+        pool.setMinEvictableIdleTimeMillis(1000 * 60 * 5);
+
+        return pool;
+    }
+
 
     @Bean(name = "client")
     @Profile("prod")
